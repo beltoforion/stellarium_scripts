@@ -202,7 +202,8 @@ Constellation.prototype.StartTour = function()
     if (tourItems!=null)
     {
         print("--> Starting tour of objects of interest.")
-        for (i=0; i<tourItems.length; i++)
+        var i = 0;        
+        for (i = 0; i<tourItems.length; i++)
         {
             if (tourItems[i]==null)
                 continue;
@@ -378,32 +379,17 @@ function main()
         ])
     ];
 
+    var i = 0;
     for (i=0; i<constellations.length; i++)
     {
         var c = constellations[i];
+        print("xx> i=" + i + "; constellation=\"" + c.displayName + "\"");
         if (c != null)
         {
             c.StartTour();
             GoHome(6, 2, 2);
         }
     }
-
-/*
-    ShowConstellation(constellations[0]);
-    GoHome(6, 2, 2);
-    ShowConstellation(constellations[1]);
-    GoHome(6, 2, 2);
-    ShowConstellation(constellations[2]);
-    GoHome(6, 2, 2);
-    ShowConstellation(constellations[3]);
-    GoHome(6, 2, 2);
-    ShowConstellation(constellations[4]);
-    GoHome(6, 2, 2);
-    ShowConstellation(constellations[5]);
-    GoHome(6, 2, 2);
-    ShowConstellation(constellations[6]);
-    GoHome(6, 2, 2);
-*/
 
     Cleanup();
 }
