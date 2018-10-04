@@ -5,346 +5,375 @@
 // Name: Kaleidoskop Sternenhimmel
 // Description: Berechnung des Sternenhimmels
 
+param_az = 90.0
+param_alt = 35.0
+param_lat = 50.911944
+param_long = 13.34277
 
-    param_az = 90.0
-    param_alt = 35.0
-    param_lat = 50.911944
-    param_long = 13.34277
+function Setup()
+{
+    // Wait... Stellarium needs to start completely. Otherwise it would override the script settings
+    core.wait(2);
+    core.debug("Setting up environment");
 
-    function Setup()
-    {
-        // Wait... Stellarium needs to start completely. Otherwise it would override the script settings
-        core.wait(2);
-        core.debug("Setting up environment");
-
-	    SolarSystem.setFlagPlanets(true);
-	    SolarSystem.setMoonScale(6);
-	    SolarSystem.setFlagMoonScale(true);
-	    SolarSystem.setFontSize(25);
-	    
-	    StelSkyDrawer.setAbsoluteStarScale(1.2);
-	    StelSkyDrawer.setRelativeStarScale(1.25);
-
-	    StarMgr.setFontSize(20);
-	    StarMgr.setLabelsAmount(3);
-
-        StelMovementMgr.setAutoMoveDuration(5);
-
-	    ConstellationMgr.setFlagLines(false);
-	    ConstellationMgr.setFlagLabels(false);
-	    ConstellationMgr.setArtIntensity(0.3);
-	    ConstellationMgr.setFlagArt(false);
-	    ConstellationMgr.setFlagBoundaries(false);
-	    ConstellationMgr.setConstellationLineThickness(2);
-	    ConstellationMgr.setFontSize(32);
-        ConstellationMgr.setFlagConstellationPick(true);
-        ConstellationMgr.setFlagIsolateSelected(true);  
-
-        SporadicMeteorMgr.setFlagShow(true);
-        SporadicMeteorMgr.setZHR(20000);
-
-        core.setGuiVisible(false);
-	    core.setMilkyWayVisible(true);
-	    core.setMilkyWayIntensity(3);
-        core.setObserverLocation(param_long, param_lat, 425, 1, "Freiberg", "Earth");
-
-	    LandscapeMgr.setFlagAtmosphere(true);
-        LandscapeMgr.setCurrentLandscapeName("Freiberg");
-        LandscapeMgr.setFlagLandscapeUseMinimalBrightness(true);
-    }
-
-    function Intro()
-    {
-        core.debug("Showing Intro");
-        core.setDate("2018-10-25T20:00:00", "utc");
-
-	    StarMgr.setLabelsAmount(0);
-        SolarSystem.setFlagLabels(false);
-
-        labelTitle = LabelMgr.labelScreen("Sternbilder des Herbstes", 250, 750, false, 70, "#66ccff");
-        LabelMgr.setLabelShow(labelTitle, true);
-
-        labelTitle = LabelMgr.labelScreen("Himmel über Sachsen", 250, 850, false, 40, "#66ccff");
-        LabelMgr.setLabelShow(labelTitle, true);
-
-        core.moveToAltAzi(10, 270)
-        GoHome(15, 0, 10);
-        LabelMgr.deleteAllLabels();
-    }
-
-    function GoHome(delay, zoomDelay, moveDelay)
-    {
-        print("--> Moving to home postion");
-        StelMovementMgr.zoomTo(90, zoomDelay);
-        core.moveToAltAzi(20, 130, moveDelay)
-        core.wait(delay);
-    }
-
-    function ShowConstellation(c)
-    {
-        date = c.date;
-        constellationName = c.name;
-        displayName = c.displayName;
-        fov1 = c.fov1;
-        fov2 = c.fov2;
-        ooi = c.items;
-
-        print("--> Showing constellation " + constellationName + "(" + displayName + ")");
-
-        ConstellationMgr.setFlagIsolateSelected(true);  
-        ConstellationMgr.setFlagConstellationPick(true);
-
-	    StarMgr.setLabelsAmount(3);
-        SolarSystem.setFlagLabels(true);
-
-        core.setDate(date, "utc");
-
-        // Show constellation overview
-        ShowConstellationOverview(constellationName, displayName, fov1, 4, 7)
-
-        // Zoom out to show Constellation art
-    	StelMovementMgr.zoomTo(fov2,1);
-    	core.wait(1);
-    	ConstellationMgr.setFlagArt(true);
-    	core.wait(8);
-        
-        // Hide constellation Art, zoom back to normal
-    	ConstellationMgr.setFlagArt(false);
-    	StelMovementMgr.zoomTo(fov1,1);
-
-        // Show Objects of interes for this constellation
-        for (i=0; i<ooi.length; i++)
-        {
-            ShowObjectOfInterest(constellationName, fov1, ooi[i]);
-            ShowConstellationOverview(constellationName, displayName, fov1, 0, 4);
-        }
-
-        // Grafiken abschalten
-    	ConstellationMgr.setFlagArt(false);
-	    ConstellationMgr.setFlagLabels(false);
-	    ConstellationMgr.setFlagLines(false);
-	    ConstellationMgr.setFlagBoundaries(false);
-        ConstellationMgr.setFlagIsolateSelected(false);  
-        ConstellationMgr.setFlagConstellationPick(false);
-
-        // Selection abwählen
-        ConstellationMgr.deselectConstellations();
-
-        LabelMgr.deleteAllLabels();
-
-        GoHome(6, 2, 2);
-    }
-   
-    function ShowConstellationOverview(searchkey, displayName, fov, delay1, delay2)
-    {
-        ConstellationMgr.setFlagIsolateSelected(true);  
-    	core.selectObjectByName(searchkey, false);
-
-    	StelMovementMgr.autoZoomIn(6);
-    	StelMovementMgr.zoomTo(fov,2);
-        core.wait(delay1);
-
-        // Show constellation label
-        label = LabelMgr.labelScreen(displayName, 70, 50, false, 50, "#66ccff");
-        LabelMgr.setLabelShow(label, true);
-
-	    ConstellationMgr.setFlagLabels(true);
-	    ConstellationMgr.setFlagBoundaries(true);
-	    ConstellationMgr.setFlagLines(true);
-    	core.wait(delay2);
-    }
-
-    function ShowObjectOfInterest(constellation, fov, obj)
-    { 
-        name = obj.name;
-        desc = obj.desc;
-
-        print("Zeige " + name)
-        print("(" + desc + ")")
-
-       	ConstellationMgr.setFlagArt(false);
-	    ConstellationMgr.setFlagLabels(false);
-	    ConstellationMgr.setFlagLines(false);
-	    ConstellationMgr.setFlagBoundaries(false);
-
-        label = LabelMgr.labelScreen(name, 70, 110, false, 30, "#99ccff");
-        LabelMgr.setLabelShow(label, true);
-
-        labelDesc = LabelMgr.labelScreen(desc, 70, 950, false, 50, "#99ccff");
-        LabelMgr.setLabelShow(labelDesc, true);
-
-    	core.selectObjectByName(name, true);
-        core.setSelectedObjectInfo("ShortInfo");
-    	core.wait(3);
-
-        LandscapeMgr.setFlagFog(false);
-  	    StelMovementMgr.autoZoomIn(3);
-    	core.wait(10);
-
-        if (obj.action!=null)
-        {
-            obj.action();
-        }
-
-        LabelMgr.deleteLabel(label);
-        LabelMgr.deleteLabel(labelDesc);
-  	    StelMovementMgr.autoZoomOut(3);
-        LandscapeMgr.setFlagFog (true);
-    }
-
-    // 
-    // Try to undo script settings that will mess up stellariums expected opertation
-    //
-
-    function Cleanup()
-    {
-        core.wait(5);
-
-        ConstellationMgr.setFlagIsolateSelected(false);  
-        ConstellationMgr.setFlagConstellationPick(false);
-        ConstellationMgr.deselectConstellations();
-
-        core.setGuiVisible(true);
-    }
-
-    //
-    // Custom Actions for some constellations
-    //
-
-    function CustomActionPolaris()
-    {
-        GridLinesMgr.setFlagEquatorGrid(true);
-    	StelMovementMgr.zoomTo(100,2);
-
-	    core.setTimeRate(2000); 
-        core.wait(10);
-
-	    core.setTimeRate(100); 
-        GridLinesMgr.setFlagEquatorGrid(false);
-    }
-
-    function CustomActionAndromeda()
-    {
-    	StelMovementMgr.zoomTo(3,2);
-        core.wait(10);
-    }
-
-    function CustomActionShowGalacticEquator()
-    {
-        GridLinesMgr.setFlagGalacticEquatorLine(true);
-        core.wait(2);
-        GridLinesMgr.setFlagGalacticEquatorLine(true);
-    }
-
-    //
-    // Constellation Constructor
-    //
-
-    function Constellation(date, searchkey, displayname, fov1, fov2, objects)
-    {
-        this.date = date;
-        this.name = searchkey;
-        this.displayName = displayname;
-        this.fov1 = fov1;
-        this.fov2 = fov2;
-        this.items = objects;
-    }
-
-    //
-    // Item of interest constructor
-    //
-
-    function ItemOfInterest(name, desc, action)
-    {
-        this.name = name;
-        this.desc = desc;
-        this.action = action;
-    }
-
-    //
-    // Main script entry Point
-    //
-
-    function main()
-    {
-        Setup()
-
-        Intro();
-
-        core.setTimeRate(100); 
-
-        var constellations = [
-
-            new Constellation("2018-10-25T20:00:00", "Mirfak", "Sternbild Perseus", 45, 45, 
-            [
-                new ItemOfInterest("NGC1499", "Kalifornien Nebel - Emmissionsnebel aus ionisiertem Wasserstoff (1000 Lj)"),
-                new ItemOfInterest("NGC884", "Chi Persei - Offener Doppelsternhaufen (6781 Lj)")
-            ]),
-
-            new Constellation("2018-10-25T20:01:30", "Cassiopeia", "Sternbild Kassiopeia", 35, 35, 
-            [
-                new ItemOfInterest("M103", "Offener Sternhaufen M103 (8500 Lj)"),
-                new ItemOfInterest("M52", "Blasennebel (7100 Lj) und offener Sternhaufen M52 (4600 Lj)"),
-                new ItemOfInterest("LBN667", "Seelennebel - Emmissionsnebel aus ionisiertem Wasserstoff (7500 Lj)"),
-                new ItemOfInterest("IC1805", "Herznebel - Emmissionsnebel aus ionisiertem Wasserstoff (7500 Lj)"),
-                new ItemOfInterest("NGC281", "Emissionsnebel aus ionisiertem Wasserstoff (9500 Lj)")
-            ]),
-
-            new Constellation("2018-10-25T22:02:22", "Ursa Major", "Sternbild Großer Bär", 40, 50, 
-            [
-                new ItemOfInterest("M51", "Whirlpool-Galaxie und Begleitgalaxie"),
-                new ItemOfInterest("M101", "Feuerrad-Galaxie"),
-                new ItemOfInterest("M97", "Eulennebel - Ein Stern stößt seine Hülle ab."),
-                new ItemOfInterest("M108", "Spiralgalaxie M108"),
-                new ItemOfInterest("M81", "Spiralgalaxien M81 und M82")
-            ]),
+    SolarSystem.setFlagPlanets(true);
+    SolarSystem.setMoonScale(6);
+    SolarSystem.setFlagMoonScale(true);
+    SolarSystem.setFontSize(25);
     
-            new Constellation("2018-10-25T22:02:22", "Ursa Minor", "Sternbild Kleiner Bär", 32, 32, 
-            [
-                new ItemOfInterest("Polaris", "Polarstern - Der Himmelsnordpol", CustomActionPolaris)
-            ]),
+    StelSkyDrawer.setAbsoluteStarScale(1.2);
+    StelSkyDrawer.setRelativeStarScale(1.25);
 
-            new Constellation("2018-10-25T22:02:22", "Lyra", "Sternbild Leier", 25, 25, 
-            [
-                new ItemOfInterest("M57", "Ringnebel M57 - Die abgestoßenen Hülle eines sterbenden Sterns")
-            ]),
+    StarMgr.setFontSize(20);
+    StarMgr.setLabelsAmount(3);
 
-            new Constellation("2018-10-25T21:00:00", "Cygnus", "Sternbild Schwan", 45, 45, 
-            [
-                new ItemOfInterest("NGC7000", "Nordamerikanebel"),
-                new ItemOfInterest("M39", "Offener Sternhaufen M39"),
-                new ItemOfInterest("NGC6960", "Cirrusnebel"),
-                new ItemOfInterest("LBN203", "Emmissionsnebel (4700 Lichtjahre)")
-            ]),
+    StelMovementMgr.setAutoMoveDuration(5);
 
-            new Constellation("2018-10-25T20:00:00", "Andromeda", "Sternbild Andromeda", 35, 35, 
-            [
-                new ItemOfInterest("M31", "Andromedagalaxie - Hellste Galaxie am Nachthimmel (2.5 Mio Lj)", CustomActionAndromeda)
-            ]),
+    ConstellationMgr.setFlagLines(false);
+    ConstellationMgr.setFlagLabels(false);
+    ConstellationMgr.setArtIntensity(0.3);
+    ConstellationMgr.setFlagArt(false);
+    ConstellationMgr.setFlagBoundaries(false);
+    ConstellationMgr.setConstellationLineThickness(2);
+    ConstellationMgr.setFontSize(32);
+    ConstellationMgr.setFlagConstellationPick(true);
+    ConstellationMgr.setFlagIsolateSelected(true);  
 
-            new Constellation("2018-10-25T20:00:00", "1 Tri", "Sternbild Dreieck", 25, 25, 
-            [
-                new ItemOfInterest("M33", "Dreiecksgalaxie - Zweithellste Galaxie am Nachthimmel (2.67 Mio Lj)")
-            ]),
+    SporadicMeteorMgr.setFlagShow(true);
+    SporadicMeteorMgr.setZHR(20000);
+
+    core.setGuiVisible(false);
+    core.setMilkyWayVisible(true);
+    core.setMilkyWayIntensity(3);
+    core.setObserverLocation(param_long, param_lat, 425, 1, "Freiberg", "Earth");
+
+    LandscapeMgr.setFlagAtmosphere(true);
+    LandscapeMgr.setCurrentLandscapeName("Freiberg");
+    LandscapeMgr.setFlagLandscapeUseMinimalBrightness(true);
+}
+
+function Intro()
+{
+    core.debug("Showing Intro");
+    core.setDate("2018-10-25T20:00:00", "utc");
+
+    StarMgr.setLabelsAmount(0);
+    SolarSystem.setFlagLabels(false);
+
+    labelTitle = LabelMgr.labelScreen("Sternbilder des Herbstes", 250, 750, false, 70, "#66ccff");
+    LabelMgr.setLabelShow(labelTitle, true);
+
+    labelTitle = LabelMgr.labelScreen("Himmel über Sachsen", 250, 850, false, 40, "#66ccff");
+    LabelMgr.setLabelShow(labelTitle, true);
+
+    core.moveToAltAzi(10, 270)
+    GoHome(15, 0, 10);
+    LabelMgr.deleteAllLabels();
+}
+
+function GoHome(delay, zoomDelay, moveDelay)
+{
+    print("--> Moving to home postion");
+    StelMovementMgr.zoomTo(90, zoomDelay);
+    core.moveToAltAzi(20, 130, moveDelay)
+    core.wait(delay);
+}
+
+function ShowConstellation(c)
+{
+    date = c.date;
+    constellationName = c.name;
+    displayName = c.displayName;
     
-            // workaround for a bug in Stellarium 0.18.2: Use "1 Her" as the name not "Hercules". That will show gemini.
-            new Constellation("2018-10-25T20:00:00", "1 Her", "Sternbild Herkules", 55, 55, 
-            [
-                new ItemOfInterest("M13", "Herkuleshaufen - Kugelsternhaufen"),
-                new ItemOfInterest("M92", "Kugelsternhaufen")
-            ])
-        ];
+    print("--> Showing constellation " + constellationName + " (" + displayName + ")");
 
-        ShowConstellation(constellations[0]);
-        ShowConstellation(constellations[1]);
-        ShowConstellation(constellations[2]);
-        ShowConstellation(constellations[3]);
-        ShowConstellation(constellations[4]);
-        ShowConstellation(constellations[5]);
-        ShowConstellation(constellations[6]);
+    ConstellationMgr.setFlagIsolateSelected(true);  
+    ConstellationMgr.setFlagConstellationPick(true);
 
-        Cleanup();
+    StarMgr.setLabelsAmount(3);
+    SolarSystem.setFlagLabels(true);
+
+    core.setDate(date, "utc");
+
+    // Show constellation overview
+    c.ShowOverview(4, 7);
+
+    // Zoom out to show Constellation art
+	StelMovementMgr.zoomTo(c.fov2,1);
+	core.wait(1);
+	ConstellationMgr.setFlagArt(true);
+	core.wait(8);
+    
+    // Hide constellation Art, zoom back to normal
+	ConstellationMgr.setFlagArt(false);
+	StelMovementMgr.zoomTo(c.fov1,1);
+
+    // Show Objects of interes for this constellation
+    var tourItems = c.items;
+    if (tourItems!=null)
+    {
+        print("---> Starting tour of objects of interest.")
+        for (i=0; i<tourItems.length; i++)
+        {
+            if (tourItems[i]==null)
+                continue;
+
+            tourItems[i].Show();
+            c.ShowOverview(0, 4);
+        }
     }
+    else
+    {
+        print("---> No tour items found; Skipping objects ofinterest.")
+    }
+
+    // Grafiken abschalten
+	ConstellationMgr.setFlagArt(false);
+    ConstellationMgr.setFlagLabels(false);
+    ConstellationMgr.setFlagLines(false);
+    ConstellationMgr.setFlagBoundaries(false);
+    ConstellationMgr.setFlagIsolateSelected(false);  
+    ConstellationMgr.setFlagConstellationPick(false);
+
+    // Selection abwählen
+    ConstellationMgr.deselectConstellations();
+
+    LabelMgr.deleteAllLabels();
+
+    GoHome(6, 2, 2);
+}
+
+// 
+// Try to undo script settings that will mess up stellariums expected opertation
+//
+
+function Cleanup()
+{
+    core.wait(5);
+
+    ConstellationMgr.setFlagIsolateSelected(false);  
+    ConstellationMgr.setFlagConstellationPick(false);
+    ConstellationMgr.deselectConstellations();
+
+    core.setGuiVisible(true);
+}
+
+//
+// Custom Actions for some constellations
+//
+
+function CustomActionPolaris()
+{
+    GridLinesMgr.setFlagEquatorGrid(true);
+	StelMovementMgr.zoomTo(100,2);
+
+    core.setTimeRate(2000); 
+    core.wait(10);
+
+    core.setTimeRate(100); 
+    GridLinesMgr.setFlagEquatorGrid(false);
+}
+
+function CustomActionAndromeda()
+{
+	StelMovementMgr.zoomTo(3,2);
+    core.wait(10);
+}
+
+function CustomActionShowGalacticEquator()
+{
+    GridLinesMgr.setFlagGalacticEquatorLine(true);
+    core.wait(2);
+    GridLinesMgr.setFlagGalacticEquatorLine(true);
+}
+
+//
+// Constellation Constructor
+//
+
+function Constellation(date, searchkey, displayname, fov1, fov2, objects)
+{
+    this.date = date;
+    this.name = searchkey;
+    this.displayName = displayname;
+    this.fov1 = fov1;
+    this.fov2 = fov2;
+    this.items = objects;
+}
+
+// Show overview of the constellation with caption, lines and boundaries
+Constellation.prototype.ShowOverview = function(delay1, delay2)
+{
+    print("--> Showing constellation overview " + constellationName + " (" + displayName + ")");
+
+    ConstellationMgr.setFlagIsolateSelected(true);  
+	core.selectObjectByName(this.name, false);
+
+	StelMovementMgr.autoZoomIn(6);
+	StelMovementMgr.zoomTo(this.fov1,2);
+    core.wait(delay1);
+
+    // Show constellation label
+    label = LabelMgr.labelScreen(this.displayName, 70, 50, false, 50, "#66ccff");
+    LabelMgr.setLabelShow(label, true);
+
+    ConstellationMgr.setFlagLabels(true);
+    ConstellationMgr.setFlagBoundaries(true);
+    ConstellationMgr.setFlagLines(true);
+	core.wait(delay2);
+}
+
+//
+// Item of interest constructor
+//
+
+function ItemOfInterest(name, desc, actionBefore, actionAfter)
+{
+    // Variables
+    this.name = name;
+    this.desc = desc;
+
+    this.actionBefore = actionBefore
+    this.actionAfter = actionAfter
+}
+
+ItemOfInterest.prototype.onAfterShowAction = function()
+{
+    print("--> Executing Item.onAfterShowAction (" + this.name + ")");
+    if (this.actionAfter!=null)
+    {
+        this.actionAfter();
+    }
+
+    LabelMgr.deleteLabel(label);
+    LabelMgr.deleteLabel(labelDesc);
+}
+
+ItemOfInterest.prototype.onBeforeShowAction = function()
+{
+    print("--> Executing Item.onBeforeShowAction (" + this.name + ")");
+
+   	ConstellationMgr.setFlagArt(false);
+    ConstellationMgr.setFlagLabels(false);
+    ConstellationMgr.setFlagLines(false);
+    ConstellationMgr.setFlagBoundaries(false);
+
+    label = LabelMgr.labelScreen(this.name, 70, 110, false, 30, "#99ccff");
+    LabelMgr.setLabelShow(label, true);
+
+    labelDesc = LabelMgr.labelScreen(this.desc, 70, 950, false, 50, "#99ccff");
+    LabelMgr.setLabelShow(labelDesc, true);
+
+    if (this.actionBefore!=null)
+    {
+        this.actionBefore();
+    }
+}
+
+ItemOfInterest.prototype.Show = function()
+{
+    print("--> Showing object of interest: " + this.name + " (" + this.desc + ")")
+
+    this.onBeforeShowAction();
+
+	core.selectObjectByName(this.name, true);
+    core.setSelectedObjectInfo("ShortInfo");
+	core.wait(3);
+
+    LandscapeMgr.setFlagFog(false);
+    StelMovementMgr.autoZoomIn(3);
+	core.wait(10);
+
+    this.onAfterShowAction();
+
+    StelMovementMgr.autoZoomOut(3);
+    LandscapeMgr.setFlagFog (true);
+}
+
+//
+// Main script entry Point
+//
+
+function main()
+{
+    Setup()
+
+    Intro();
+
+    core.setTimeRate(100); 
+
+    var constellations = [
+
+        new Constellation("2018-10-25T20:00:00", "Mirfak", "Sternbild Perseus", 45, 45, 
+        [
+            new ItemOfInterest("NGC1499", "Kalifornien Nebel - Emmissionsnebel aus Wasserstoff (1000 Lj)"),
+            new ItemOfInterest("NGC884", "Chi Persei - Offener Doppelsternhaufen (6781 Lj)")
+        ]),
+
+        new Constellation("2018-10-25T20:01:30", "Cassiopeia", "Sternbild Kassiopeia", 35, 35, 
+        [
+            new ItemOfInterest("M103", "Offener Sternhaufen M103 (8500 Lj)"),
+            new ItemOfInterest("M52", "Blasennebel (7100 Lj) und offener Sternhaufen M52 (4600 Lj)"),
+            new ItemOfInterest("LBN667", "Seelennebel - Emmissionsnebel aus ionisiertem Wasserstoff (7500 Lj)"),
+            new ItemOfInterest("IC1805", "Herznebel - Emmissionsnebel aus ionisiertem Wasserstoff (7500 Lj)"),
+            new ItemOfInterest("NGC281", "Emissionsnebel aus ionisiertem Wasserstoff (9500 Lj)")
+        ]),
+
+        new Constellation("2018-10-25T22:02:22", "Ursa Major", "Sternbild Großer Bär", 40, 50, 
+        [
+            new ItemOfInterest("M51", "Whirlpool-Galaxie und Begleitgalaxie"),
+            new ItemOfInterest("M101", "Feuerrad-Galaxie"),
+            new ItemOfInterest("M97", "Eulennebel - Ein Stern stößt seine Hülle ab."),
+            new ItemOfInterest("M108", "Spiralgalaxie M108"),
+            new ItemOfInterest("M81", "Spiralgalaxien M81 und M82")
+        ]),
+
+        new Constellation("2018-10-25T22:02:22", "Ursa Minor", "Sternbild Kleiner Bär", 32, 32, 
+        [
+            new ItemOfInterest("Polaris", "Polarstern - Der Himmelsnordpol", null, CustomActionPolaris)
+        ]),
+
+        new Constellation("2018-10-25T22:02:22", "Lyra", "Sternbild Leier", 25, 25, 
+        [
+            new ItemOfInterest("M57", "Ringnebel M57 - Die abgestoßenen Hülle eines sterbenden Sterns")
+        ]),
+
+        new Constellation("2018-10-25T21:00:00", "Cygnus", "Sternbild Schwan", 45, 45, 
+        [
+            new ItemOfInterest("NGC7000", "Nordamerikanebel"),
+            new ItemOfInterest("M39", "Offener Sternhaufen M39"),
+            new ItemOfInterest("NGC6960", "Cirrusnebel"),
+            new ItemOfInterest("LBN203", "Emmissionsnebel (4700 Lichtjahre)")
+        ]),
+
+        new Constellation("2018-10-25T20:00:00", "Andromeda", "Sternbild Andromeda", 35, 35, 
+        [
+            new ItemOfInterest("M31", "Andromedagalaxie - Hellste Galaxie am Nachthimmel (2.5 Mio Lj)", null, CustomActionAndromeda)
+        ]),
+
+        new Constellation("2018-10-25T20:00:00", "1 Tri", "Sternbild Dreieck", 25, 25, 
+        [
+            new ItemOfInterest("M33", "Dreiecksgalaxie - Zweithellste Galaxie am Nachthimmel (2.67 Mio Lj)")
+        ]),
+
+        // workaround for a bug in Stellarium 0.18.2: Use "1 Her" as the name not "Hercules". That will show gemini.
+        new Constellation("2018-10-25T20:00:00", "1 Her", "Sternbild Herkules", 55, 55, 
+        [
+            new ItemOfInterest("M13", "Herkuleshaufen - Kugelsternhaufen"),
+            new ItemOfInterest("M92", "Kugelsternhaufen")
+        ])
+    ];
+
+    ShowConstellation(constellations[0]);
+    ShowConstellation(constellations[1]);
+    ShowConstellation(constellations[2]);
+    ShowConstellation(constellations[3]);
+    ShowConstellation(constellations[4]);
+    ShowConstellation(constellations[5]);
+    ShowConstellation(constellations[6]);
+
+    Cleanup();
+}
 
 main();
 
