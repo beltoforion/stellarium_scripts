@@ -10,6 +10,7 @@ param_alt = 35.0
 param_lat = 50.911944
 param_long = 13.34277
 
+
 function Setup()
 {
     // Wait... Stellarium needs to start completely. Otherwise it would override the script settings
@@ -52,6 +53,7 @@ function Setup()
     LandscapeMgr.setFlagLandscapeUseMinimalBrightness(true);
 }
 
+
 function Intro()
 {
     core.debug("Showing Intro");
@@ -71,76 +73,13 @@ function Intro()
     LabelMgr.deleteAllLabels();
 }
 
+
 function GoHome(delay, zoomDelay, moveDelay)
 {
     print("--> Moving to home postion");
     StelMovementMgr.zoomTo(90, zoomDelay);
     core.moveToAltAzi(20, 130, moveDelay)
     core.wait(delay);
-}
-
-function ShowConstellation(c)
-{
-    date = c.date;
-    constellationName = c.name;
-    displayName = c.displayName;
-    
-    print("--> Showing constellation " + constellationName + " (" + displayName + ")");
-
-    ConstellationMgr.setFlagIsolateSelected(true);  
-    ConstellationMgr.setFlagConstellationPick(true);
-
-    StarMgr.setLabelsAmount(3);
-    SolarSystem.setFlagLabels(true);
-
-    core.setDate(date, "utc");
-
-    // Show constellation overview
-    c.ShowOverview(4, 7);
-
-    // Zoom out to show Constellation art
-	StelMovementMgr.zoomTo(c.fov2,1);
-	core.wait(1);
-	ConstellationMgr.setFlagArt(true);
-	core.wait(8);
-    
-    // Hide constellation Art, zoom back to normal
-	ConstellationMgr.setFlagArt(false);
-	StelMovementMgr.zoomTo(c.fov1,1);
-
-    // Show Objects of interes for this constellation
-    var tourItems = c.items;
-    if (tourItems!=null)
-    {
-        print("---> Starting tour of objects of interest.")
-        for (i=0; i<tourItems.length; i++)
-        {
-            if (tourItems[i]==null)
-                continue;
-
-            tourItems[i].Show();
-            c.ShowOverview(0, 4);
-        }
-    }
-    else
-    {
-        print("---> No tour items found; Skipping objects ofinterest.")
-    }
-
-    // Grafiken abschalten
-	ConstellationMgr.setFlagArt(false);
-    ConstellationMgr.setFlagLabels(false);
-    ConstellationMgr.setFlagLines(false);
-    ConstellationMgr.setFlagBoundaries(false);
-    ConstellationMgr.setFlagIsolateSelected(false);  
-    ConstellationMgr.setFlagConstellationPick(false);
-
-    // Selection abwählen
-    ConstellationMgr.deselectConstellations();
-
-    LabelMgr.deleteAllLabels();
-
-    GoHome(6, 2, 2);
 }
 
 // 
@@ -174,11 +113,13 @@ function CustomActionPolaris()
     GridLinesMgr.setFlagEquatorGrid(false);
 }
 
+
 function CustomActionAndromeda()
 {
 	StelMovementMgr.zoomTo(3,2);
     core.wait(10);
 }
+
 
 function CustomActionShowGalacticEquator()
 {
@@ -188,7 +129,7 @@ function CustomActionShowGalacticEquator()
 }
 
 //
-// Constellation Constructor
+// class Constellation
 //
 
 function Constellation(date, searchkey, displayname, fov1, fov2, objects)
@@ -199,12 +140,16 @@ function Constellation(date, searchkey, displayname, fov1, fov2, objects)
     this.fov1 = fov1;
     this.fov2 = fov2;
     this.items = objects;
+
+    // private 
+    var label = null;
 }
+
 
 // Show overview of the constellation with caption, lines and boundaries
 Constellation.prototype.ShowOverview = function(delay1, delay2)
 {
-    print("--> Showing constellation overview " + constellationName + " (" + displayName + ")");
+    print("--> Showing constellation overview " + this.name + " (" + this.displayName + ")");
 
     ConstellationMgr.setFlagIsolateSelected(true);  
 	core.selectObjectByName(this.name, false);
@@ -223,8 +168,71 @@ Constellation.prototype.ShowOverview = function(delay1, delay2)
 	core.wait(delay2);
 }
 
+
+Constellation.prototype.StartTour = function()
+{
+    print("--> Showing constellation " + this.name + " (" + this.displayName + ")");
+
+    ConstellationMgr.setFlagIsolateSelected(true);  
+    ConstellationMgr.setFlagConstellationPick(true);
+
+    StarMgr.setLabelsAmount(3);
+    SolarSystem.setFlagLabels(true);
+
+    if (this.date)
+    {
+        core.setDate(this.date, "utc");
+    }
+
+    // Show constellation overview
+    this.ShowOverview(4, 7);
+
+    // Zoom out to show Constellation art
+    StelMovementMgr.zoomTo(this.fov2,1);
+    core.wait(1);
+    ConstellationMgr.setFlagArt(true);
+    core.wait(8);
+    
+    // Hide constellation Art, zoom back to normal
+    ConstellationMgr.setFlagArt(false);
+    StelMovementMgr.zoomTo(this.fov1,1);
+
+    // Show Objects of interes for this constellation
+    var tourItems = this.items;
+    if (tourItems!=null)
+    {
+        print("--> Starting tour of objects of interest.")
+        for (i=0; i<tourItems.length; i++)
+        {
+            if (tourItems[i]==null)
+                continue;
+
+            tourItems[i].Show();
+            this.ShowOverview(0, 4);
+        }
+    }
+    else
+    {
+        print("--> No tour items found; Skipping objects ofinterest.")
+    }
+
+    // Grafiken abschalten
+	ConstellationMgr.setFlagArt(false);
+    ConstellationMgr.setFlagLabels(false);
+    ConstellationMgr.setFlagLines(false);
+    ConstellationMgr.setFlagBoundaries(false);
+    ConstellationMgr.setFlagIsolateSelected(false);  
+    ConstellationMgr.setFlagConstellationPick(false);
+
+    // Selection abwählen
+    ConstellationMgr.deselectConstellations();
+
+//    LabelMgr.deleteLabel(label);
+    LabelMgr.deleteAllLabels();
+}
+
 //
-// Item of interest constructor
+// class Itemofinterest
 //
 
 function ItemOfInterest(name, desc, actionBefore, actionAfter)
@@ -235,34 +243,39 @@ function ItemOfInterest(name, desc, actionBefore, actionAfter)
 
     this.actionBefore = actionBefore
     this.actionAfter = actionAfter
+
+    this.label = null;
+    this.labelDesc = null;
 }
+
 
 ItemOfInterest.prototype.onAfterShowAction = function()
 {
-    print("--> Executing Item.onAfterShowAction (" + this.name + ")");
+    print("-->   Executing Item.onAfterShowAction (" + this.name + ")");
     if (this.actionAfter!=null)
     {
         this.actionAfter();
     }
 
-    LabelMgr.deleteLabel(label);
-    LabelMgr.deleteLabel(labelDesc);
+    LabelMgr.deleteLabel(this.label);
+    LabelMgr.deleteLabel(this.labelDesc);
 }
+
 
 ItemOfInterest.prototype.onBeforeShowAction = function()
 {
-    print("--> Executing Item.onBeforeShowAction (" + this.name + ")");
+    print("-->   Executing Item.onBeforeShowAction (" + this.name + ")");
 
    	ConstellationMgr.setFlagArt(false);
     ConstellationMgr.setFlagLabels(false);
     ConstellationMgr.setFlagLines(false);
     ConstellationMgr.setFlagBoundaries(false);
 
-    label = LabelMgr.labelScreen(this.name, 70, 110, false, 30, "#99ccff");
-    LabelMgr.setLabelShow(label, true);
+    this.label = LabelMgr.labelScreen(this.name, 70, 110, false, 30, "#99ccff");
+    LabelMgr.setLabelShow(this.label, true);
 
-    labelDesc = LabelMgr.labelScreen(this.desc, 70, 950, false, 50, "#99ccff");
-    LabelMgr.setLabelShow(labelDesc, true);
+    this.labelDesc = LabelMgr.labelScreen(this.desc, 70, 950, false, 50, "#99ccff");
+    LabelMgr.setLabelShow(this.labelDesc, true);
 
     if (this.actionBefore!=null)
     {
@@ -270,9 +283,10 @@ ItemOfInterest.prototype.onBeforeShowAction = function()
     }
 }
 
+
 ItemOfInterest.prototype.Show = function()
 {
-    print("--> Showing object of interest: " + this.name + " (" + this.desc + ")")
+    print("-->   Showing object of interest: " + this.name + " (" + this.desc + ")")
 
     this.onBeforeShowAction();
 
@@ -321,7 +335,7 @@ function main()
 
         new Constellation("2018-10-25T22:02:22", "Ursa Major", "Sternbild Großer Bär", 40, 50, 
         [
-            new ItemOfInterest("M51", "Whirlpool-Galaxie und Begleitgalaxie"),
+/*            new ItemOfInterest("M51", "Whirlpool-Galaxie und Begleitgalaxie"), */
             new ItemOfInterest("M101", "Feuerrad-Galaxie"),
             new ItemOfInterest("M97", "Eulennebel - Ein Stern stößt seine Hülle ab."),
             new ItemOfInterest("M108", "Spiralgalaxie M108"),
@@ -364,13 +378,32 @@ function main()
         ])
     ];
 
+    for (i=0; i<constellations.length; i++)
+    {
+        var c = constellations[i];
+        if (c != null)
+        {
+            c.StartTour();
+            GoHome(6, 2, 2);
+        }
+    }
+
+/*
     ShowConstellation(constellations[0]);
+    GoHome(6, 2, 2);
     ShowConstellation(constellations[1]);
+    GoHome(6, 2, 2);
     ShowConstellation(constellations[2]);
+    GoHome(6, 2, 2);
     ShowConstellation(constellations[3]);
+    GoHome(6, 2, 2);
     ShowConstellation(constellations[4]);
+    GoHome(6, 2, 2);
     ShowConstellation(constellations[5]);
+    GoHome(6, 2, 2);
     ShowConstellation(constellations[6]);
+    GoHome(6, 2, 2);
+*/
 
     Cleanup();
 }
