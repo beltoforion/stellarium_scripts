@@ -3,8 +3,8 @@
 // License: Public Domain
 // Name: Constellations of the Autumn Sky
 // Description: A tour through selected constallations of the autumn sky
-include("shared/ItemOfInterest.inc");
-include("shared/Constellation.inc");
+include("shared/ItemOfInterest.js");
+include("shared/Constellation.js");
 
 param_az = 90.0
 param_alt = 35.0
@@ -17,7 +17,6 @@ function Setup()
     // Wait to work around #491 
     // (https://github.com/Stellarium/stellarium/issues?q=is%3Aissue+is%3Aclosed)
     core.wait(2);
-    core.debug("Setting up environment");
 
     SolarSystem.setFlagPlanets(true);
     SolarSystem.setMoonScale(6);
@@ -48,7 +47,7 @@ function Setup()
     core.setGuiVisible(false);
     core.setMilkyWayVisible(true);
     core.setMilkyWayIntensity(3);
-    core.setObserverLocation(param_long, param_lat, 425, 1, "Freiberg", "Earth");
+    core.setObserverLocation(param_long, param_lat, 425, 0, "Freiberg", "Earth");
 
     LandscapeMgr.setFlagAtmosphere(true);
     LandscapeMgr.setCurrentLandscapeName("Freiberg");
@@ -89,8 +88,6 @@ function GoHome(delay, zoomDelay, moveDelay)
 
 function Cleanup()
 {
-    core.wait(5);
-
     ConstellationMgr.setFlagIsolateSelected(false);  
     ConstellationMgr.setFlagConstellationPick(false);
     ConstellationMgr.deselectConstellations();
@@ -217,6 +214,7 @@ function main()
         }
     }
 
+    core.wait(3);
     Cleanup();
 }
 

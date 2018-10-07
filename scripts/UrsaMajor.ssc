@@ -4,8 +4,8 @@
 // Name: Tour of Ursa Major
 // Description: A tour through constellation Ursa Major.
 
-include("shared/ItemOfInterest.inc");
-include("shared/Constellation.inc");
+include("shared/ItemOfInterest.js");
+include("shared/Constellation.js");
 
 param_az = 90.0
 param_alt = 35.0
@@ -76,8 +76,6 @@ function GoHome(delay, zoomDelay, moveDelay)
 
 function Cleanup()
 {
-    core.wait(5);
-
     ConstellationMgr.setFlagIsolateSelected(false);  
     ConstellationMgr.setFlagConstellationPick(false);
     ConstellationMgr.deselectConstellations();
@@ -118,6 +116,7 @@ function main()
         }
     }
 
+    core.wait(3);
     Cleanup();
 }
 

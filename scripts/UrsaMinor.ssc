@@ -4,8 +4,8 @@
 // Name: Tour of Ursa Minor
 // Description: A tour through constellation Ursa Minor and the northern star.
 
-include("shared/ItemOfInterest.inc");
-include("shared/Constellation.inc");
+include("shared/ItemOfInterest.js");
+include("shared/Constellation.js");
 
 param_az = 90.0
 param_alt = 35.0

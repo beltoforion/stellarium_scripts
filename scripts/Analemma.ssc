@@ -5,8 +5,7 @@
 // Description: A script for drawing analemmas
 
 // Creates a class for creating the german texts for this script
-function AnalemmaStringsDE()
-{
+function AnalemmaStringsDE() {
 	this.dateAndTime = "Datum und Zeit";
 	this.subtitle = "Variationen der Sonnenposition im Verlauf eines Jahres.";
 	this.january = "Januar";
@@ -26,8 +25,7 @@ function AnalemmaStringsDE()
 }
 
 // Creates a class containing the texts for this script
-function AnalemmaStringsEN()
-{
+function AnalemmaStringsEN() {
 	this.dateAndTime = "Date and Time";
 	this.subtitle = "Variations in the position of the sun over the course of a year.";
 	this.january = "January";
@@ -46,115 +44,102 @@ function AnalemmaStringsEN()
 	this.summerSolstice = "Sommer solstice";
 }
 
-function stringFromMonth(i)
-{
-
-}
-function GetLocalizedStrings()
-{
+function GetLocalizedStrings() {
 	// This function is using the localized name of the sun in order to try to determine the UI culture.
 	var lang = core.getAppLanguage();
 	print("--> App language is \"" + lang + "\"");
 
 	var s;
-	if (lang=="de_DE" || lang=="de_AT" || lang=="de_CH")
-	{
+	if (lang == "de_DE" || lang == "de_AT" || lang == "de_CH") {
 		// Germany, Austria and Switzerland get the german strings. 		
 		s = new AnalemmaStringsDE();
 	}
-	else
-	{
+	else {
 		// default is english
 		s = new AnalemmaStringsEN();
 	}
 
-	s.monthFromInt = function(m)
-	{
-		if (m<1 || m>12)
+	s.monthFromInt = function (m) {
+		if (m < 1 || m > 12)
 			return "invalid month";
 
-		const monthNames = [s.january, 
-							s.february, 
-							s.march, 
-							s.april, 
-							s.may, 
-							s.june, 
-							s.july, 
-							s.august, 
-							s.september, 
-							s.october, 
-							s.november, 
-							s.december];
-		return monthNames[m-1];
+		const monthNames = [s.january,
+		s.february,
+		s.march,
+		s.april,
+		s.may,
+		s.june,
+		s.july,
+		s.august,
+		s.september,
+		s.october,
+		s.november,
+		s.december];
+		return monthNames[m - 1];
 	}
 
 	return s;
 }
 
-function Setup()
-{
-    // Wait to work around #491 
-    // (https://github.com/Stellarium/stellarium/issues?q=is%3Aissue+is%3Aclosed)
+function Setup() {
+	// Wait to work around #491 
+	// (https://github.com/Stellarium/stellarium/issues?q=is%3Aissue+is%3Aclosed)
 	core.wait(2);
 	print("--> Setting up Analemma script.")
 
 	SolarSystem.setFlagPlanets(true);
-    SolarSystem.setMoonScale(6);
-    SolarSystem.setFlagMoonScale(true);
-    SolarSystem.setFontSize(25);
-    
-    StelMovementMgr.setAutoMoveDuration(5);
+	SolarSystem.setMoonScale(6);
+	SolarSystem.setFlagMoonScale(true);
+	SolarSystem.setFontSize(25);
 
-    core.setGuiVisible(false);
-	
-    LandscapeMgr.setFlagAtmosphere(true);
-    LandscapeMgr.setCurrentLandscapeName("Freiberg");
+	StelMovementMgr.setAutoMoveDuration(5);
+
+	ConstellationMgr.setFlagLines(false);
+	ConstellationMgr.setFlagLabels(false);
+	ConstellationMgr.setFlagArt(false);
+	ConstellationMgr.setFlagBoundaries(false);
+	ConstellationMgr.setFlagConstellationPick(false);
+	ConstellationMgr.setFlagIsolateSelected(false);
+	ConstellationMgr.deselectConstellations();
+
+	core.setGuiVisible(false);
+
+	LandscapeMgr.setFlagAtmosphere(true);
+	//	LandscapeMgr.setFlagLandscapeSetsLocation(true);
+	LandscapeMgr.setCurrentLandscapeName("Freiberg");
 	LandscapeMgr.setFlagLandscapeUseMinimalBrightness(true);
-	
-	strings = GetLocalizedStrings();
 
-}
-
-
-function Intro()
-{
-    StarMgr.setLabelsAmount(0);
-    SolarSystem.setFlagLabels(false);
-
-    labelTitle = LabelMgr.labelScreen("Analemma", 250, 750, false, 70, "#66ccff");
-    LabelMgr.setLabelShow(labelTitle, true);
-
-    labelTitle = LabelMgr.labelScreen(strings.subtitle, 250, 850, false, 40, "#66ccff");
-    LabelMgr.setLabelShow(labelTitle, true);
-
+	core.setDate("2018-06-21T12:00:00", "local");
 	core.moveToAltAzi(10, 140, 0);
 	core.wait(.1);
-    core.moveToAltAzi(10, 180, 5);
-    core.wait(6);
 
-    LabelMgr.deleteAllLabels();
+	strings = GetLocalizedStrings();
 }
 
-// 
-// Try to undo script settings that will mess up stellariums expected opertation
-//
 
-function Cleanup()
-{
-    core.setGuiVisible(true);
-//    core.clear("natural");
+function Intro() {
+	StarMgr.setLabelsAmount(0);
+	SolarSystem.setFlagLabels(false);
+
+	labelTitle = LabelMgr.labelScreen("Analemma", 250, 750, false, 70, "#66ccff");
+	LabelMgr.setLabelShow(labelTitle, true);
+
+	labelTitle = LabelMgr.labelScreen(strings.subtitle, 250, 850, false, 40, "#66ccff");
+	LabelMgr.setLabelShow(labelTitle, true);
+
+	core.moveToAltAzi(10, 180, 5);
+	core.wait(6);
+
+	LabelMgr.deleteAllLabels();
 }
 
 //
 // The analemma class
 //
 
-function Analemma(long, lat, timeOfDay, locationName)
-{
+function Analemma(long, lat, timeOfDay) {
 	// The year, not that it would matter...
 	this.timeOfDay = timeOfDay;
-
-	this.locationName = locationName;
 
 	// Latitude of the observation spot
 	this.lat = lat;
@@ -169,14 +154,14 @@ function Analemma(long, lat, timeOfDay, locationName)
 	this.labelSummerSolstice;
 	this.trace = [];
 
-	
+	// Set location, look south, stop time
+	core.setObserverLocation(this.long, this.lat, 425, 0);
+	print("--> Observation Location: long=" + this.long + "; lat=" + this.lat);
 }
 
-Analemma.prototype.ClearTrace = function()
-{
+Analemma.prototype.ClearTrace = function () {
 	var i;
-	for (i=0; i<this.trace.length; ++i)
-	{
+	for (i = 0; i < this.trace.length; ++i) {
 		var id = this.trace[i];
 		LabelMgr.deleteLabel(id);
 	}
@@ -184,18 +169,15 @@ Analemma.prototype.ClearTrace = function()
 	this.trace = new Array();
 }
 
-Analemma.prototype.ChangeTraceSymbol = function(symbol)
-{
+Analemma.prototype.ChangeTraceSymbol = function (symbol) {
 	var i;
-	for (i=0; i<this.trace.length; ++i)
-	{
+	for (i = 0; i < this.trace.length; ++i) {
 		var id = this.trace[i];
 		LabelMgr.setLabelText(id, symbol);
 	}
 }
 
-Analemma.prototype.Clear = function()
-{
+Analemma.prototype.Clear = function () {
 	print("--> Clearing Analemma Labels and Graphics")
 	this.ClearTrace();
 	LabelMgr.deleteLabel(this.labelCaptionDate)
@@ -210,13 +192,10 @@ Analemma.prototype.Clear = function()
 	GridLinesMgr.setFlagHorizonLine(false);
 }
 
-Analemma.prototype.Compute = function()
-{
-	// Set location, look south, stop time
-	core.setObserverLocation(this.long, this.lat, 425, 0);
+Analemma.prototype.Compute = function () {
 	core.moveToAltAzi(20, 180)
 	StelMovementMgr.zoomTo(110, 1);
-	core.setTimeRate(0); 
+	core.setTimeRate(0);
 
 	// Show azimutal grid
 	GridLinesMgr.setFlagGridlines(true);
@@ -227,16 +206,17 @@ Analemma.prototype.Compute = function()
 	// Set start time
 	core.setDate("2018-06-21T" + this.timeOfDay, "utc");
 	core.wait(1);
+	print("--> Simulation date is Local:" + core.getDate("utc"));
 
 	// Start 
 	var day = 0;
-	var dt = 1; 
+	var dt = 1;
 
 	this.labelCaptionDate = LabelMgr.labelScreen(strings.dateAndTime, 70, 50, false, 50, "#66ccff");
-    LabelMgr.setLabelShow(this.labelCaptionDate, true);
+	LabelMgr.setLabelShow(this.labelCaptionDate, true);
 
-    this.labelDate = LabelMgr.labelScreen("", 70, 110, false, 30, "#99ccff");
-    LabelMgr.setLabelShow(this.labelDate, true);
+	this.labelDate = LabelMgr.labelScreen("", 70, 110, false, 30, "#99ccff");
+	LabelMgr.setLabelShow(this.labelDate, true);
 
 	this.labelMonth = LabelMgr.labelScreen("", 70, 900, false, 50, "#99ccff");
 	LabelMgr.setLabelShow(this.labelMonth, true);
@@ -244,6 +224,8 @@ Analemma.prototype.Compute = function()
 	// Compute the true time difference to utc (disregarding DST and local time zone)
 	var trueLocalTimeDiff = this.long * 4;
 	core.setDate("-" + trueLocalTimeDiff + " minutes");
+	print("--> Local Simulation date is UTC:" + core.getDate("utc"));
+
 	core.wait(0.1);
 
 	var azmin = 90;
@@ -253,35 +235,32 @@ Analemma.prototype.Compute = function()
 	var altmax = -90;
 
 	this.trace = new Array();
-	for (day = 0; day < 365; day+=dt)
-	{
+	for (day = 0; day < 365; day += dt) {
 		core.setDate("+" + dt + " days");
 		var strDate = core.getDate("local");
 		LabelMgr.setLabelText(this.labelDate, strDate)
-	
-		var month = parseInt(strDate.substring(5,7), 10);
+
+		var month = parseInt(strDate.substring(5, 7), 10);
 		LabelMgr.setLabelText(this.labelMonth, strings.monthFromInt(month))
 
 		var info = core.getObjectInfo("Sun");
 		var az = info.azimuth;
 		var alt = info.altitude;
-	
-		if (alt < altmin)
-		{
+
+		if (alt < altmin) {
 			azmin = az;
 			altmin = alt;
 		}
 
-		if (alt > altmax)
-		{
+		if (alt > altmax) {
 			azmax = az;
 			altmax = alt;
 		}
 
-		print("--> azmin=" + azmin + "; altmin=" + altmin)
-		print("--> azmax=" + azmax + "; altmax=" + altmax)
-	
-		var color = (month%2==0) ? "#000000" : "#ffffff"
+		//		print("--> azmin=" + azmin + "; altmin=" + altmin)
+		//		print("--> azmax=" + azmax + "; altmax=" + altmax)
+
+		var color = (month % 2 == 0) ? "#000000" : "#ffffff"
 
 		var labelDot = LabelMgr.labelHorizon(".", az, alt, "true", 14, color, false);
 		LabelMgr.setLabelShow(labelDot, true);
@@ -292,21 +271,22 @@ Analemma.prototype.Compute = function()
 
 	print("--> azmin=" + azmin + "; altmin=" + altmin)
 	print("--> azmax=" + azmax + "; altmax=" + altmax)
-    this.labelWinterSolstice = LabelMgr.labelHorizon(strings.winterSolstice, azmin, altmin - 4, true, 30, "#336688");
-    this.labelSummerSolstice = LabelMgr.labelHorizon(strings.summerSolstice, azmax, altmax + 4, true, 30, "#336688");
+	this.labelWinterSolstice = LabelMgr.labelHorizon(strings.winterSolstice, azmin, altmin - 4, true, 30, "#ffffff");
+	this.labelSummerSolstice = LabelMgr.labelHorizon(strings.summerSolstice, azmax, altmax + 4, true, 30, "#ffffff");
 }
 
-function main()
-{
-    Setup()
-    Intro();
+function main() {
+	Setup()
+	Intro();
 
-	var ana = new Analemma(13.34277, 50.911944, "12:00:00", "Freiberg (Germany)");
+	var ana = new Analemma(13.34277, 50.911944, "12:00:00");
 	ana.Compute();
-
 	core.wait(5);
-//	ana.Clear();
-//    Cleanup();
+
+	//	ana.Clear();
+
+	core.setGuiVisible(true);
+	core.clear("natural");
 }
 
 main();
