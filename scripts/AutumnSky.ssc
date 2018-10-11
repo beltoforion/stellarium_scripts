@@ -12,7 +12,7 @@ param_lat = 50.911944
 param_long = 13.34277
 
 
-function Setup()
+function setup()
 {
     // Wait to work around #491 
     // (https://github.com/Stellarium/stellarium/issues?q=is%3Aissue+is%3Aclosed)
@@ -22,12 +22,15 @@ function Setup()
     SolarSystem.setMoonScale(6);
     SolarSystem.setFlagMoonScale(true);
     SolarSystem.setFontSize(25);
+    SolarSystem.setFlagTrails(false);
+	SolarSystem.setFlagOrbits(false);
+	SolarSystem.setFlagLabels(false);
     
     StelSkyDrawer.setAbsoluteStarScale(1.2);
     StelSkyDrawer.setRelativeStarScale(1.25);
 
     StarMgr.setFontSize(20);
-    StarMgr.setLabelsAmount(3);
+    StarMgr.setLabelsAmount(0);
 
     StelMovementMgr.setAutoMoveDuration(5);
 
@@ -52,15 +55,14 @@ function Setup()
     LandscapeMgr.setFlagAtmosphere(true);
     LandscapeMgr.setCurrentLandscapeName("Freiberg");
     LandscapeMgr.setFlagLandscapeUseMinimalBrightness(true);
+	
+	StelMovementMgr.setFlagEnableMouseNavigation(false);
 }
 
 
-function Intro()
+function intro()
 {
     core.setDate("2018-10-25T20:00:00", "utc");
-
-    StarMgr.setLabelsAmount(0);
-    SolarSystem.setFlagLabels(false);
 
     labelTitle = LabelMgr.labelScreen("Sternbilder des Herbstes", 250, 750, false, 70, "#66ccff");
     LabelMgr.setLabelShow(labelTitle, true);
@@ -76,7 +78,7 @@ function Intro()
 
 function GoHome(delay, zoomDelay, moveDelay)
 {
-    print("--> Moving to home postion");
+    core.output("Moving to home postion");
     StelMovementMgr.zoomTo(90, zoomDelay);
     core.moveToAltAzi(10, 130, moveDelay)
     core.wait(delay);
@@ -86,12 +88,14 @@ function GoHome(delay, zoomDelay, moveDelay)
 // Try to undo script settings that will mess up stellariums expected opertation
 //
 
-function Cleanup()
+function cleanup()
 {
     ConstellationMgr.setFlagIsolateSelected(false);  
     ConstellationMgr.setFlagConstellationPick(false);
     ConstellationMgr.deselectConstellations();
 
+    StelMovementMgr.setFlagEnableMouseNavigation(true);
+	
     core.setGuiVisible(true);
     core.clear("natural");
 }
@@ -133,89 +137,105 @@ function CustomActionShowGalacticEquator()
 
 function main()
 {
-    Setup()
-
-    Intro();
-
-    core.setTimeRate(60); 
-
-    var constellations = [
-
-        new Constellation("2018-10-25T20:00:00", "Mirfak", "Sternbild Perseus", 45, 45, 
-        [
-            new ItemOfInterest("NGC1499", "Kalifornien Nebel - Emmissionsnebel aus Wasserstoff (1000 Lj)"),
-            new ItemOfInterest("NGC884", "Chi Persei - Offener Doppelsternhaufen (6781 Lj)")
-        ]),
-
-        new Constellation("2018-10-25T20:01:30", "Cassiopeia", "Sternbild Kassiopeia", 35, 35, 
-        [
-            new ItemOfInterest("M103", "Offener Sternhaufen M103 (8500 Lj)"),
-            new ItemOfInterest("M52", "Blasennebel (7100 Lj) und offener Sternhaufen M52 (4600 Lj)"),
-            new ItemOfInterest("LBN667", "Seelennebel - Emmissionsnebel aus ionisiertem Wasserstoff (7500 Lj)"),
-            new ItemOfInterest("IC1805", "Herznebel - Emmissionsnebel aus ionisiertem Wasserstoff (7500 Lj)"),
-            new ItemOfInterest("NGC281", "Emissionsnebel aus ionisiertem Wasserstoff (9500 Lj)")
-        ]),
-
-        new Constellation("2018-10-25T22:02:22", "Ursa Major", "Sternbild Großer Bär", 40, 50, 
-        [
-/*            new ItemOfInterest("M51", "Whirlpool-Galaxie und Begleitgalaxie"), */
-            new ItemOfInterest("M101", "Feuerrad-Galaxie"),
-            new ItemOfInterest("M97", "Eulennebel - Ein Stern stößt seine Hülle ab."),
-            new ItemOfInterest("M108", "Spiralgalaxie M108"),
-            new ItemOfInterest("M81", "Spiralgalaxien M81 und M82")
-        ]),
-
-        new Constellation("2018-10-25T22:02:22", "Ursa Minor", "Sternbild Kleiner Bär", 32, 32, 
-        [
-            new ItemOfInterest("Polaris", "Polarstern - Der Himmelsnordpol", null, CustomActionPolaris)
-        ]),
-
-        new Constellation("2018-10-25T22:02:22", "Lyra", "Sternbild Leier", 25, 25, 
-        [
-            new ItemOfInterest("M57", "Ringnebel M57 - Die abgestoßenen Hülle eines sterbenden Sterns")
-        ]),
-
-        new Constellation("2018-10-25T21:00:00", "Cygnus", "Sternbild Schwan", 45, 45, 
-        [
-            new ItemOfInterest("NGC7000", "Nordamerikanebel"),
-            new ItemOfInterest("M39", "Offener Sternhaufen M39"),
-            new ItemOfInterest("NGC6960", "Cirrusnebel"),
-            new ItemOfInterest("LBN203", "Crescent Nebel - Emmissionsnebel (4700 Lj)")
-        ]),
-
-        new Constellation("2018-10-25T20:00:00", "Andromeda", "Sternbild Andromeda", 35, 35, 
-        [
-            new ItemOfInterest("M31", "Andromedagalaxie - Hellste Galaxie am Nachthimmel (2.5 Mio Lj)", null, CustomActionAndromeda)
-        ]),
-
-        new Constellation("2018-10-25T20:00:00", "1 Tri", "Sternbild Dreieck", 25, 25, 
-        [
-            new ItemOfInterest("M33", "Dreiecksgalaxie - Zweithellste Galaxie am Nachthimmel (2.67 Mio Lj)")
-        ]),
-
-        // workaround for a bug in Stellarium 0.18.2: Use "1 Her" as the name not "Hercules". That will show gemini.
-        new Constellation("2018-10-25T20:00:00", "1 Her", "Sternbild Herkules", 55, 55, 
-        [
-            new ItemOfInterest("M13", "Herkuleshaufen - Kugelsternhaufen"),
-            new ItemOfInterest("M92", "Kugelsternhaufen")
-        ])
-    ];
-
-
-    var i = 0;
-    for (i = 0; i < constellations.length; i++)
+    try
     {
-        var c = constellations[i];
-        print("xx> i=" + i + "; constellation=\"" + c.displayName + "\"");
-        if (c != null)
-        {
-            c.StartTour();
-            GoHome(6, 2, 2);
-        }
-    }
+        setup()
+        intro();
 
-    core.wait(3);
-    Cleanup();
+        core.setTimeRate(60); 
+
+        var constellations = [
+
+            new Constellation("2018-10-25T20:00:00", "Cepheus", "Sternbild Cepheus", 35, 35, 
+            [
+                new ItemOfInterest("NGC6946", "Feuerwerksgalaxie - Eine Spiralgalaxie (21 Mio Lj)"),
+                new ItemOfInterest("NGC7380", "Wizard Nebula - Offener Sternhaufen (7000 Lj)"),
+                new ItemOfInterest("NGC7023", "Iris Nebula - Reflexionsnebel (1300 Lj)"),
+                new ItemOfInterest("NGC7129", "Rosenknospennebel - Offener Sternhaufen, Sternenentstehungsgebiet (3300 Lj)")
+            ]),
+
+            new Constellation("2018-10-25T20:00:00", "Mirfak", "Sternbild Perseus", 45, 45, 
+            [
+                new ItemOfInterest("NGC1499", "Kalifornien Nebel - Emmissionsnebel aus Wasserstoff (1000 Lj)"),
+                new ItemOfInterest("NGC884", "Chi Persei - Offener Doppelsternhaufen (6781 Lj)")
+            ]),
+
+            new Constellation("2018-10-25T20:01:30", "Cassiopeia", "Sternbild Kassiopeia", 35, 35, 
+            [
+                new ItemOfInterest("M103", "Offener Sternhaufen M103 (8500 Lj)"),
+                new ItemOfInterest("M52", "Blasennebel (7100 Lj) und offener Sternhaufen M52 (4600 Lj)"),
+                new ItemOfInterest("LBN667", "Seelennebel - Emmissionsnebel aus ionisiertem Wasserstoff (7500 Lj)"),
+                new ItemOfInterest("IC1805", "Herznebel - Emmissionsnebel aus ionisiertem Wasserstoff (7500 Lj)"),
+                new ItemOfInterest("NGC281", "Emissionsnebel aus ionisiertem Wasserstoff (9500 Lj)")
+            ]),
+
+            new Constellation("2018-10-25T22:02:22", "Ursa Major", "Sternbild Großer Bär", 40, 50, 
+            [
+                new ItemOfInterest("M101", "Feuerrad-Galaxie"),
+                new ItemOfInterest("M97", "Eulennebel - Ein Stern stößt seine Hülle ab."),
+                new ItemOfInterest("M108", "Spiralgalaxie M108"),
+                new ItemOfInterest("M81", "Spiralgalaxien M81 und M82")
+            ]),
+
+            new Constellation("2018-10-25T22:02:22", "Ursa Minor", "Sternbild Kleiner Bär", 32, 32, 
+            [
+                new ItemOfInterest("Polaris", "Polarstern - Der Himmelsnordpol", null, CustomActionPolaris)
+            ]),
+
+            new Constellation("2018-10-25T22:02:22", "Lyra", "Sternbild Leier", 25, 25, 
+            [
+                new ItemOfInterest("M57", "Ringnebel M57 - Die abgestoßenen Hülle eines sterbenden Sterns")
+            ]),
+
+            new Constellation("2018-10-25T21:00:00", "Cygnus", "Sternbild Schwan", 45, 45, 
+            [
+                new ItemOfInterest("NGC7000", "Nordamerikanebel"),
+                new ItemOfInterest("M39", "Offener Sternhaufen M39"),
+                new ItemOfInterest("NGC6960", "Cirrusnebel"),
+                new ItemOfInterest("LBN203", "Crescent Nebel - Emmissionsnebel (4700 Lj)")
+            ]),
+
+            new Constellation("2018-10-25T20:00:00", "Andromeda", "Sternbild Andromeda", 35, 35, 
+            [
+                new ItemOfInterest("M31", "Andromedagalaxie - Hellste Galaxie am Nachthimmel (2.5 Mio Lj)", null, CustomActionAndromeda)
+            ]),
+
+            new Constellation("2018-10-25T20:00:00", "1 Tri", "Sternbild Dreieck", 25, 25, 
+            [
+                new ItemOfInterest("M33", "Dreiecksgalaxie - Zweithellste Galaxie am Nachthimmel (2.67 Mio Lj)")
+            ]),
+
+            // workaround for a bug in Stellarium 0.18.2: Use "1 Her" as the name not "Hercules". That will show gemini.
+            new Constellation("2018-10-25T20:00:00", "1 Her", "Sternbild Herkules", 55, 55, 
+            [
+                new ItemOfInterest("M13", "Herkuleshaufen - Kugelsternhaufen"),
+                new ItemOfInterest("M92", "Kugelsternhaufen")
+            ])
+        ];
+
+
+        var i = 0;
+        for (i = 0; i < constellations.length; i++)
+        {
+            var c = constellations[i];
+            core.output("i=" + i + "; constellation=\"" + c.displayName + "\"");
+            if (c != null)
+            {
+                c.StartTour();
+                GoHome(6, 2, 2);
+            }
+        }
+
+        core.wait(3);
+    }
+    catch(exc)
+    {
+        core.output(exc);
+    }
+    finally
+    {
+        cleanup();
+    }
 }
 
 main();
