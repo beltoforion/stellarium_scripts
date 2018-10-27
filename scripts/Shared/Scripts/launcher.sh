@@ -24,4 +24,4 @@ if [ -d "$1.Assets" ]; then
 fi
 
 echo "- Launching stellarium"
-stellarium --startup-script $1
+stellarium --startup-script $1.ssc
