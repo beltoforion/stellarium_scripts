@@ -1,0 +1,31 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "command": "${env:HOME}/node_modules/.bin/webpack",
+	"isShellCommand": true,
+	"args": [
+		"--display-modules",
+		"--progress"
+	],
+	"echoCommand": true,
+    "tasks": [
+        {
+            "args": [
+                "-p"
+            ],
+            "suppressTaskName": true,
+            "taskName": "Build Stellarium Script",
+            "isBuildCommand": true,
+            "problemMatcher": []
+        },
+        {
+            "args": [
+                "-p"
+            ],
+            "suppressTaskName": true,
+            "taskName": "webpack dist",
+            "isBuildCommand": false
+        }
+    ]
+}
