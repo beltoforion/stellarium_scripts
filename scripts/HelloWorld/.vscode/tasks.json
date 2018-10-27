@@ -22,7 +22,7 @@
             "type": "shell",
             "args": [
                 "../Shared/Scripts/launcher.sh",
-                "${workspaceFolderBasename}.ssc"
+                "${workspaceFolderBasename}"
             ],
             "suppressTaskName": true,
             "problemMatcher": []
