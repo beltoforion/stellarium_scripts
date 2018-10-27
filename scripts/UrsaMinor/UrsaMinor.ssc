@@ -1,0 +1,421 @@
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// define __esModule on exports
+/******/ 	__webpack_require__.r = function(exports) {
+/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 		}
+/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 	};
+/******/
+/******/ 	// create a fake namespace object
+/******/ 	// mode & 1: value is a module id, require it
+/******/ 	// mode & 2: merge all properties of value into the ns
+/******/ 	// mode & 4: return value when already ns object
+/******/ 	// mode & 8|1: behave like require
+/******/ 	__webpack_require__.t = function(value, mode) {
+/******/ 		if(mode & 1) value = __webpack_require__(value);
+/******/ 		if(mode & 8) return value;
+/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
+/******/ 		var ns = Object.create(null);
+/******/ 		__webpack_require__.r(ns);
+/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
+/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
+/******/ 		return ns;
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 0);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+// Author: Ingo Berg
+// Version: 1.0
+// License: Public Domain
+// Name: Tour of Ursa Minor
+// Description: A tour through constellation Ursa Minor and the northern star.
+Object.defineProperty(exports, "__esModule", { value: true });
+var ItemOfInterest_1 = __webpack_require__(1);
+var Constellation_1 = __webpack_require__(2);
+var Strings_1 = __webpack_require__(3);
+var strings = new Strings_1.Strings().getLocalizedStrings();
+function setup() {
+    // Wait... Stellarium needs to start completely. Otherwise it would override the script settings
+    core.debug("Setting up environment");
+    SolarSystem.setFlagPlanets(false);
+    SolarSystem.setFlagTrails(false);
+    SolarSystem.setFlagLabels(false);
+    SolarSystem.setFlagOrbits(false);
+    SolarSystem.setFlagMoonScale(false);
+    SolarSystem.setFontSize(25);
+    StelSkyDrawer.setAbsoluteStarScale(1.2);
+    StelSkyDrawer.setRelativeStarScale(1.25);
+    StarMgr.setFontSize(20);
+    StarMgr.setLabelsAmount(3);
+    StelMovementMgr.setAutoMoveDuration(5);
+    ConstellationMgr.setFlagLines(false);
+    ConstellationMgr.setFlagLabels(false);
+    ConstellationMgr.setArtIntensity(0.3);
+    ConstellationMgr.setFlagArt(false);
+    ConstellationMgr.setFlagBoundaries(false);
+    ConstellationMgr.setConstellationLineThickness(2);
+    ConstellationMgr.setFontSize(32);
+    ConstellationMgr.setFlagConstellationPick(true);
+    ConstellationMgr.setFlagIsolateSelected(true);
+    core.setGuiVisible(false);
+    core.setMilkyWayVisible(true);
+    core.setMilkyWayIntensity(3);
+    // Set location but wait 2 seconds to work around #491 (https://github.com/Stellarium/stellarium/issues/491)
+    core.wait(2);
+    core.setObserverLocation(0, 60, 500, 1, "Freiberg", "Earth");
+    LandscapeMgr.setFlagAtmosphere(true);
+    LandscapeMgr.setCurrentLandscapeName("Freiberg");
+    LandscapeMgr.setFlagLandscapeUseMinimalBrightness(true);
+    core.setDate("2018-10-25T20:00:00", "utc");
+    core.selectObjectByName("UrsaMajor", false);
+    StelMovementMgr.zoomTo(90, 3);
+    core.wait(5);
+}
+function goHome(delay, zoomDelay) {
+    core.output("Moving to home postion");
+    core.selectObjectByName("UrsaMajor", false);
+    StelMovementMgr.zoomTo(90, zoomDelay);
+    core.wait(delay);
+}
+// 
+// Try to undo script settings that will mess up stellariums expected opertation
+//
+function cleanup() {
+    core.wait(5);
+    ConstellationMgr.setFlagIsolateSelected(false);
+    ConstellationMgr.setFlagConstellationPick(false);
+    ConstellationMgr.deselectConstellations();
+    core.setGuiVisible(true);
+}
+//
+// Custom Actions for some constellations
+//
+function customActionPolaris() {
+    GridLinesMgr.setFlagEquatorGrid(true);
+    StelMovementMgr.zoomTo(100, 2);
+    core.setTimeRate(2000);
+    core.wait(10);
+    core.setTimeRate(100);
+    GridLinesMgr.setFlagEquatorGrid(false);
+}
+//
+// Main script entry Point
+//
+function main() {
+    setup();
+    core.setTimeRate(1);
+    var constellations = [
+        new Constellation_1.Constellation("2018-10-25T22:02:22", "Ursa Minor", strings.constellationUrsaMinor, 32, 32, [
+            new ItemOfInterest_1.ItemOfInterest("Polaris", strings.polaris, null, customActionPolaris)
+        ])
+    ];
+    for (var i = 0; i < constellations.length; i++) {
+        var c = constellations[i];
+        core.output("xx> i=" + i + "; constellation=\"" + c.displayName + "\"");
+        if (c != null) {
+            c.startTour();
+            goHome(6, 2);
+        }
+    }
+    cleanup();
+}
+main();
+
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+//
+// class Itemofinterest
+//
+Object.defineProperty(exports, "__esModule", { value: true });
+var ItemOfInterest = /** @class */ (function () {
+    function ItemOfInterest(name, desc, actionBefore, actionAfter) {
+        if (actionBefore === void 0) { actionBefore = null; }
+        if (actionAfter === void 0) { actionAfter = null; }
+        this._name = name;
+        this._desc = desc;
+        this._actionBefore = actionBefore;
+        this._actionAfter = actionAfter;
+        this._label = null;
+        this._labelDesc = null;
+    }
+    ItemOfInterest.prototype.onAfterShowAction = function () {
+        core.output("Executing Item.onAfterShowAction (" + this._name + ")");
+        if (this._actionAfter != null) {
+            this._actionAfter();
+        }
+        LabelMgr.deleteLabel(this._label);
+        LabelMgr.deleteLabel(this._labelDesc);
+    };
+    ItemOfInterest.prototype.onBeforeShowAction = function () {
+        core.output("Executing Item.onBeforeShowAction (" + this._name + ")");
+        ConstellationMgr.setFlagArt(false);
+        ConstellationMgr.setFlagLabels(false);
+        ConstellationMgr.setFlagLines(false);
+        ConstellationMgr.setFlagBoundaries(false);
+        this._label = LabelMgr.labelScreen(this._name, 70, 110, false, 30, "#99ccff");
+        LabelMgr.setLabelShow(this._label, true);
+        this._labelDesc = LabelMgr.labelScreen(this._desc, 70, 950, false, 50, "#99ccff");
+        LabelMgr.setLabelShow(this._labelDesc, true);
+        if (this._actionBefore != null) {
+            this._actionBefore();
+        }
+    };
+    ItemOfInterest.prototype.show = function () {
+        core.output("--> Showing object of interest: " + this._name + " (" + this._desc + ")");
+        this.onBeforeShowAction();
+        core.selectObjectByName(this._name, true);
+        core.setSelectedObjectInfo("ShortInfo");
+        core.wait(3);
+        LandscapeMgr.setFlagFog(false);
+        StelMovementMgr.autoZoomIn(3);
+        core.wait(10);
+        this.onAfterShowAction();
+        StelMovementMgr.autoZoomOut(3);
+        LandscapeMgr.setFlagFog(true);
+    };
+    return ItemOfInterest;
+}());
+exports.ItemOfInterest = ItemOfInterest;
+;
+
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+//
+// class Constellation
+//
+Object.defineProperty(exports, "__esModule", { value: true });
+var Constellation = /** @class */ (function () {
+    function Constellation(date, searchkey, displayname, fov1, fov2, objects) {
+        this._date = date;
+        this._name = searchkey;
+        this._displayName = displayname;
+        this._fov1 = fov1;
+        this._fov2 = fov2;
+        this._items = objects;
+    }
+    Object.defineProperty(Constellation.prototype, "displayName", {
+        get: function () {
+            return this._displayName;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    // Show overview of the constellation with caption, lines and boundaries
+    Constellation.prototype.showOverview = function (delay1, delay2) {
+        core.output("--> Showing constellation overview " + this._name + " (" + this.displayName + ")");
+        ConstellationMgr.setFlagIsolateSelected(true);
+        core.selectObjectByName(this._name, false);
+        StelMovementMgr.autoZoomIn(6);
+        StelMovementMgr.zoomTo(this._fov1, 2);
+        core.wait(delay1);
+        // Show constellation label
+        this._label = LabelMgr.labelScreen(this.displayName, 70, 50, false, 50, "#66ccff");
+        LabelMgr.setLabelShow(this._label, true);
+        ConstellationMgr.setFlagLabels(true);
+        ConstellationMgr.setFlagBoundaries(true);
+        ConstellationMgr.setFlagLines(true);
+        core.wait(delay2);
+    };
+    Constellation.prototype.startTour = function () {
+        core.debug("--> Showing constellation " + this._name + " (" + this.displayName + ")");
+        ConstellationMgr.setFlagIsolateSelected(true);
+        ConstellationMgr.setFlagConstellationPick(true);
+        StarMgr.setLabelsAmount(3);
+        SolarSystem.setFlagLabels(true);
+        if (this._date) {
+            core.setDate(this._date, "utc");
+        }
+        // Show constellation overview
+        this.showOverview(4, 7);
+        // Zoom out to show Constellation art
+        StelMovementMgr.zoomTo(this._fov2, 1);
+        core.wait(1);
+        ConstellationMgr.setFlagArt(true);
+        core.wait(8);
+        // Hide constellation Art, zoom back to normal
+        ConstellationMgr.setFlagArt(false);
+        StelMovementMgr.zoomTo(this._fov1, 1);
+        // Show Objects of interes for this constellation
+        var tourItems = this._items;
+        if (tourItems != null) {
+            core.debug("--> Starting tour of objects of interest. (length: " + tourItems.length + " items)");
+            for (var i = 0; i < tourItems.length; i++) {
+                if (tourItems[i] == null)
+                    continue;
+                tourItems[i].show();
+                this.showOverview(0, 4);
+            }
+        }
+        else {
+            core.debug("--> No tour items found; Skipping objects ofinterest.");
+        }
+        // Grafiken abschalten
+        ConstellationMgr.setFlagArt(false);
+        ConstellationMgr.setFlagLabels(false);
+        ConstellationMgr.setFlagLines(false);
+        ConstellationMgr.setFlagBoundaries(false);
+        ConstellationMgr.setFlagIsolateSelected(false);
+        ConstellationMgr.setFlagConstellationPick(false);
+        // Selection abwählen
+        ConstellationMgr.deselectConstellations();
+        LabelMgr.deleteAllLabels();
+    };
+    return Constellation;
+}());
+exports.Constellation = Constellation;
+
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+// Creates a class for creating the german texts for this script
+Object.defineProperty(exports, "__esModule", { value: true });
+var Strings = /** @class */ (function () {
+    function Strings() {
+        this._german = {
+            january: "Januar",
+            february: "Februar",
+            march: "März",
+            april: "April",
+            may: "Mai",
+            june: "Juni",
+            july: "Juli",
+            august: "August",
+            september: "September",
+            october: "Oktober",
+            november: "November",
+            december: "Dezember",
+            polaris: "Polarstern - Der Himmelsnordpol",
+            constellationUrsaMinor: "Sternbild Kleiner Bär"
+        };
+        this._english = {
+            january: "January",
+            february: "February",
+            march: "March",
+            april: "April",
+            may: "May",
+            june: "June",
+            july: "July",
+            august: "August",
+            september: "September",
+            october: "October",
+            november: "November",
+            december: "December",
+            polaris: "Polar Star - The north celestial pole",
+            constellationUrsaMinor: "Constellation Ursa Minor"
+        };
+    }
+    Strings.prototype.verify = function () {
+        // todo: Check all langauge versions and panik if one of them is missing a string.
+    };
+    Strings.prototype.getLocalizedStrings = function () {
+        // This function is using the localized name of the sun in order to try to determine the UI culture.
+        var lang = core.getAppLanguage();
+        core.debug('App language is "' + lang + '"');
+        var s;
+        // Germany, Austria and Switzerland get the german strings. 		
+        if (lang == "de_DE" || lang == "de_AT" || lang == "de_CH") {
+            s = this._german;
+        }
+        // default is english
+        else {
+            s = this._english;
+        }
+        // Add support functions
+        s.monthFromInt = function (m) {
+            if (m < 1 || m > 12)
+                return "invalid month";
+            var monthNames = [s.january, s.february, s.march,
+                s.april, s.may, s.june,
+                s.july, s.august, s.september,
+                s.october, s.november, s.december];
+            return monthNames[m - 1];
+        };
+        return s;
+    };
+    return Strings;
+}());
+exports.Strings = Strings;
+
+
+/***/ })
+/******/ ]);

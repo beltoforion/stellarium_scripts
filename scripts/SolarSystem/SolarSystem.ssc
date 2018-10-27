@@ -1,0 +1,186 @@
+// Author: Ingo Berg
+// Version: 1.0
+// License: GPL v3.0
+// Name: Tour of the solar system
+// Description: A tour through the solar system
+
+include("shared/StelHelper.inc");
+include("shared/ItemOfInterest.js");
+
+
+function setup()
+{
+    // Wait to work around #491 
+    // (https://github.com/Stellarium/stellarium/issues?q=is%3Aissue+is%3Aclosed)
+    core.wait(2);
+
+    SolarSystem.setFlagPlanets(true);
+    SolarSystem.setMoonScale(6);
+    SolarSystem.setFlagMoonScale(true);
+    SolarSystem.setFontSize(25);
+    
+    StelSkyDrawer.setAbsoluteStarScale(1.0);
+    StelSkyDrawer.setRelativeStarScale(1.1);
+
+    StarMgr.setFontSize(20);
+    StarMgr.setLabelsAmount(3);
+
+    StelMovementMgr.setAutoMoveDuration(5);
+
+    ConstellationMgr.setFlagLines(false);
+    ConstellationMgr.setFlagLabels(false);
+    ConstellationMgr.setArtIntensity(0.3);
+    ConstellationMgr.setFlagArt(false);
+    ConstellationMgr.setFlagBoundaries(false);
+    ConstellationMgr.setConstellationLineThickness(2);
+    ConstellationMgr.setFontSize(32);
+    ConstellationMgr.setFlagConstellationPick(true);
+    ConstellationMgr.setFlagIsolateSelected(true);  
+
+    SporadicMeteorMgr.setFlagShow(true);
+    SporadicMeteorMgr.setZHR(20000);
+
+    core.setGuiVisible(false);
+    core.setMilkyWayVisible(true);
+    core.setMilkyWayIntensity(1);
+
+    LandscapeMgr.setFlagAtmosphere(false);
+    LandscapeMgr.setFlagLandscape(false);
+}
+
+
+function intro()
+{
+    core.setDate("2492-05-06T20:00:00", "utc");
+
+    StarMgr.setLabelsAmount(0);
+    SolarSystem.setFlagLabels(false);
+
+    labelTitle = LabelMgr.labelScreen("Das Sonnensystem", 250, 750, false, 70, "#66ccff");
+    LabelMgr.setLabelShow(labelTitle, true);
+
+    labelTitle = LabelMgr.labelScreen("A guided tour", 250, 850, false, 40, "#66ccff");
+    LabelMgr.setLabelShow(labelTitle, true);
+
+    core.moveToAltAzi(10, 270)
+    GoHome(15, 0, 10);
+    LabelMgr.deleteAllLabels();
+}
+
+function GoHome(delay, zoomDelay, moveDelay)
+{
+    StelMovementMgr.zoomTo(90, zoomDelay);
+    core.moveToAltAzi(10, 130, moveDelay)
+    core.wait(delay);
+}
+
+function PlanetaryBody(long, lat, date) 
+{
+    this.long = long;
+    this.lat = lat;
+    this.date = date;
+}
+
+function Mars(long, lat, date)
+{    
+    this.long = long;
+    this.lat = lat;
+    this.date = date;
+}
+
+Mars.prototype.setup = function()
+{
+    core.debug("Setting up Mars Observer");
+    LandscapeMgr.setFlagAtmosphere(true);
+    LandscapeMgr.setCurrentLandscapeName("Mars");
+
+    core.setDate(this.date, "utc");
+    core.setObserverLocation(this.long, this.lat, 425, 0, "Mars Observer", "Mars");
+}
+
+function Saturn(long, lat, date)
+{
+    this.long = long;
+    this.lat = lat;
+    this.date = date;
+}
+
+Saturn.prototype.setup = function()
+{
+    core.debug("Setting up Mars Observer");
+    LandscapeMgr.setFlagAtmosphere(true);
+    LandscapeMgr.setCurrentLandscapeName("Saturn");
+
+    core.setDate(this.date, "utc");
+    core.setObserverLocation(this.long, this.lat, 425, 0, "Saturn Observer", "Saturn");
+}
+
+function Jupiter(long, lat, date)
+{
+    this.long = long;
+    this.lat = lat;
+    this.date = date;
+}
+
+Jupiter.prototype.setup = function()
+{
+    core.debug("Setting up Mars Observer");
+    LandscapeMgr.setFlagAtmosphere(true);
+    LandscapeMgr.setCurrentLandscapeName("Saturn");
+
+    core.setDate(this.date, "utc");
+    core.setObserverLocation(this.long, this.lat, 425, 0, "Saturn Observer", "Jupiter");
+}
+
+function menu()
+{
+	ScreenImageMgr.createScreenImage("imgEarth", "Analemma/earth.png", 1400, 300, 1);
+	ScreenImageMgr.createScreenImage("imgMars", "Analemma/mars.png", 100, 450, 0.5);
+
+	labelTitle = LabelMgr.labelScreen("Analemma", 400, 380, false, 70, "#66ccff");
+	LabelMgr.setLabelShow(labelTitle, true);
+
+	labelTitle = LabelMgr.labelScreen(strings.subtitle, 400, 480, false, 40, "#66ccff");
+	LabelMgr.setLabelShow(labelTitle, true);
+
+	// Problem 1:
+	// The screen image manager is using pixels, the custom objects must be placed in azAlt.
+	// Mathing the positions to the image requires a lot of tinkering.
+	// Therefore i "freeze" the view:
+	core.moveToAltAzi(10, 160, 0);
+	
+	// Problem 2: My markers would move with the sky
+	core.setTimeRate(0);
+
+	CustomObjectMgr.addCustomObjectAltAzi("Germany", 20, 180, true);
+//	CustomObjectMgr.setMarkersColor(Vec3f(1.0,1.0,1.0));
+//	CustomObjectMgr.setMarkersSize(10);
+	CustomObjectMgr.addCustomObjectAltAzi("Iceland", 17, 180, true);
+	CustomObjectMgr.addCustomObjectAltAzi("Ghana", 10, 180, true);
+	CustomObjectMgr.addCustomObjectAltAzi("Mars", "2h10m15s", "60d01m15s", true);
+}
+
+function main()
+{
+    setup();
+    intro();
+
+    CustomObjectMgr.setMarkersSize(20);
+    CustomObjectMgr.addCustomObject("Sommersonnenwende", "2h10m15s", "60d01m15s", true);
+
+    var mars = new Mars(-33.22, 19.13, "1997-07-29T23:35:00");
+    mars.setup();
+
+    core.wait(5);
+
+    var saturn = new Saturn(-33.22, 19.13, "1997-07-29T23:35:00");
+    saturn.setup();
+
+    core.wait(5);
+
+    var jupiter = new Jupiter(-33.22, 19.13, "1997-07-29T23:35:00");
+    jupiter.setup();
+
+}
+
+main();

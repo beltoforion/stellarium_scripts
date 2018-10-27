@@ -1,0 +1,524 @@
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// define __esModule on exports
+/******/ 	__webpack_require__.r = function(exports) {
+/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 		}
+/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 	};
+/******/
+/******/ 	// create a fake namespace object
+/******/ 	// mode & 1: value is a module id, require it
+/******/ 	// mode & 2: merge all properties of value into the ns
+/******/ 	// mode & 4: return value when already ns object
+/******/ 	// mode & 8|1: behave like require
+/******/ 	__webpack_require__.t = function(value, mode) {
+/******/ 		if(mode & 1) value = __webpack_require__(value);
+/******/ 		if(mode & 8) return value;
+/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
+/******/ 		var ns = Object.create(null);
+/******/ 		__webpack_require__.r(ns);
+/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
+/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
+/******/ 		return ns;
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 0);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+// Author: Ingo Berg
+// Version: 1.0
+// License: Public Domain
+// Name: Analemma
+// Description: A script for drawing analemmas
+Object.defineProperty(exports, "__esModule", { value: true });
+var Analemma_1 = __webpack_require__(1);
+var Helper_1 = __webpack_require__(3);
+var Strings_1 = __webpack_require__(4);
+var strings;
+function setup() {
+    // Wait to work around #491 
+    // (https://github.com/Stellarium/stellarium/issues?q=is%3Aissue+is%3Aclosed)
+    core.wait(3);
+    SolarSystem.setFlagPlanets(true);
+    SolarSystem.setMoonScale(6);
+    SolarSystem.setFlagMoonScale(true);
+    SolarSystem.setFontSize(25);
+    StelMovementMgr.setAutoMoveDuration(5);
+    StelMovementMgr.setFlagEnableMouseNavigation(false);
+    ConstellationMgr.setFlagLines(false);
+    ConstellationMgr.setFlagLabels(false);
+    ConstellationMgr.setFlagArt(false);
+    ConstellationMgr.setFlagBoundaries(false);
+    ConstellationMgr.setFlagConstellationPick(false);
+    ConstellationMgr.setFlagIsolateSelected(false);
+    ConstellationMgr.deselectConstellations();
+    core.setGuiVisible(false);
+    LandscapeMgr.setFlagLandscape(true);
+    LandscapeMgr.setFlagAtmosphere(true);
+    LandscapeMgr.setFlagFog(true);
+    //	LandscapeMgr.setFlagLandscapeSetsLocation(true);
+    LandscapeMgr.setCurrentLandscapeName("Freiberg");
+    LandscapeMgr.setFlagLandscapeUseMinimalBrightness(true);
+    core.setDate("2018-06-21T12:00:00", "local");
+    core.moveToAltAzi(10, 140, 0);
+    core.wait(.1);
+    strings = new Strings_1.Strings().getLocalizedStrings();
+}
+function intro() {
+    StarMgr.setLabelsAmount(0);
+    SolarSystem.setFlagLabels(false);
+    var labelTitle = LabelMgr.labelScreen("Analemma", 250, 750, false, 70, "#66ccff");
+    LabelMgr.setLabelShow(labelTitle, true);
+    var labelTitle = LabelMgr.labelScreen(strings.subtitle, 250, 850, false, 40, "#66ccff");
+    LabelMgr.setLabelShow(labelTitle, true);
+    core.moveToAltAzi(10, 180, 5);
+    core.wait(6);
+    LabelMgr.deleteAllLabels();
+}
+function main() {
+    try {
+        Helper_1.Helper.InstallDebugHooks();
+        setup();
+        intro();
+        var ana = new Analemma_1.Analemma(13.34277, 50.911944, "2018-06-21T12:00:00", "Earth", 2);
+        ana.compute();
+        core.wait(5);
+        ana.clear();
+        core.clear("natural");
+    }
+    catch (err) {
+        core.debug(err);
+    }
+    finally {
+        core.debug("Script finished");
+        Helper_1.Helper.RemoveDebugHooks();
+        core.setGuiVisible(true);
+        StelMovementMgr.setFlagEnableMouseNavigation(true);
+    }
+}
+main();
+
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+//
+// The analemma class
+//
+var Strings_1 = __webpack_require__(2);
+var Analemma = /** @class */ (function () {
+    function Analemma(long, lat, timeOfDay, planet, stepInDays) {
+        if (planet === void 0) { planet = "Earth"; }
+        if (stepInDays === void 0) { stepInDays = 1; }
+        this._stepInDays = 1;
+        this._secondsPerDay = 86400;
+        this._daysPerYear = 365;
+        this._strings = new Strings_1.Strings().getLocalizedStrings();
+        // The year, not that it would matter...
+        this._timeOfDay = timeOfDay;
+        // Latitude of the observation spot
+        this._lat = lat;
+        // Longitude of the observation spot
+        this._long = long;
+        this._trace = [];
+        this._planet = planet;
+        this._viewAz = 180;
+        this._viewAlt = 20;
+        this._trailSymbol = ".";
+        this._stepInDays = stepInDays;
+        if (this._planet === "Earth") {
+            this._secondsPerDay = 86400;
+            this._daysPerYear = 365;
+        }
+        else if (this._planet === "Mars") {
+            this._secondsPerDay = 88775.2438;
+            this._daysPerYear = 668.5991;
+        }
+        else {
+            throw new Error("Analemma: Unsupported Planet " + planet);
+        }
+        // Set location, look south, stop time
+        core.setTimeRate(0);
+        core.setObserverLocation(this._long, this._lat, 425, 0, "Annalemma Observer", planet);
+        core.debug("Annalemma Settings");
+        core.debug("  - Location: long=" + this._long + "; lat=" + this._lat + "; planet=" + planet);
+        core.debug("  - step in days=" + this._stepInDays);
+    }
+    Analemma.prototype.setView = function (az, alt) {
+        this._viewAz = az;
+        this._viewAlt = alt;
+    };
+    Analemma.prototype.setTrailSymbol = function (s) {
+        if (!s)
+            return;
+        this._trailSymbol = s;
+    };
+    Analemma.prototype.clearTrace = function () {
+        for (var i = 0; i < this._trace.length; ++i) {
+            var id = this._trace[i];
+            LabelMgr.deleteLabel(id);
+        }
+        this._trace = new Array();
+    };
+    Analemma.prototype.changeTraceSymbol = function (symbol) {
+        for (var i = 0; i < this._trace.length; ++i) {
+            var id = this._trace[i];
+            LabelMgr.setLabelText(id, symbol);
+        }
+    };
+    Analemma.prototype.clear = function () {
+        core.debug("Clearing Analemma Labels and Graphics");
+        this.clearTrace();
+        LabelMgr.deleteLabel(this._labelCaptionDate);
+        LabelMgr.deleteLabel(this._labelMonth);
+        LabelMgr.deleteLabel(this._labelDate);
+        LabelMgr.deleteLabel(this._labelWinterSolstice);
+        LabelMgr.deleteLabel(this._labelSummerSolstice);
+        GridLinesMgr.setFlagGridlines(false);
+        GridLinesMgr.setFlagAzimuthalGrid(false);
+        GridLinesMgr.setFlagMeridianLine(false);
+        GridLinesMgr.setFlagHorizonLine(false);
+    };
+    Analemma.prototype.compute = function () {
+        core.moveToAltAzi(this._viewAlt, this._viewAz);
+        StelMovementMgr.zoomTo(110, 1);
+        // Show azimutal grid
+        GridLinesMgr.setFlagGridlines(true);
+        GridLinesMgr.setFlagAzimuthalGrid(true);
+        GridLinesMgr.setFlagMeridianLine(true);
+        GridLinesMgr.setFlagHorizonLine(true);
+        // Set start time
+        core.debug("Set simulation date to :" + this._timeOfDay);
+        core.setDate(this._timeOfDay, "utc");
+        core.wait(1);
+        core.debug("Simulation date is Local:" + core.getDate("utc"));
+        // Start 
+        var day = 0;
+        this._labelCaptionDate = LabelMgr.labelScreen(this._strings.dateAndTime, 70, 50, false, 50, "#66ccff");
+        LabelMgr.setLabelShow(this._labelCaptionDate, true);
+        this._labelDate = LabelMgr.labelScreen("", 70, 110, false, 30, "#99ccff");
+        LabelMgr.setLabelShow(this._labelDate, true);
+        this._labelMonth = LabelMgr.labelScreen("", 70, 900, false, 50, "#99ccff");
+        LabelMgr.setLabelShow(this._labelMonth, true);
+        // Compute the true time difference to utc (disregarding DST and local time zone)
+        var trueLocalTimeDiff = this._long * 4;
+        if (this._planet === 'Earth') {
+            core.debug("We are on Earth. Correcting to display proper local time!");
+            core.debug("Local Simulation date is UTC:" + core.getDate("utc"));
+            core.setDate("-" + trueLocalTimeDiff + " minutes");
+        }
+        core.wait(0.1);
+        var azmin = 90;
+        var azmax = -90;
+        var altmin = 90;
+        var altmax = -90;
+        this._trace = new Array();
+        var endOfYear = this._daysPerYear * this._secondsPerDay;
+        core.debug("Seconds per Day: " + this._secondsPerDay);
+        core.debug("Days per Year: " + this._daysPerYear);
+        for (day = 0; day < endOfYear; day += this._secondsPerDay * this._stepInDays) {
+            core.setDate("+ " + this._secondsPerDay * this._stepInDays + " seconds");
+            var strDate = core.getDate("local");
+            LabelMgr.setLabelText(this._labelDate, strDate);
+            if (this._planet === 'Earth') {
+                var month = parseInt(strDate.substring(5, 7), 10);
+                LabelMgr.setLabelText(this._labelMonth, this._strings.monthFromInt(month));
+            }
+            var info = core.getObjectInfo("Sun");
+            var az = info.azimuth;
+            var alt = info.altitude;
+            if (alt < altmin) {
+                azmin = az;
+                altmin = alt;
+            }
+            if (alt > altmax) {
+                azmax = az;
+                altmax = alt;
+            }
+            var color = (month % 2 == 0) ? "#000000" : "#ffffff";
+            var labelDot = LabelMgr.labelHorizon(this._trailSymbol, az, alt, true, 14, color, false);
+            LabelMgr.setLabelShow(labelDot, true);
+            this._trace.push(labelDot);
+            core.wait(0.1);
+        }
+        if (this._planet == 'Earth') {
+            core.debug("Placing Solstice Labels");
+            core.debug("azmin=" + azmin + "; altmin=" + altmin);
+            core.debug("azmax=" + azmax + "; altmax=" + altmax);
+            this._labelWinterSolstice = LabelMgr.labelHorizon(this._strings.winterSolstice, azmin, altmin - 4, true, 30, "#ffffff");
+            this._labelSummerSolstice = LabelMgr.labelHorizon(this._strings.summerSolstice, azmax, altmax + 4, true, 30, "#ffffff");
+        }
+    };
+    return Analemma;
+}()); // class Analemma
+exports.Analemma = Analemma;
+
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var Strings = /** @class */ (function () {
+    function Strings() {
+        this._german = {
+            january: "Januar",
+            february: "Februar",
+            march: "März",
+            april: "April",
+            may: "Mai",
+            june: "Juni",
+            july: "Juli",
+            august: "August",
+            september: "September",
+            october: "Oktober",
+            november: "November",
+            december: "Dezember",
+            dateAndTime: "Datum und Zeit",
+            winterSolstice: "Wintersonnenwende",
+            summerSolstice: "Sommersonnenwende"
+        };
+        this._english = {
+            january: "January",
+            february: "February",
+            march: "March",
+            april: "April",
+            may: "May",
+            june: "June",
+            july: "July",
+            august: "August",
+            september: "September",
+            october: "October",
+            november: "November",
+            december: "December",
+            dateAndTime: "Date and Time",
+            winterSolstice: "Winter solstice",
+            summerSolstice: "Sommer solstice"
+        };
+    }
+    Strings.prototype.verify = function () {
+        // todo: Check all langauge versions and panik if one of them is missing a string.
+    };
+    Strings.prototype.getLocalizedStrings = function (loc) {
+        if (loc === void 0) { loc = ""; }
+        // This function is using the localized name of the sun in order to try to determine the UI culture.
+        var lang;
+        if (loc) {
+            lang = loc;
+            core.debug('Forcing language to "' + lang + '"');
+        }
+        else {
+            lang = core.getAppLanguage();
+            core.debug('App language is "' + lang + '"');
+        }
+        var s;
+        // Germany, Austria and Switzerland get the german strings. 		
+        if (lang == "de_DE" || lang == "de_AT" || lang == "de_CH") {
+            s = this._german;
+        }
+        // default is english
+        else {
+            s = this._english;
+        }
+        // Add support functions
+        s.monthFromInt = function (m) {
+            if (m < 1 || m > 12)
+                return "invalid month";
+            var monthNames = [s.january, s.february, s.march,
+                s.april, s.may, s.june,
+                s.july, s.august, s.september,
+                s.october, s.november, s.december];
+            return monthNames[m - 1];
+        };
+        return s;
+    };
+    return Strings;
+}());
+exports.Strings = Strings;
+
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var originalDebug = core.debug;
+exports.Helper = {
+    InstallDebugHooks: function () {
+        var osd = new OnScreenLogger(15);
+        var betterDebug = function (msg) {
+            osd.addLine(msg);
+            originalDebug(msg);
+        };
+        core.debug = betterDebug;
+    },
+    RemoveDebugHooks: function () {
+        if (originalDebug != null) {
+            core.debug = originalDebug;
+        }
+        core.debug("Debug Hooks removed!");
+    }
+};
+// A class to create an on screen console using with Stellarium Labels
+var OnScreenLogger = /** @class */ (function () {
+    function OnScreenLogger(numLines) {
+        // X-Position of the log output
+        this._xp = 70;
+        // Output text font size
+        this._fs = 15;
+        // Line Margin
+        this._margin = 5;
+        this._labelHandle = [];
+        this._labelContent = [];
+        for (var i = 0; i < numLines; ++i) {
+            this._labelContent.push("");
+        }
+    }
+    OnScreenLogger.prototype.addLine = function (msg) {
+        for (var i = this._labelContent.length - 2; i >= 0; --i) {
+            this._labelContent[i + 1] = this._labelContent[i];
+        }
+        this._labelContent[0] = msg;
+        // delete old labels
+        for (var i = 0; i < this._labelHandle.length; ++i) {
+            var lb = this._labelHandle[i];
+            LabelMgr.deleteLabel(lb);
+        }
+        // Recreate labels
+        for (var i = 0; i < this._labelContent.length; ++i) {
+            var xp = this._xp;
+            var yp = core.getScreenHeight() - 150 - i * (this._fs + this._margin);
+            //            let lb : number = LabelMgr.labelScreen(this._labelContent[i] + "(" + this._labelContent.length.toString() + ";" + this._labelHandle.length.toString() + ")", xp, yp, true, this._fs, "#66ccff");
+            var msg_1 = this._labelContent[i];
+            if (msg_1)
+                msg_1 = "> " + msg_1;
+            this._labelHandle[i] = LabelMgr.labelScreen(msg_1, xp, yp, true, this._fs, "#66ccff");
+        }
+    };
+    return OnScreenLogger;
+}());
+;
+
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+// Creates a class for creating the german texts for this script
+var Strings = /** @class */ (function () {
+    function Strings() {
+        this._german = {
+            titleMars: "Analemma (Mars; Abendsonne)",
+            subtitle: "Variationen der Sonnenposition im Verlauf eines Jahres.",
+        };
+        this._english = {
+            titleMars: "Analemma (Mars; Evening Sun)",
+            subtitle: "Variations in the position of the sun over the course of a year.",
+        };
+    }
+    Strings.prototype.getLocalizedStrings = function (loc) {
+        if (loc === void 0) { loc = ""; }
+        // This function is using the localized name of the sun in order to try to determine the UI culture.
+        var lang;
+        if (loc) {
+            lang = loc;
+            core.debug('Forcing language to "' + lang + '"');
+        }
+        else {
+            lang = core.getAppLanguage();
+            core.debug('App language is "' + lang + '"');
+        }
+        var s;
+        // Germany, Austria and Switzerland get the german strings. 		
+        if (lang == "de_DE" || lang == "de_AT" || lang == "de_CH") {
+            s = this._german;
+        }
+        // default is english
+        else {
+            s = this._english;
+        }
+        return s;
+    };
+    return Strings;
+}());
+exports.Strings = Strings;
+
+
+/***/ })
+/******/ ]);

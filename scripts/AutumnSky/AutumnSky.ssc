@@ -1,0 +1,606 @@
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// define __esModule on exports
+/******/ 	__webpack_require__.r = function(exports) {
+/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 		}
+/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 	};
+/******/
+/******/ 	// create a fake namespace object
+/******/ 	// mode & 1: value is a module id, require it
+/******/ 	// mode & 2: merge all properties of value into the ns
+/******/ 	// mode & 4: return value when already ns object
+/******/ 	// mode & 8|1: behave like require
+/******/ 	__webpack_require__.t = function(value, mode) {
+/******/ 		if(mode & 1) value = __webpack_require__(value);
+/******/ 		if(mode & 8) return value;
+/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
+/******/ 		var ns = Object.create(null);
+/******/ 		__webpack_require__.r(ns);
+/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
+/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
+/******/ 		return ns;
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 0);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+// Author: Ingo Berg
+// Version: 1.0
+// License: Public Domain
+// Name: Constellations of the Autumn Sky
+// Description: A tour through selected constallations of the autumn sky
+Object.defineProperty(exports, "__esModule", { value: true });
+var ItemOfInterest_1 = __webpack_require__(1);
+var Constellation_1 = __webpack_require__(2);
+var Helper_1 = __webpack_require__(3);
+var Strings_1 = __webpack_require__(4);
+var param_lat = 50.911944;
+var param_long = 13.34277;
+var strings;
+function setup() {
+    // Wait to work around #491 
+    // (https://github.com/Stellarium/stellarium/issues?q=is%3Aissue+is%3Aclosed)
+    core.wait(2);
+    SolarSystem.setFlagPlanets(true);
+    SolarSystem.setMoonScale(6);
+    SolarSystem.setFlagMoonScale(true);
+    SolarSystem.setFontSize(25);
+    SolarSystem.setFlagTrails(false);
+    SolarSystem.setFlagOrbits(false);
+    SolarSystem.setFlagLabels(false);
+    StelSkyDrawer.setAbsoluteStarScale(1.2);
+    StelSkyDrawer.setRelativeStarScale(1.25);
+    StarMgr.setFontSize(20);
+    StarMgr.setLabelsAmount(0);
+    StelMovementMgr.setAutoMoveDuration(5);
+    ConstellationMgr.setFlagLines(false);
+    ConstellationMgr.setFlagLabels(false);
+    ConstellationMgr.setArtIntensity(0.3);
+    ConstellationMgr.setFlagArt(false);
+    ConstellationMgr.setFlagBoundaries(false);
+    ConstellationMgr.setConstellationLineThickness(2);
+    ConstellationMgr.setFontSize(32);
+    ConstellationMgr.setFlagConstellationPick(true);
+    ConstellationMgr.setFlagIsolateSelected(true);
+    SporadicMeteorMgr.setFlagShow(true);
+    SporadicMeteorMgr.setZHR(20000);
+    core.setGuiVisible(false);
+    core.setMilkyWayVisible(true);
+    core.setMilkyWayIntensity(3);
+    core.setObserverLocation(param_long, param_lat, 425, 0, "Freiberg", "Earth");
+    LandscapeMgr.setFlagAtmosphere(true);
+    LandscapeMgr.setCurrentLandscapeName("Freiberg");
+    LandscapeMgr.setFlagLandscapeUseMinimalBrightness(true);
+    StelMovementMgr.setFlagEnableMouseNavigation(false);
+    strings = new Strings_1.Strings().getLocalizedStrings("en");
+}
+function intro() {
+    core.setDate("2018-10-25T20:00:00", "utc");
+    var labelTitle = LabelMgr.labelScreen(strings.title, 250, 750, false, 70, "#66ccff");
+    LabelMgr.setLabelShow(labelTitle, true);
+    var labelSubTitle = LabelMgr.labelScreen(strings.subtitle, 250, 850, false, 40, "#66ccff");
+    LabelMgr.setLabelShow(labelSubTitle, true);
+    core.moveToAltAzi(10, 270);
+    GoHome(15, 0, 10);
+    LabelMgr.deleteAllLabels();
+}
+function GoHome(delay, zoomDelay, moveDelay) {
+    core.output("Moving to home postion");
+    StelMovementMgr.zoomTo(90, zoomDelay);
+    core.moveToAltAzi(10, 130, moveDelay);
+    core.wait(delay);
+}
+// 
+// Try to undo script settings that will mess up stellariums expected opertation
+//
+function cleanup() {
+    ConstellationMgr.setFlagIsolateSelected(false);
+    ConstellationMgr.setFlagConstellationPick(false);
+    ConstellationMgr.deselectConstellations();
+    StelMovementMgr.setFlagEnableMouseNavigation(true);
+    core.setGuiVisible(true);
+    core.clear("natural");
+}
+//
+// Custom Actions for some constellations
+//
+function customActionPolaris() {
+    GridLinesMgr.setFlagEquatorGrid(true);
+    StelMovementMgr.zoomTo(100, 2);
+    core.setTimeRate(2000);
+    core.wait(10);
+    core.setTimeRate(60);
+    GridLinesMgr.setFlagEquatorGrid(false);
+}
+function customActionAndromeda() {
+    StelMovementMgr.zoomTo(3, 2);
+    core.wait(10);
+}
+//
+// Main script entry Point
+//
+function main() {
+    try {
+        Helper_1.Helper.InstallDebugHooks();
+        setup();
+        intro();
+        core.setTimeRate(60);
+        var constellations = [
+            new Constellation_1.Constellation("2018-10-25T20:00:00", "Cepheus", strings.cepheus, 35, 35, [
+                new ItemOfInterest_1.ItemOfInterest("NGC6946", strings.ngc6946),
+                new ItemOfInterest_1.ItemOfInterest("NGC7380", strings.ngc7380),
+                new ItemOfInterest_1.ItemOfInterest("NGC7023", strings.ngc7023),
+                new ItemOfInterest_1.ItemOfInterest("NGC7129", strings.ngc7129)
+            ]),
+            new Constellation_1.Constellation("2018-10-25T20:00:00", "Mirfak", strings.perseus, 45, 45, [
+                new ItemOfInterest_1.ItemOfInterest("NGC1499", strings.ngc1499),
+                new ItemOfInterest_1.ItemOfInterest("NGC884", strings.ngc884),
+            ]),
+            new Constellation_1.Constellation("2018-10-25T20:01:30", "Cassiopeia", strings.cassiopeia, 35, 35, [
+                new ItemOfInterest_1.ItemOfInterest("M103", strings.m103),
+                new ItemOfInterest_1.ItemOfInterest("M52", strings.m52),
+                new ItemOfInterest_1.ItemOfInterest("LBN667", strings.lbn667),
+                new ItemOfInterest_1.ItemOfInterest("IC1805", strings.ic1805),
+                new ItemOfInterest_1.ItemOfInterest("NGC281", strings.ngc281)
+            ]),
+            new Constellation_1.Constellation("2018-10-25T22:02:22", "Ursa Major", strings.ursaMajor, 40, 50, [
+                new ItemOfInterest_1.ItemOfInterest("M101", strings.m101),
+                new ItemOfInterest_1.ItemOfInterest("M97", strings.m97),
+                new ItemOfInterest_1.ItemOfInterest("M108", strings.m108),
+                new ItemOfInterest_1.ItemOfInterest("M81", strings.m81)
+            ]),
+            new Constellation_1.Constellation("2018-10-25T22:02:22", "Ursa Minor", strings.ursaMinor, 32, 32, [
+                new ItemOfInterest_1.ItemOfInterest("Polaris", strings.polaris, null, customActionPolaris)
+            ]),
+            new Constellation_1.Constellation("2018-10-25T22:02:22", "Lyra", strings.lyra, 25, 25, [
+                new ItemOfInterest_1.ItemOfInterest("M57", strings.m57)
+            ]),
+            new Constellation_1.Constellation("2018-10-25T21:00:00", "Cygnus", strings.cygnus, 45, 45, [
+                new ItemOfInterest_1.ItemOfInterest("NGC7000", strings.ngc7000),
+                new ItemOfInterest_1.ItemOfInterest("M39", strings.m39),
+                new ItemOfInterest_1.ItemOfInterest("NGC6960", strings.ngc6960),
+                new ItemOfInterest_1.ItemOfInterest("LBN203", strings.lbn203)
+            ]),
+            new Constellation_1.Constellation("2018-10-25T20:00:00", "Andromeda", strings.andromeda, 35, 35, [
+                new ItemOfInterest_1.ItemOfInterest("M31", strings.m31, null, customActionAndromeda)
+            ]),
+            new Constellation_1.Constellation("2018-10-25T20:00:00", "1 Tri", strings.triangle, 25, 25, [
+                new ItemOfInterest_1.ItemOfInterest("M33", strings.m33)
+            ]),
+            // workaround for a bug in Stellarium 0.18.2: Use "1 Her" as the name not "Hercules". That will show gemini.
+            new Constellation_1.Constellation("2018-10-25T20:00:00", "1 Her", strings.hercules, 55, 55, [
+                new ItemOfInterest_1.ItemOfInterest("M13", strings.m13),
+                new ItemOfInterest_1.ItemOfInterest("M92", strings.m92)
+            ])
+        ];
+        var i = 0;
+        for (i = 0; i < constellations.length; i++) {
+            var c = constellations[i];
+            core.output("i=" + i + "; constellation=\"" + c.displayName + "\"");
+            if (c != null) {
+                c.startTour();
+                GoHome(6, 2, 2);
+            }
+        }
+        core.wait(3);
+    }
+    catch (exc) {
+        core.output(exc);
+    }
+    finally {
+        cleanup();
+        Helper_1.Helper.RemoveDebugHooks();
+    }
+}
+main();
+
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var ItemOfInterest = /** @class */ (function () {
+    function ItemOfInterest(name, desc, actionBefore, actionAfter) {
+        if (actionBefore === void 0) { actionBefore = null; }
+        if (actionAfter === void 0) { actionAfter = null; }
+        this._name = name;
+        this._desc = desc;
+        this._actionBefore = actionBefore;
+        this._actionAfter = actionAfter;
+        this._label = null;
+        this._labelDesc = null;
+    }
+    Object.defineProperty(ItemOfInterest.prototype, "name", {
+        get: function () {
+            return this._name;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    ItemOfInterest.prototype.onAfterShowAction = function () {
+        core.output("Executing Item.onAfterShowAction (" + this._name + ")");
+        if (this._actionAfter != null) {
+            core.output("Custom AfterShowAction found! Executing now!");
+            this._actionAfter();
+        }
+        LabelMgr.deleteLabel(this._label);
+        LabelMgr.deleteLabel(this._labelDesc);
+    };
+    ItemOfInterest.prototype.onBeforeShowAction = function () {
+        core.output("Executing Item.onBeforeShowAction (" + this._name + ")");
+        ConstellationMgr.setFlagArt(false);
+        ConstellationMgr.setFlagLabels(false);
+        ConstellationMgr.setFlagLines(false);
+        ConstellationMgr.setFlagBoundaries(false);
+        this._label = LabelMgr.labelScreen(this._name, 70, 110, false, 30, "#99ccff");
+        LabelMgr.setLabelShow(this._label, true);
+        this._labelDesc = LabelMgr.labelScreen(this._desc, 70, 950, false, 50, "#99ccff");
+        LabelMgr.setLabelShow(this._labelDesc, true);
+        if (this._actionBefore != null) {
+            this._actionBefore();
+        }
+    };
+    ItemOfInterest.prototype.show = function () {
+        core.output("Showing object of interest: " + this._name + " (" + this._desc + ")");
+        this.onBeforeShowAction();
+        core.selectObjectByName(this._name, true);
+        core.setSelectedObjectInfo("ShortInfo");
+        core.wait(3);
+        LandscapeMgr.setFlagFog(false);
+        StelMovementMgr.autoZoomIn(3);
+        core.wait(10);
+        this.onAfterShowAction();
+        StelMovementMgr.autoZoomOut(3);
+        LandscapeMgr.setFlagFog(true);
+    };
+    return ItemOfInterest;
+}());
+exports.ItemOfInterest = ItemOfInterest;
+;
+
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+//
+// class Constellation
+//
+Object.defineProperty(exports, "__esModule", { value: true });
+var Constellation = /** @class */ (function () {
+    function Constellation(date, searchkey, displayname, fov1, fov2, objects) {
+        this._date = date;
+        this._name = searchkey;
+        this._displayName = displayname;
+        this._fov1 = fov1;
+        this._fov2 = fov2;
+        this._items = objects;
+    }
+    Object.defineProperty(Constellation.prototype, "displayName", {
+        get: function () {
+            return this._displayName;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    // Show overview of the constellation with caption, lines and boundaries
+    Constellation.prototype.showOverview = function (delay1, delay2) {
+        core.output("Showing constellation overview " + this._name + " (" + this.displayName + ")");
+        ConstellationMgr.setFlagIsolateSelected(true);
+        core.selectObjectByName(this._name, false);
+        StelMovementMgr.autoZoomIn(6);
+        StelMovementMgr.zoomTo(this._fov1, 2);
+        core.wait(delay1);
+        // Show constellation label
+        this._label = LabelMgr.labelScreen(this.displayName, 70, 50, false, 50, "#66ccff");
+        LabelMgr.setLabelShow(this._label, true);
+        ConstellationMgr.setFlagLabels(true);
+        ConstellationMgr.setFlagBoundaries(true);
+        ConstellationMgr.setFlagLines(true);
+        core.wait(delay2);
+    };
+    Constellation.prototype.startTour = function () {
+        core.debug("Showing constellation " + this._name + " (" + this.displayName + ")");
+        ConstellationMgr.setFlagIsolateSelected(true);
+        ConstellationMgr.setFlagConstellationPick(true);
+        StarMgr.setLabelsAmount(3);
+        SolarSystem.setFlagLabels(true);
+        if (this._date) {
+            core.setDate(this._date, "utc");
+        }
+        // Show constellation overview
+        this.showOverview(4, 7);
+        // Zoom out to show Constellation art
+        StelMovementMgr.zoomTo(this._fov2, 1);
+        core.wait(1);
+        ConstellationMgr.setFlagArt(true);
+        core.wait(8);
+        // Hide constellation Art, zoom back to normal
+        ConstellationMgr.setFlagArt(false);
+        StelMovementMgr.zoomTo(this._fov1, 1);
+        // Show Objects of interes for this constellation
+        var tourItems = this._items;
+        if (tourItems != null) {
+            core.debug("Starting tour of objects of interest. (length: " + tourItems.length + " items)");
+            for (var i = 0; i < tourItems.length; i++) {
+                if (tourItems[i] == null)
+                    continue;
+                core.debug("   + Showing " + tourItems[i].name);
+                tourItems[i].show();
+                this.showOverview(0, 4);
+            }
+        }
+        else {
+            core.debug("No tour items found; Skipping objects ofinterest.");
+        }
+        // Grafiken abschalten
+        ConstellationMgr.setFlagArt(false);
+        ConstellationMgr.setFlagLabels(false);
+        ConstellationMgr.setFlagLines(false);
+        ConstellationMgr.setFlagBoundaries(false);
+        ConstellationMgr.setFlagIsolateSelected(false);
+        ConstellationMgr.setFlagConstellationPick(false);
+        // Selection abwählen
+        ConstellationMgr.deselectConstellations();
+        LabelMgr.deleteAllLabels();
+    };
+    return Constellation;
+}());
+exports.Constellation = Constellation;
+
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var originalDebug = core.debug;
+exports.Helper = {
+    InstallDebugHooks: function () {
+        var osd = new OnScreenLogger(15);
+        var betterDebug = function (msg) {
+            osd.addLine(msg);
+            originalDebug(msg);
+        };
+        core.debug = betterDebug;
+    },
+    RemoveDebugHooks: function () {
+        if (originalDebug != null) {
+            core.debug = originalDebug;
+        }
+        core.debug("Debug Hooks removed!");
+    }
+};
+// A class to create an on screen console using with Stellarium Labels
+var OnScreenLogger = /** @class */ (function () {
+    function OnScreenLogger(numLines) {
+        // X-Position of the log output
+        this._xp = 70;
+        // Output text font size
+        this._fs = 15;
+        // Line Margin
+        this._margin = 5;
+        this._labelHandle = [];
+        this._labelContent = [];
+        for (var i = 0; i < numLines; ++i) {
+            this._labelContent.push("");
+        }
+    }
+    OnScreenLogger.prototype.addLine = function (msg) {
+        for (var i = this._labelContent.length - 2; i >= 0; --i) {
+            this._labelContent[i + 1] = this._labelContent[i];
+        }
+        this._labelContent[0] = msg;
+        // delete old labels
+        for (var i = 0; i < this._labelHandle.length; ++i) {
+            var lb = this._labelHandle[i];
+            LabelMgr.deleteLabel(lb);
+        }
+        // Recreate labels
+        for (var i = 0; i < this._labelContent.length; ++i) {
+            var xp = this._xp;
+            var yp = core.getScreenHeight() - 150 - i * (this._fs + this._margin);
+            //            let lb : number = LabelMgr.labelScreen(this._labelContent[i] + "(" + this._labelContent.length.toString() + ";" + this._labelHandle.length.toString() + ")", xp, yp, true, this._fs, "#66ccff");
+            var msg_1 = this._labelContent[i];
+            if (msg_1)
+                msg_1 = "> " + msg_1;
+            this._labelHandle[i] = LabelMgr.labelScreen(msg_1, xp, yp, true, this._fs, "#66ccff");
+        }
+    };
+    return OnScreenLogger;
+}());
+;
+
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+// Creates a class for creating the german texts for this script
+Object.defineProperty(exports, "__esModule", { value: true });
+var Strings = /** @class */ (function () {
+    function Strings() {
+        this._german = {
+            title: "Sternbilder des Herbstes",
+            subtitle: "Himmel über Sachsen",
+            cepheus: "Sternbild Cepheus",
+            ngc6946: "Feuerwerksgalaxie - Eine Spiralgalaxie (21 Mio Lj)",
+            ngc7380: "Wizard Nebula - Offener Sternhaufen (7000 Lj)",
+            ngc7023: "Iris Nebula - Reflexionsnebel (1300 Lj)",
+            ngc7129: "Rosenknospennebel - Offener Sternhaufen, Sternenentstehungsgebiet (3300 Lj)",
+            perseus: "Sternbild Perseus",
+            ngc1499: "Kalifornien Nebel - Emmissionsnebel aus Wasserstoff (1000 Lj)",
+            ngc884: "Chi Persei - Offener Doppelsternhaufen (6781 Lj)",
+            cassiopeia: "Sternbild Kassiopeia",
+            m103: "Offener Sternhaufen M103 (8500 Lj)",
+            m52: "Blasennebel (7100 Lj) und offener Sternhaufen M52 (4600 Lj)",
+            lbn667: "Seelennebel - Emmissionsnebel aus ionisiertem Wasserstoff (7500 Lj)",
+            ic1805: "Herznebel - Emmissionsnebel aus ionisiertem Wasserstoff (7500 Lj)",
+            ngc281: "Emissionsnebel aus ionisiertem Wasserstoff (9500 Lj)",
+            ursaMajor: "Sternbild Großer Bär",
+            m101: "Feuerrad-Galaxie",
+            m97: "Eulennebel - Ein Stern stößt seine Hülle ab.",
+            m108: "Spiralgalaxie M108",
+            m81: "Spiralgalaxien M81 und M82",
+            ursaMinor: "Sternbild Kleiner Bär",
+            polaris: "Polarstern - Der Himmelsnordpol",
+            lyra: "Sternbild Leier",
+            m57: "Ringnebel M57 - Die abgestoßenen Hülle eines sterbenden Sterns",
+            cygnus: "Sternbild Schwan",
+            ngc7000: "Nordamerikanebel",
+            m39: "Offener Sternhaufen M39",
+            ngc6960: "Cirrusnebel",
+            lbn203: "Crescentnebel - Emmissionsnebel (4700 Lj)",
+            aAndromeda: "Sternbild Andromeda",
+            m31: "Andromedagalaxie - Hellste Galaxie am Nachthimmel (2.5 Mio Lj)",
+            triangle: "Sternbild Dreieck",
+            m33: "Dreiecksgalaxie - Zweithellste Galaxie am Nachthimmel (2.67 Mio Lj)",
+            hercules: "Sternbild Herkules",
+            m13: "Herkuleshaufen - Kugelsternhaufen",
+            m92: "Kugelsternhaufen"
+        };
+        this._english = {
+            title: "Constellations of the Autumn Sky",
+            subtitle: "Northern Hemispehere",
+            cepheus: "Constellation Cepheus",
+            ngc6946: "NGC 6946 - A spiral galaxy (21 Mio ly)",
+            ngc7380: "Wizard Nebula - Open cluster (7000 ly)",
+            ngc7023: "Iris Nebula - Reflection nebula (1300 ly)",
+            ngc7129: "NGC 7129 - Reflection nebula; Young open cluster (3300 ly)",
+            perseus: "Constellation Perseus",
+            ngc1499: "California Nebula - Emission nebula (1000 ly)",
+            ngc884: "Chi Persei - Open cluster (6781 ly)",
+            cassiopeia: "Constellation Cassiopeia",
+            m103: "Open cluster M103 (8500 ly)",
+            m52: "Bubble Nebula (7100 ly) and open cluster M52 (4600 ly)",
+            lbn667: "Soul Nebula - Emission nebula (7500 ly)",
+            ic1805: "Heart Nebula - Emission nebula (7500 ly)",
+            ngc281: "NGC 281 - Emission nebula (9500 ly)",
+            ursaMajor: "Constellation Ursa Major",
+            m101: "M101 - Pinwheel Galaxy",
+            m97: "Owl Nebula - Planetary Nebula (2030 ly)",
+            m108: "M108 - Spiral Galaxy",
+            m81: "M81 and M82 - Spiral Galaxies",
+            ursaMinor: "Constellation Ursa Minor",
+            polaris: "Pole Star - North Celestial Pole",
+            lyra: "Constellation Lyra",
+            m57: "Ring Nebula M57 - A red giants expelled hull",
+            cygnus: "Constellation Cygnus",
+            ngc7000: "North America Nebula",
+            m39: "M39 - Open cluster",
+            ngc6960: "Veil Nebula - Heated ionized gas",
+            lbn203: "Crescent Nebula - Emission nebula (4700 ly)",
+            aAndromeda: "Constellation Andromeda",
+            m31: "Andromeda Galaxy - Brightest galaxy of the night sky (2.5 Mio ly)",
+            triangle: "Constellation Triangulum",
+            m33: "Triangulum Galaxy - Second brightest galaxy of the night sky (2.67 Mio ly)",
+            hercules: "Constellation Hercules",
+            m13: "M13 - Hercules Globular Cluster",
+            m92: "M92 - Globular Cluster"
+        };
+    }
+    Strings.prototype.getLocalizedStrings = function (loc) {
+        if (loc === void 0) { loc = ""; }
+        // This function is using the localized name of the sun in order to try to determine the UI culture.
+        var lang;
+        if (loc) {
+            lang = loc;
+            core.debug('Forcing language to "' + lang + '"');
+        }
+        else {
+            lang = core.getAppLanguage();
+            core.debug('App language is "' + lang + '"');
+        }
+        var s;
+        // Germany, Austria and Switzerland get the german strings. 		
+        if (lang == "de_DE" || lang == "de_AT" || lang == "de_CH") {
+            s = this._german;
+        }
+        // default is english
+        else {
+            s = this._english;
+        }
+        return s;
+    };
+    return Strings;
+}());
+exports.Strings = Strings;
+
+
+/***/ })
+/******/ ]);

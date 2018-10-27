@@ -1,0 +1,191 @@
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// define __esModule on exports
+/******/ 	__webpack_require__.r = function(exports) {
+/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 		}
+/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 	};
+/******/
+/******/ 	// create a fake namespace object
+/******/ 	// mode & 1: value is a module id, require it
+/******/ 	// mode & 2: merge all properties of value into the ns
+/******/ 	// mode & 4: return value when already ns object
+/******/ 	// mode & 8|1: behave like require
+/******/ 	__webpack_require__.t = function(value, mode) {
+/******/ 		if(mode & 1) value = __webpack_require__(value);
+/******/ 		if(mode & 8) return value;
+/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
+/******/ 		var ns = Object.create(null);
+/******/ 		__webpack_require__.r(ns);
+/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
+/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
+/******/ 		return ns;
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 0);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+// Author: Ingo Berg
+// Version: 1.0
+// License: Public Domain
+// Name: HelloWorld
+// Description: A demonstrational script for tramnspiling typescript to stellarium
+Object.defineProperty(exports, "__esModule", { value: true });
+var Helper_1 = __webpack_require__(1);
+function main() {
+    try {
+        core.wait(2);
+        Helper_1.Helper.InstallDebugHooks();
+        LabelMgr.labelScreen("Hello world", 400, 550, true, 100, "#66ccff");
+        core.debug("Hello Typescript!");
+        core.debug("  + Control Stellarium with Typescript!");
+        core.debug("  + Keep your sanity whilst working with ECMA script");
+        core.debug("  + get a onscreen display of core.debug messages");
+        for (var i = 0; i < 10; ++i) {
+            core.debug("Teminating in " + (10 - i).toString() + " seconds");
+            core.wait(1);
+        }
+    }
+    catch (err) {
+        core.debug(err);
+    }
+    finally {
+        LabelMgr.deleteAllLabels();
+        Helper_1.Helper.RemoveDebugHooks();
+    }
+}
+main();
+
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var originalDebug = core.debug;
+exports.Helper = {
+    InstallDebugHooks: function () {
+        var osd = new OnScreenLogger(15);
+        var betterDebug = function (msg) {
+            osd.addLine(msg);
+            originalDebug(msg);
+        };
+        core.debug = betterDebug;
+    },
+    RemoveDebugHooks: function () {
+        if (originalDebug != null) {
+            core.debug = originalDebug;
+        }
+        core.debug("Debug Hooks removed!");
+    }
+};
+// A class to create an on screen console using with Stellarium Labels
+var OnScreenLogger = /** @class */ (function () {
+    function OnScreenLogger(numLines) {
+        // X-Position of the log output
+        this._xp = 70;
+        // Output text font size
+        this._fs = 15;
+        // Line Margin
+        this._margin = 5;
+        this._labelHandle = [];
+        this._labelContent = [];
+        for (var i = 0; i < numLines; ++i) {
+            this._labelContent.push("");
+        }
+    }
+    OnScreenLogger.prototype.addLine = function (msg) {
+        for (var i = this._labelContent.length - 2; i >= 0; --i) {
+            this._labelContent[i + 1] = this._labelContent[i];
+        }
+        this._labelContent[0] = msg;
+        // delete old labels
+        for (var i = 0; i < this._labelHandle.length; ++i) {
+            var lb = this._labelHandle[i];
+            LabelMgr.deleteLabel(lb);
+        }
+        // Recreate labels
+        for (var i = 0; i < this._labelContent.length; ++i) {
+            var xp = this._xp;
+            var yp = core.getScreenHeight() - 150 - i * (this._fs + this._margin);
+            //            let lb : number = LabelMgr.labelScreen(this._labelContent[i] + "(" + this._labelContent.length.toString() + ";" + this._labelHandle.length.toString() + ")", xp, yp, true, this._fs, "#66ccff");
+            var msg_1 = this._labelContent[i];
+            if (msg_1)
+                msg_1 = "> " + msg_1;
+            this._labelHandle[i] = LabelMgr.labelScreen(msg_1, xp, yp, true, this._fs, "#66ccff");
+        }
+    };
+    return OnScreenLogger;
+}());
+;
+
+
+/***/ })
+/******/ ]);

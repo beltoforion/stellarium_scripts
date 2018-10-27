@@ -1,0 +1,42 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "echoCommand": true,
+    "tasks": [
+        {
+            "label": "Build Stellarium Script",
+            "group":"build",
+            "command": "${env:HOME}/node_modules/.bin/webpack",
+            "args": [
+                "--display-modules",
+                "--progress",
+                "-p"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Execute Stellarium Script",
+            "group":"build",
+            "command": "bash",
+            "type": "shell",
+            "args": [
+                "../Shared/Scripts/launcher.sh",
+                "${workspaceFolderBasename}.ssc"
+            ],
+            "suppressTaskName": true,
+            "problemMatcher": []
+        }
+        // ,{
+        //     "label": "Execute Stellarium Script",
+        //     "group":"build",
+        //     "command": "stellarium",
+        //     "args": [
+        //         "--startup-script",
+        //         "${workspaceFolderBasename}.ssc"
+        //     ],
+        //     "suppressTaskName": true,
+        //     "problemMatcher": []
+        // }
+    ]
+}
