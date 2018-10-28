@@ -4,12 +4,12 @@ import { DictType } from "../Shared/Types"
 
 export class Strings {
     private _german : DictType = {
-        title : "Acht Planeten",
+        title : "Die inneren Planeten",
         subTitle : "Eine Tour durchs Sonnensystem"
     };
 
     private _english : DictType = {
-        title : "Eight Planets",
+        title : "Inner Planets",
         subTitle : "A tour through the Solar system"
     };    
 

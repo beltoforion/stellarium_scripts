@@ -610,27 +610,30 @@ declare namespace NebulaMgr {
 }
 
 declare namespace ScreenImageMgr {
-    function createScreenImage(s1:string,s2:string,f1:number,f2:number,f3:number,b:boolean,f4:number,f5:number):void;
-    function createScreenImage(s1:string,s2:string,f1:number,f2:number,f3:number,b:boolean,f4:number):void;
-    function createScreenImage(s1:string,s2:string,f1:number,f2:number,f3:number,b:boolean):void;
-    function createScreenImage(s1:string,s2:string,f1:number,f2:number,f3:number):void;
-    function createScreenImage(s1:string,s2:string,f1:number,f2:number):void;
-    
-    function getShowImage(s:string):boolean;
-    function showImage(s:string,b:boolean):void;
-    function getImageWidth(s:string):number;
-    function getImageHeight(s:string):number;
+    function createScreenImage(id : string, 
+                               fileName : string,
+                               x : number,
+                               y : number,
+                               scale? : number,
+                               visible? : boolean, 
+                               alpha? : number, 
+                               fadeDuration? : number) : void;
+    function getShowImage(id : string) : boolean;
+    function showImage(id : string , b : boolean) : void;
+    function getImageWidth(id : string) : number;
+    function getImageHeight(id : string) : number;
     
     function setImageScale(s:string,f1:number,f2:number,f3:number):void;
     function setImageScale(s:string,f1:number,f2:number):void;
     function getImageScaleX(s:string):number;
     function getImageScaleY(s:string):number;
     function setImageAlpha(s:string,f1:number):void;
-    function setImageXY(s:string,f1:number,f2:number,f3:number):void;
-    function setImageXY(s:string,f1:number,f2:number):void;
+    
+    function setImageXY(id:string,x:number,y:number,duration?:number):void;
+    
     function addImageXY(s:string,f1:number,f2:number,f3:number):void;
     function addImageXY(s:string,f1:number,f2:number):void;
-    function deleteImage(s:string):void;
+    function deleteImage(id:string):void;
     function deleteAllImages():void;
     
     // function getAllImageIDs();
