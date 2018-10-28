@@ -11,12 +11,12 @@ function main() : void {
 	{
 		core.wait(2);
 
-		Helper.InstallDebugHooks();
+		Helper.installDebugHooks();
 
 		LabelMgr.labelScreen("Hello world", 400, 550, true, 100, "#66ccff");
 	
-		core.debug("Debug Output:")
-		core.debug("  + Control Stellarium with Typescript!")
+		core.debug("Here is how Typescript can help you")
+		core.debug("  + Use stellariums native commands")
 		core.debug("  + Keep your sanity whilst working with ECMA script")
 		core.debug("  + get a onscreen display of core.debug messages")
 
@@ -28,11 +28,12 @@ function main() : void {
 	catch(err)
 	{
 		core.debug(err);
+		Helper.showError(err);
 	}
 	finally
 	{
 		LabelMgr.deleteAllLabels();
-		Helper.RemoveDebugHooks()
+		Helper.removeDebugHooks()
 	}
 }
 

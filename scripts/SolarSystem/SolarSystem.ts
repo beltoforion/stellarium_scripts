@@ -14,15 +14,15 @@ function setup() : void {
     core.wait(2);
 
     SolarSystem.setFlagPlanets(true);
-    SolarSystem.setMoonScale(6);
-    SolarSystem.setFlagMoonScale(true);
+    //SolarSystem.setMoonScale(6);
+    //SolarSystem.setFlagMoonScale(true);
     SolarSystem.setFontSize(25);
     
     StelSkyDrawer.setAbsoluteStarScale(1.0);
     StelSkyDrawer.setRelativeStarScale(1.1);
 
     StarMgr.setFontSize(20);
-    StarMgr.setLabelsAmount(3);
+    StarMgr.setLabelsAmount(0);
 
     StelMovementMgr.setAutoMoveDuration(5);
 
@@ -39,7 +39,7 @@ function setup() : void {
     SporadicMeteorMgr.setFlagShow(true);
     SporadicMeteorMgr.setZHR(20000);
 
-    core.setGuiVisible(false);
+//    core.setGuiVisible(false);
     core.setMilkyWayVisible(true);
     core.setMilkyWayIntensity(1);
 
@@ -48,50 +48,53 @@ function setup() : void {
 }
 
 function intro(delayTime : number) : void {
-    core.setDate("2492-05-06T20:00:00", "utc");
-    core.setTimeRate(500);
+    try
+    {
+        Helper.storeState(StarMgr);
+        Helper.storeState(SolarSystem);
 
-    StarMgr.setLabelsAmount(0);
-    SolarSystem.setFlagLabels(false);
+        SolarSystem.setFlagLabels(false);
 
-    core.debug(strings.title);
-    core.debug(strings.subTitle);
+//        core.setDate("2492-05-06T20:00:00", "utc");
+        core.setTimeRate(500);
 
-    var baseY = 200;
-    var labelTitle : number = LabelMgr.labelScreen(strings.title, 800, baseY, true, 70, "#66ccff");
-    LabelMgr.setLabelShow(labelTitle, true);
+        var baseY = 200;
+        Helper.showTitle(strings.title, strings.subTitle, 800, baseY);
 
-    var labelTitle : number = LabelMgr.labelScreen(strings.subTitle, 800, baseY + 100, true, 40, "#66ccff");
-    LabelMgr.setLabelShow(labelTitle, true);
+        core.moveToAltAzi(10, 270)
 
-    core.moveToAltAzi(10, 270)
+        var baseScale : number = 0.4;
+        var imgHeight : number;
+        var margin : number = 50;
+        var x = 800;
+        ScreenImageMgr.createScreenImage("imgSun", "./SolarSystem.Assets/sun.png", 0, 0, 0.7);
+        
+        var planets : string[] = [ "mercury", "venus", "earth", "mars" ];
+        var scale : number[] = [ 4879.4 / 12756.32, 12103.6 / 12756.32, 1, 6792.4 / 12756.32];
 
-    var baseScale : number = 0.4;
-    var imgHeight : number;
-    var margin : number = 50;
-    var x = 800;
-    ScreenImageMgr.createScreenImage("imgSun", "./SolarSystem.Assets/sun.png", 0, 0, 0.7);
-    
-    var planets : string[] = [ "mercury", "venus", "earth", "mars" ];
-    var scales : number[] = [ 4879.4 / 12756.32, 12103.6 / 12756.32, 1, 6792.4 / 12756.32];
+        for (var i=0; i<planets.length; ++i) {
+            var planet : string = planets[i];
+            ScreenImageMgr.createScreenImage(planet, "./SolarSystem.Assets/" + planet + ".png", 0, 0, baseScale * scale[i], false);
+            imgHeight = ScreenImageMgr.getImageWidth(planet);
 
-    for (var i=0; i<planets.length; ++i) {
-        var planet : string = planets[i];
-        var scale : number = scales[i];
-        ScreenImageMgr.createScreenImage(planet, "./SolarSystem.Assets/" + planet + ".png", 0, 0, baseScale * scale, false);
-        imgHeight = ScreenImageMgr.getImageWidth(planet);
+            //core.debug("imageHeight=" + imgHeight + "; x=" + x + "; y=" + (baseY - imgHeight / 2));
+            ScreenImageMgr.setImageXY(planet, x, baseY + 400 - imgHeight / 2)
+            ScreenImageMgr.showImage(planet, true);
+            x += imgHeight + margin;
+        }
+        
+        core.wait(delayTime);
 
-        //core.debug("imageHeight=" + imgHeight + "; x=" + x + "; y=" + (baseY - imgHeight / 2));
-        ScreenImageMgr.setImageXY(planet, x, baseY + 400 - imgHeight / 2)
-        ScreenImageMgr.showImage(planet, true);
-        x += imgHeight + margin;
+        core.setTimeRate(1);
+        LabelMgr.deleteAllLabels();    
+        ScreenImageMgr.deleteAllImages();
+        SolarSystem.setFlagLabels(true);
     }
-    
-    core.wait(delayTime);
-
-    core.setTimeRate(1);
-    LabelMgr.deleteAllLabels();    
-    ScreenImageMgr.deleteAllImages();
+    finally
+    {
+        Helper.restoreState(StarMgr);
+        Helper.restoreState(SolarSystem);
+    }
 }
 
 abstract class PlanetaryObserver {
@@ -99,6 +102,11 @@ abstract class PlanetaryObserver {
     private _lat : number;
     private _date : string;
     private _name : string;
+
+    // Search key for stellariums object database
+    private _id : string;
+
+    private _fovSun : number;
 
     get name() {
         return this._name;
@@ -115,12 +123,35 @@ abstract class PlanetaryObserver {
     get date() {
         return this._date;
     }
+    
+    get id() {
+        return this._id;
+    }
 
-    constructor(name: string, long:number, lat:number, date:string) {
+    get fovSun() {
+        return this._fovSun;
+    }
+
+    set fovSun(value:number) {
+        this._fovSun = value;
+    }
+
+    constructor(name: string, id : string, long:number, lat:number, date:string) {
+        if (id==null)
+            throw new Error("PlanetaryObserver.constructor: id is null or empty!")
+
+        if (name==null)
+            throw new Error("PlanetaryObserver.constructor: name is null or empty!")
+
         this._long = long;
         this._lat = lat;
         this._date = date;
         this._name = name;
+        this._id = id;
+
+        var cached = LandscapeMgr.precacheLandscape('Sun');
+        if (!cached)
+            throw new Error('Precaching landscape "Sun" failed');
     }
 
     public watchSurface() : void {
@@ -129,26 +160,41 @@ abstract class PlanetaryObserver {
 
     public watchFromSun() : void {
         core.debug("Setting up " + this._name + " sun observer");
+
+//        LandscapeMgr.setCurrentLandscapeName("Sun");
+        LandscapeMgr.setFlagFog(false);
+        LandscapeMgr.setFlagAtmosphere(false);
+        LandscapeMgr.setFlagLandscape(false);
+
         this.select();
+
+        StelMovementMgr.autoZoomIn(0);
+        StelMovementMgr.zoomTo(this.fovSun, 0);
+        core.wait(0.1);
     }
 
     public select() : void {
-        core.debug("Selecting object " + this.name)
-        core.selectObjectByName(this.name);
+        core.debug('Selecting object "' + this.id + '" (' + this.name + ')')
+        core.selectObjectByName(this.id, true);
     }
 }
 
 class MercuryObserver extends PlanetaryObserver {
     constructor(long:number, lat:number, date:string) {
-        super("Mercury", long, lat, date);
+        super(strings.mercury, "Mercury", long, lat, date);
+        
+        this.fovSun = 0.008;
     }
 
     public watchSurface() : void {
         super.watchSurface();
-        LandscapeMgr.setFlagAtmosphere(true);
         LandscapeMgr.setCurrentLandscapeName("Moon");
+        LandscapeMgr.setFlagAtmosphere(false);
+        LandscapeMgr.setFlagFog(false);
+        LandscapeMgr.setFlagLandscape(true);
         LandscapeMgr.setFlagLandscapeUseMinimalBrightness(true);
         LandscapeMgr.setDefaultMinimalBrightness(0.05);
+
         core.setDate(this.date, "utc");
         core.setObserverLocation(this.long, this.lat, 425, 0, "Surface Mercury Observer", "Mercury");
     }
@@ -156,23 +202,47 @@ class MercuryObserver extends PlanetaryObserver {
     public watchFromSun() : void {
         super.watchFromSun();
 
-        LandscapeMgr.setFlagAtmosphere(false);
-        LandscapeMgr.setFlagLandscape(false);
-
         core.setDate(this.date, "utc");
         core.setObserverLocation(this.long, this.lat, 425, 0, "Solar Mercury Observer", "Sun");
     }
 }
 
-class EarthObserver extends PlanetaryObserver {
+class VenusObserver extends PlanetaryObserver {
     constructor(long:number, lat:number, date:string) {
-        super("Earth", long, lat, date);
+        super(strings.mars, "Venus", long, lat, date);
+
+        this.fovSun = 0.008;
     }
 
     public watchSurface() : void {
         super.watchSurface();
+        LandscapeMgr.setCurrentLandscapeName("Mars");
         LandscapeMgr.setFlagAtmosphere(true);
+        LandscapeMgr.setFlagFog(true);
+        LandscapeMgr.setFlagLandscape(true);
+
+        core.setDate(this.date, "utc");
+        core.setObserverLocation(this.long, this.lat, 425, 0, "Venus Observer", "Venus");
+    }
+
+    public watchFromSun() : void {
+        super.watchFromSun();
+    }
+}
+
+class EarthObserver extends PlanetaryObserver {
+    constructor(long:number, lat:number, date:string) {
+        super(strings.earth, "Earth", long, lat, date);
+
+        this.fovSun = 0.008;
+    }
+
+    public watchSurface() : void {
+        super.watchSurface();
         LandscapeMgr.setCurrentLandscapeName("Garching");
+        LandscapeMgr.setFlagAtmosphere(true);
+        LandscapeMgr.setFlagFog(true);
+        LandscapeMgr.setFlagLandscape(true);
 
         core.setDate(this.date, "utc");
         core.setObserverLocation(this.long, this.lat, 425, 0, "Earth Observer", "Earth");
@@ -186,13 +256,18 @@ class EarthObserver extends PlanetaryObserver {
 
 class MarsObserver extends PlanetaryObserver {
     constructor(long:number, lat:number, date:string) {
-        super("Mars", long, lat, date);
+        super(strings.mars, "Mars", long, lat, date);
+
+        // fov for mars + phobos + deimos
+        this.fovSun = 0.0132;
     }
 
     public watchSurface() : void {
         super.watchSurface();
-        LandscapeMgr.setFlagAtmosphere(true);
         LandscapeMgr.setCurrentLandscapeName("Mars");
+        LandscapeMgr.setFlagAtmosphere(true);
+        LandscapeMgr.setFlagFog(true);
+        LandscapeMgr.setFlagLandscape(true);
 
         core.setDate(this.date, "utc");
         core.setObserverLocation(this.long, this.lat, 425, 0, "Mars Observer", "Mars");
@@ -205,13 +280,17 @@ class MarsObserver extends PlanetaryObserver {
 
 class SaturnObserver extends PlanetaryObserver {
     constructor(long:number, lat:number, date:string) {
-        super("Saturn", long, lat, date);
+        super(strings.saturn, "Saturn", long, lat, date);
+
+        this.fovSun = 0.008;
     }
 
     public watchSurface() : void {
         super.watchSurface();
-        LandscapeMgr.setFlagAtmosphere(true);
         LandscapeMgr.setCurrentLandscapeName("Saturn");
+        LandscapeMgr.setFlagAtmosphere(true);
+        LandscapeMgr.setFlagFog(true);
+        LandscapeMgr.setFlagLandscape(true);
 
         core.setDate(this.date, "utc");
         core.setObserverLocation(this.long, this.lat, 425, 0, "Saturn Observer", "Saturn");
@@ -224,13 +303,17 @@ class SaturnObserver extends PlanetaryObserver {
 
 class JupiterObserver extends PlanetaryObserver {
     constructor(long:number, lat:number, date:string) {
-        super("Jupiter", long, lat, date);
+        super(strings.jupiter, "Jupiter", long, lat, date);
+
+        this.fovSun = 0.008;
     }
 
     public watchSurface() : void {
         super.watchSurface();
-        LandscapeMgr.setFlagAtmosphere(true);
         LandscapeMgr.setCurrentLandscapeName("Jupiter");
+        LandscapeMgr.setFlagAtmosphere(true);
+        LandscapeMgr.setFlagFog(true);
+        LandscapeMgr.setFlagLandscape(true);
 
         core.setDate(this.date, "utc");
         core.setObserverLocation(this.long, this.lat, 425, 0, "Jupiter Observer", "Jupiter");
@@ -243,7 +326,9 @@ class JupiterObserver extends PlanetaryObserver {
 
 class NeptunObserver extends PlanetaryObserver {
     constructor(long:number, lat:number, date:string) {
-        super("Neptun", long, lat, date);
+        super(strings.neptun, "Neptun", long, lat, date);
+
+        this.fovSun = 0.008;
     }
 
     public watchSurface() : void {
@@ -265,33 +350,36 @@ function main() : void {
     {
         core.wait(2);
 
-        Helper.InstallDebugHooks();
+        Helper.installDebugHooks();
 
         setup();
         intro(5);
 
-        var mercury : PlanetaryObserver = new MercuryObserver(-33.22, 19.13, "1997-07-29T23:35:00");
-        mercury.watchSurface();
-        core.wait(5);
-        mercury.watchFromSun();
+        var planets : PlanetaryObserver[] = [
+            new MercuryObserver(-33.22, 19.13, "1997-07-29T23:35:00"),
+            new VenusObserver(-33.22, 19.13, "1997-07-29T23:35:00"),
+            new EarthObserver(-33.22, 19.13, "1997-07-29T23:35:00"),
+            new MarsObserver(-33.22, 19.13, "1997-07-29T23:35:00"),
+        ];
 
-        // var mars : PlanetaryObserver = new MarsObserver(-33.22, 19.13, "1997-07-29T23:35:00");
-        // mars.setup();
+        for (var i=0; i<planets.length; ++i) {
+            var p = planets[i];
+            if (p==null)
+                continue;
 
-        // var saturn : PlanetaryObserver = new SaturnObserver(-33.22, 19.13, "1997-07-29T23:35:00");
-        // saturn.setup();
-
-        // var jupiter : PlanetaryObserver = new JupiterObserver(-33.22, 19.13, "1997-07-29T23:35:00");
-        // jupiter.setup();
+            p.watchFromSun();
+            core.wait(5);
+        }
     }
     catch(exc)
     {
         core.debug(exc);
+        Helper.showError(exc);
     }
     finally
     {
-        Helper.RemoveDebugHooks();
-        core.setTimeRate(0);
+        Helper.removeDebugHooks();
+        core.setTimeRate(1);
     }
 }
 

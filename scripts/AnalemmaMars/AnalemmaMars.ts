@@ -69,7 +69,7 @@ function intro() : void {
 function main() : void {
 	try
 	{
-		Helper.InstallDebugHooks();
+		Helper.installDebugHooks();
 
 		setup()
 		intro();
@@ -88,13 +88,14 @@ function main() : void {
 	catch(err)
 	{
 		core.debug(err);
+		Helper.showError(err);
 	}
 	finally
 	{
 		core.debug("Restoring environment");
 		core.setGuiVisible(true);
 		StelMovementMgr.setFlagEnableMouseNavigation(true);
-		Helper.RemoveDebugHooks();
+		Helper.removeDebugHooks();
 	}
 }
 

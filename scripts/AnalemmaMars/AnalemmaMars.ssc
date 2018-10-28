@@ -94,6 +94,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var Strings = /** @class */ (function () {
     function Strings() {
         this._german = {
+            anErrorOccured: "Ein Fehler ist aufgetreten",
             january: "Januar",
             february: "Februar",
             march: "März",
@@ -111,6 +112,7 @@ var Strings = /** @class */ (function () {
             summerSolstice: "Sommersonnenwende"
         };
         this._english = {
+            anErrorOccured: "An error occured",
             january: "January",
             february: "February",
             march: "March",
@@ -226,7 +228,7 @@ function intro() {
 }
 function main() {
     try {
-        Helper_1.Helper.InstallDebugHooks();
+        Helper_1.Helper.installDebugHooks();
         setup();
         intro();
         // Position is for the Sagan memorial station (19° 7′ 48″ N, 33° 13′ 12″ W  (19.13°, -33.22°) )
@@ -241,12 +243,13 @@ function main() {
     }
     catch (err) {
         core.debug(err);
+        Helper_1.Helper.showError(err);
     }
     finally {
         core.debug("Restoring environment");
         core.setGuiVisible(true);
         StelMovementMgr.setFlagEnableMouseNavigation(true);
-        Helper_1.Helper.RemoveDebugHooks();
+        Helper_1.Helper.removeDebugHooks();
     }
 }
 main();
@@ -418,43 +421,78 @@ exports.Analemma = Analemma;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+var Strings_1 = __webpack_require__(0);
 var originalDebug = core.debug;
+var strings = new Strings_1.Strings().getLocalizedStrings();
 exports.Helper = {
-    InstallDebugHooks: function () {
+    installDebugHooks: function () {
         var osd = new OnScreenLogger(15);
         var betterDebug = function (msg) {
-            osd.addLine(msg);
+            if (msg instanceof Error) {
+                osd.addLine(msg.toString(), "#ff3333");
+            }
+            else {
+                osd.addLine(msg.toString(), "#66ccff");
+            }
             originalDebug(msg);
         };
         core.debug = betterDebug;
     },
-    RemoveDebugHooks: function () {
+    removeDebugHooks: function () {
         if (originalDebug != null) {
             core.debug = originalDebug;
         }
         core.debug("Debug Hooks removed!");
+    },
+    restoreState: function (o) {
+        // todo: restore state of public getters
+    },
+    storeState: function (o) {
+        // todo: store state of public getters
+    },
+    showError: function (err) {
+        var x = 100;
+        var y = 100;
+        var labelTitle = LabelMgr.labelScreen(strings.anErrorOccured, x, y, true, 50, "#ff3333");
+        LabelMgr.setLabelShow(labelTitle, true);
+        var labelTitle = LabelMgr.labelScreen(err.message, x, y + 70, true, 40, "#ff3333");
+        LabelMgr.setLabelShow(labelTitle, true);
+    },
+    showTitle: function (title, subTitle, x, y) {
+        core.debug(title);
+        core.debug(subTitle);
+        var labelTitle = LabelMgr.labelScreen(title, x, y, true, 70, "#66ccff");
+        LabelMgr.setLabelShow(labelTitle, true);
+        var labelTitle = LabelMgr.labelScreen(subTitle, x, y + 100, true, 40, "#66ccff");
+        LabelMgr.setLabelShow(labelTitle, true);
     }
 };
 // A class to create an on screen console using with Stellarium Labels
 var OnScreenLogger = /** @class */ (function () {
     function OnScreenLogger(numLines) {
+        // An array of stellarium labels serving as a circular buffer
+        this._labelHandle = [];
+        this._labelContent = [];
+        this._labelColor = [];
         // X-Position of the log output
         this._xp = 70;
         // Output text font size
         this._fs = 15;
         // Line Margin
         this._margin = 5;
-        this._labelHandle = [];
-        this._labelContent = [];
         for (var i = 0; i < numLines; ++i) {
             this._labelContent.push("");
+            this._labelColor.push("");
         }
     }
-    OnScreenLogger.prototype.addLine = function (msg) {
+    OnScreenLogger.prototype.addLine = function (msg, color) {
+        if (color === void 0) { color = "#66ccff"; }
         for (var i = this._labelContent.length - 2; i >= 0; --i) {
             this._labelContent[i + 1] = this._labelContent[i];
+            this._labelColor[i + 1] = this._labelColor[i];
         }
         this._labelContent[0] = msg;
+        this._labelColor[0] = color;
         // delete old labels
         for (var i = 0; i < this._labelHandle.length; ++i) {
             var lb = this._labelHandle[i];
@@ -468,7 +506,7 @@ var OnScreenLogger = /** @class */ (function () {
             var msg_1 = this._labelContent[i];
             if (msg_1)
                 msg_1 = "> " + msg_1;
-            this._labelHandle[i] = LabelMgr.labelScreen(msg_1, xp, yp, true, this._fs, "#66ccff");
+            this._labelHandle[i] = LabelMgr.labelScreen(msg_1, xp, yp, true, this._fs, this._labelColor[i]);
         }
     };
     return OnScreenLogger;

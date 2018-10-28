@@ -100,9 +100,9 @@ var Helper_1 = __webpack_require__(1);
 function main() {
     try {
         core.wait(2);
-        Helper_1.Helper.InstallDebugHooks();
+        Helper_1.Helper.installDebugHooks();
         LabelMgr.labelScreen("Hello world", 400, 550, true, 100, "#66ccff");
-        core.debug("Hello Typescript!");
+        core.debug("Here is how Typescript can help you");
         core.debug("  + Control Stellarium with Typescript!");
         core.debug("  + Keep your sanity whilst working with ECMA script");
         core.debug("  + get a onscreen display of core.debug messages");
@@ -113,10 +113,11 @@ function main() {
     }
     catch (err) {
         core.debug(err);
+        Helper_1.Helper.showError(err);
     }
     finally {
         LabelMgr.deleteAllLabels();
-        Helper_1.Helper.RemoveDebugHooks();
+        Helper_1.Helper.removeDebugHooks();
     }
 }
 main();
@@ -129,43 +130,78 @@ main();
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+var Strings_1 = __webpack_require__(2);
 var originalDebug = core.debug;
+var strings = new Strings_1.Strings().getLocalizedStrings();
 exports.Helper = {
-    InstallDebugHooks: function () {
+    installDebugHooks: function () {
         var osd = new OnScreenLogger(15);
         var betterDebug = function (msg) {
-            osd.addLine(msg);
+            if (msg instanceof Error) {
+                osd.addLine(msg.toString(), "#ff3333");
+            }
+            else {
+                osd.addLine(msg.toString(), "#66ccff");
+            }
             originalDebug(msg);
         };
         core.debug = betterDebug;
     },
-    RemoveDebugHooks: function () {
+    removeDebugHooks: function () {
         if (originalDebug != null) {
             core.debug = originalDebug;
         }
         core.debug("Debug Hooks removed!");
+    },
+    restoreState: function (o) {
+        // todo: restore state of public getters
+    },
+    storeState: function (o) {
+        // todo: store state of public getters
+    },
+    showError: function (err) {
+        var x = 100;
+        var y = 100;
+        var labelTitle = LabelMgr.labelScreen(strings.anErrorOccured, x, y, true, 50, "#ff3333");
+        LabelMgr.setLabelShow(labelTitle, true);
+        var labelTitle = LabelMgr.labelScreen(err.message, x, y + 70, true, 40, "#ff3333");
+        LabelMgr.setLabelShow(labelTitle, true);
+    },
+    showTitle: function (title, subTitle, x, y) {
+        core.debug(title);
+        core.debug(subTitle);
+        var labelTitle = LabelMgr.labelScreen(title, x, y, true, 70, "#66ccff");
+        LabelMgr.setLabelShow(labelTitle, true);
+        var labelTitle = LabelMgr.labelScreen(subTitle, x, y + 100, true, 40, "#66ccff");
+        LabelMgr.setLabelShow(labelTitle, true);
     }
 };
 // A class to create an on screen console using with Stellarium Labels
 var OnScreenLogger = /** @class */ (function () {
     function OnScreenLogger(numLines) {
+        // An array of stellarium labels serving as a circular buffer
+        this._labelHandle = [];
+        this._labelContent = [];
+        this._labelColor = [];
         // X-Position of the log output
         this._xp = 70;
         // Output text font size
         this._fs = 15;
         // Line Margin
         this._margin = 5;
-        this._labelHandle = [];
-        this._labelContent = [];
         for (var i = 0; i < numLines; ++i) {
             this._labelContent.push("");
+            this._labelColor.push("");
         }
     }
-    OnScreenLogger.prototype.addLine = function (msg) {
+    OnScreenLogger.prototype.addLine = function (msg, color) {
+        if (color === void 0) { color = "#66ccff"; }
         for (var i = this._labelContent.length - 2; i >= 0; --i) {
             this._labelContent[i + 1] = this._labelContent[i];
+            this._labelColor[i + 1] = this._labelColor[i];
         }
         this._labelContent[0] = msg;
+        this._labelColor[0] = color;
         // delete old labels
         for (var i = 0; i < this._labelHandle.length; ++i) {
             var lb = this._labelHandle[i];
@@ -179,12 +215,99 @@ var OnScreenLogger = /** @class */ (function () {
             var msg_1 = this._labelContent[i];
             if (msg_1)
                 msg_1 = "> " + msg_1;
-            this._labelHandle[i] = LabelMgr.labelScreen(msg_1, xp, yp, true, this._fs, "#66ccff");
+            this._labelHandle[i] = LabelMgr.labelScreen(msg_1, xp, yp, true, this._fs, this._labelColor[i]);
         }
     };
     return OnScreenLogger;
 }());
 ;
+
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var Strings = /** @class */ (function () {
+    function Strings() {
+        this._german = {
+            anErrorOccured: "Ein Fehler ist aufgetreten",
+            january: "Januar",
+            february: "Februar",
+            march: "März",
+            april: "April",
+            may: "Mai",
+            june: "Juni",
+            july: "Juli",
+            august: "August",
+            september: "September",
+            october: "Oktober",
+            november: "November",
+            december: "Dezember",
+            dateAndTime: "Datum und Zeit",
+            winterSolstice: "Wintersonnenwende",
+            summerSolstice: "Sommersonnenwende"
+        };
+        this._english = {
+            anErrorOccured: "An error occured",
+            january: "January",
+            february: "February",
+            march: "March",
+            april: "April",
+            may: "May",
+            june: "June",
+            july: "July",
+            august: "August",
+            september: "September",
+            october: "October",
+            november: "November",
+            december: "December",
+            dateAndTime: "Date and Time",
+            winterSolstice: "Winter solstice",
+            summerSolstice: "Sommer solstice"
+        };
+    }
+    Strings.prototype.verify = function () {
+        // todo: Check all langauge versions and panik if one of them is missing a string.
+    };
+    Strings.prototype.getLocalizedStrings = function (loc) {
+        if (loc === void 0) { loc = ""; }
+        // This function is using the localized name of the sun in order to try to determine the UI culture.
+        var lang;
+        if (loc) {
+            lang = loc;
+            core.debug('Forcing language to "' + lang + '"');
+        }
+        else {
+            lang = core.getAppLanguage();
+            core.debug('App language is "' + lang + '"');
+        }
+        var s;
+        // Germany, Austria and Switzerland get the german strings. 		
+        if (lang == "de_DE" || lang == "de_AT" || lang == "de_CH") {
+            s = this._german;
+        }
+        // default is english
+        else {
+            s = this._english;
+        }
+        // Add support functions
+        s.monthFromInt = function (m) {
+            if (m < 1 || m > 12)
+                return "invalid month";
+            var monthNames = [s.january, s.february, s.march,
+                s.april, s.may, s.june,
+                s.july, s.august, s.september,
+                s.october, s.november, s.december];
+            return monthNames[m - 1];
+        };
+        return s;
+    };
+    return Strings;
+}());
+exports.Strings = Strings;
 
 
 /***/ })

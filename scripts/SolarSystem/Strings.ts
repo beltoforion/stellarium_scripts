@@ -5,16 +5,33 @@ import { DictType } from "../Shared/Types"
 export class Strings {
     private _german : DictType = {
         title : "Die inneren Planeten",
-        subTitle : "Eine Tour durchs Sonnensystem"
+        subTitle : "Eine Tour durchs Sonnensystem",
+        sun : "Sonne",
+        mercury : "Merkur",
+        venus : "Venus",
+        earth : "Erde",
+        mars : "Mars",
+        saturn : "Saturn",
+        jupiter : "Jupiter",
+        uranus : "Uranus",
+        neptun : "Neptun", 
+        pluto : "Pluto"
     };
 
     private _english : DictType = {
         title : "Inner Planets",
-        subTitle : "A tour through the Solar system"
+        subTitle : "A tour through the Solar system",
+        sun : "Sun",
+        mercury : "Mercury",
+        venus : "Venus",
+        earth : "Earth",
+        mars : "Mars",
+        saturn : "Saturn",
+        jupiter : "Jupiter",
+        uranus : "Uranus",
+        neptun : "Neptun", 
+        pluto : "Pluto"
     };    
-
-    public constructor() {
-    }
 
     public getLocalizedStrings() : DictType {
 

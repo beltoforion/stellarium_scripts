@@ -35,23 +35,23 @@ declare namespace core {
     // <ibg 2018-10-24> Technically parameters 1 and 2 are originally strings. 
     // http://stellarium.org/doc/0.18/namespaceStelUtils.html#acd88f8194549c7d46656952428720427
     // I added two overloads for numbers
-    function moveToAltAzi(alt:number, az:number, f : number) : void;
-    function moveToAltAzi(alt:number, az:number) : void;
+    function moveToAltAzi(alt:number, az:number, f? : number) : void;
     // original (proper definition):
-    function moveToAltAzi(s:string, s2:string, f : number) : void;
-    function moveToAltAzi(s:string, s2:string) : void;
+    function moveToAltAzi(s:string, s2:string, f? : number) : void;
     // </ibg>
 
     function moveToRaDec(s:string, s2:string, f : number): void;
     function moveToRaDec(s:string, s2:string): void;
     function moveToRaDecJ2000(s:string, s2:string, f:number): void;
     function moveToRaDecJ2000(s:string, s2:string): void;
+
     function setObserverLocation(d1:number,d2:number,d3:number,d4:number,s1:string,s2:string):void;
     function setObserverLocation(d1:number,d2:number,d3:number,d4:number,s:string):void;
     function setObserverLocation(d1:number,d2:number,d3:number,d4:number):void;
     function setObserverLocation(d1:number,d2:number,d3:number):void;
     function setObserverLocation(s:string,f:number):void;
     function setObserverLocation(s:string):void;
+
     function getObserverLocation() : string;
     function getObserverLocationInfo() : any;
     function screenshot(s:string,b:boolean,s2:string,b2:boolean):void;
@@ -379,29 +379,11 @@ declare namespace GridLinesMgr {
 }
 
 declare namespace LabelMgr {
-    function labelObject(s:string,s2:string,b1:boolean,f:number,s3:string,s4:string,d:number,s5:string,b2:boolean,i:number):number;
-    function labelObject(s:string,s2:string,b1:boolean,f:number,s3:string,s4:string,d:number,s5:string,b2:boolean):number;
-    function labelObject(s:string,s2:string,b1:boolean,f:number,s3:string,s4:string,d:number,s5:string):number;
-    function labelObject(s:string,s2:string,b1:boolean,f:number,s3:string,s4:string,d:number):number;
-    function labelObject(s:string,s2:string,b1:boolean,f:number,s3:string,s4:string):number;
-    function labelObject(s:string,s2:string,b1:boolean,f:number,s3:string):number;
-    function labelObject(s:string,s2:string,b1:boolean,f:number):number;
-    function labelObject(s:string,s2:string,b1:boolean):number;
-    function labelObject(s:string,s2:string):number;
-    
-    function labelHorizon(s:string,f1:number,f2:number,b1:boolean,f3:number,s2:string,b2:boolean,i:number):number;
-    function labelHorizon(s:string,f1:number,f2:number,b1:boolean,f3:number,s2:string,b2:boolean):number;
-    function labelHorizon(s:string,f1:number,f2:number,b1:boolean,f3:number,s2:string):number;
-    function labelHorizon(s:string,f1:number,f2:number,b1:boolean,f3:number):number;
-    function labelHorizon(s:string,f1:number,f2:number,b1:boolean):number;
-    function labelHorizon(s:string,f1:number,f2:number):number;
-    
-    function labelScreen(s:string,x:number,y:number,vis:boolean,fs:number,col:string,ad:boolean,adt:number): number;
-    function labelScreen(s:string,x:number,y:number,vis:boolean,fs:number,col:string,ad:boolean): number;
-    function labelScreen(s:string,x:number,y:number,vis:boolean,fs:number,col:string): number;
-    function labelScreen(s:string,x:number,y:number,vis:boolean,fs:number): number;
-    function labelScreen(s:string,x:number,y:number,vis:boolean): number;
-    function labelScreen(s:string,x:number,y:number) : number;
+
+    function labelObject(s:string,s2:string,b1?:boolean,f?:number,s3?:string,s4?:string,d?:number,s5?:string,b2?:boolean,i?:number):number;
+    function labelHorizon(s:string,f1:number,f2:number,b1?:boolean,f3?:number,s2?:string,b2?:boolean,i?:number):number;
+    function labelScreen(s:string,x:number,y:number,vis?:boolean,fs?:number,col?:string,ad?:boolean,adt?:number): number;
+
     function getLabelShow(i:number):boolean;
     
     function setLabelShow(i:number,b:boolean):void;
@@ -424,37 +406,46 @@ declare namespace LandscapeMgr {
     function getCurrentLandscapeName():string;
     function setCurrentLandscapeName(s:string,d:number): void;
     function setCurrentLandscapeName(s:string): void;
-    // function getCurrentLandscapeBrightness(b:boolean);
-    // function getCurrentLandscapeBrightness();
-    // function precacheLandscape(s:string,bool);
-    // function precacheLandscape(s:string);
-    // function removeCachedLandscape(s:string);
+    
+    function getCurrentLandscapeBrightness(light?:boolean):number;
+    
+    function precacheLandscape(landscapeId:string,replace?:boolean):boolean;
+    function removeCachedLandscape(landscapeId:string):boolean;
+
     function setCacheSize(i:number):void;
     function getCacheSize():number;
     function getCacheFilledSize():number;
     function getCacheCount():number;
     function getCurrentLandscape():string;
+    
     function getDefaultLandscapeID():string;
     function setDefaultLandscapeID(s:string):void;
+    
     function getCurrentLandscapeHtmlDescription():string;
     function getDescription():string;
+    
     function getFlagLandscape():boolean;
-    function setFlagLandscape(b:boolean):void;
-    // function getIsLandscapeFullyVisible();
-    // function getLandscapeSinMinAltitudeLimit();
+    function setFlagLandscape(visible:boolean):void;
+    
+    function getIsLandscapeFullyVisible():boolean;
+    function getLandscapeSinMinAltitudeLimit():number;
     function getFlagFog():boolean;
     function setFlagFog(b:boolean):void;
+    
     function getFlagIllumination():boolean;
     function setFlagIllumination(b:boolean):void;
+    
     function getFlagLabels():boolean;
     function setFlagLabels(b:boolean):void;
+    
     function getFlagLandscapeSetsLocation():boolean;
     function setFlagLandscapeSetsLocation(b:boolean):void;
+    
     function getFlagLandscapeUseMinimalBrightness():boolean;
     function setFlagLandscapeUseMinimalBrightness(b:boolean):void;
     function getFlagLandscapeSetsMinimalBrightness():boolean;
     function setFlagLandscapeSetsMinimalBrightness(b:boolean):void;
-    // function getDefaultMinimalBrightness();
+    function getDefaultMinimalBrightness():number;
     function setDefaultMinimalBrightness(d:number):void;
     function setFlagUseLightPollutionFromDatabase(b:boolean):void;
     function getFlagUseLightPollutionFromDatabase():boolean;
@@ -474,17 +465,21 @@ declare namespace LandscapeMgr {
     function installLandscapeFromArchive(s:string):string;
     
     function removeLandscape(s:string):void;
-    // function loadLandscapeName(s:string);
-    // function loadLandscapeSize(s:string);
+    function loadLandscapeName(landscapeId:string):string;
+    function loadLandscapeSize(landscapeId:string):number;
     function getFlagLandscapeAutoSelection():boolean;
     function setFlagLandscapeAutoSelection(b:boolean):void;
+
     function getFlagEnvironmentAutoEnable():boolean;
     function setFlagEnvironmentAutoEnable(b:boolean):void;
+    
     function getFlagAtmosphereAutoEnable():boolean;
     function setFlagAtmosphereAutoEnable(b:boolean):void;
-    // function getLandscapeOpacity(Vec3d);
-    // function getLandscapeOpacity(Vec3f);
-    // function getLandscapeOpacity(float,float);
+    
+    // function getLandscapeOpacity(Vec3d):number;
+    // function getLandscapeOpacity(Vec3f):number;
+    
+    function getLandscapeOpacity(az:number, alt:number):number;
 }
 
 declare namespace SporadicMeteorMgr {
@@ -826,10 +821,9 @@ declare namespace StelMovementMgr {
     // function moveToAltAzi(Vec3d,Vec3d,float,ZoomingMode);
     // function moveToAltAzi(Vec3d,Vec3d,float);
     // function moveToAltAzi(Vec3d,Vec3d);
-    function zoomTo(d:number, f:number):void;
-    function zoomTo(d:number):void;
-    // function getCurrentFov();
-    // function getInitFov();
+    function zoomTo(aimFov:number, zoomDuration?:number):void;
+    function getCurrentFov():number;
+    function getInitFov():number;
     function setInitFov(d:number):void;
     // function getInitViewingDirection();
     // function setInitViewDirectionToCurrent();
@@ -837,29 +831,26 @@ declare namespace StelMovementMgr {
     // function setViewDirectionJ2000(Vec3d):void;
     function setMaxFov(d:number):void;
     function getMaxFov():number;
-    // function getMinFov();
-    function autoZoomIn(f:number,b:boolean):void;
-    function autoZoomIn(f:number):void;
-    function autoZoomIn():void;
-    function autoZoomOut(f:number,b:boolean):void;
-    function autoZoomOut(f:number):void;
-    function autoZoomOut():void;
-    // function getAimFov();
-    // function turnRight(b:boolean);
-    // function turnLeft(b:boolean);
-    // function turnUp(b:boolean);
-    // function turnDown(b:boolean);
-    // function moveSlow(b:boolean);
-    // function zoomIn(b:boolean);
-    // function zoomOut(b:boolean);
-    // function lookEast(b:boolean);
-    // function lookEast();
-    // function lookWest(b:boolean);
-    // function lookWest();
-    // function lookNorth(b:boolean);
-    // function lookNorth();
-    // function lookSouth(b:boolean);
-    // function lookSouth();
+    function getMinFov():number;
+
+    function autoZoomIn(moveDuration?:number,allowManualZoom?:boolean):void;
+    function autoZoomOut(moveDuration?:number,full?:boolean):void;
+    function getAimFov():number;
+
+    function turnRight(b:boolean):void;
+    function turnLeft(b:boolean):void;
+    function turnUp(b:boolean):void;
+    function turnDown(b:boolean):void;
+
+    function moveSlow(b:boolean):void;
+    function zoomIn(b:boolean):void;
+    function zoomOut(b:boolean):void;
+    
+    function lookEast(centerToHorizon?:boolean):void;
+    function lookWest(centerToHorizon?:boolean):void;
+    function lookNorth(centerToHorizon?:boolean):void;
+    function lookSouth(centerToHorizon?:boolean):void;
+
     // function lookZenith();
     // function lookNadir();
     // function lookTowardsNCP();

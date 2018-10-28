@@ -110,20 +110,20 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // Name: Tour of the solar system
 // Description: A tour through the solar system
 var Helper_1 = __webpack_require__(1);
-var Strings_1 = __webpack_require__(2);
+var Strings_1 = __webpack_require__(3);
 var strings = new Strings_1.Strings().getLocalizedStrings();
 function setup() {
     // Wait to work around #491 
     // (https://github.com/Stellarium/stellarium/issues?q=is%3Aissue+is%3Aclosed)
     core.wait(2);
     SolarSystem.setFlagPlanets(true);
-    SolarSystem.setMoonScale(6);
-    SolarSystem.setFlagMoonScale(true);
+    //SolarSystem.setMoonScale(6);
+    //SolarSystem.setFlagMoonScale(true);
     SolarSystem.setFontSize(25);
     StelSkyDrawer.setAbsoluteStarScale(1.0);
     StelSkyDrawer.setRelativeStarScale(1.1);
     StarMgr.setFontSize(20);
-    StarMgr.setLabelsAmount(3);
+    StarMgr.setLabelsAmount(0);
     StelMovementMgr.setAutoMoveDuration(5);
     ConstellationMgr.setFlagLines(false);
     ConstellationMgr.setFlagLabels(false);
@@ -136,53 +136,63 @@ function setup() {
     ConstellationMgr.setFlagIsolateSelected(true);
     SporadicMeteorMgr.setFlagShow(true);
     SporadicMeteorMgr.setZHR(20000);
-    core.setGuiVisible(false);
+    //    core.setGuiVisible(false);
     core.setMilkyWayVisible(true);
     core.setMilkyWayIntensity(1);
     LandscapeMgr.setFlagAtmosphere(false);
     LandscapeMgr.setFlagLandscape(false);
 }
 function intro(delayTime) {
-    core.setDate("2492-05-06T20:00:00", "utc");
-    core.setTimeRate(500);
-    StarMgr.setLabelsAmount(0);
-    SolarSystem.setFlagLabels(false);
-    core.debug(strings.title);
-    core.debug(strings.subTitle);
-    var baseY = 200;
-    var labelTitle = LabelMgr.labelScreen(strings.title, 800, baseY, true, 70, "#66ccff");
-    LabelMgr.setLabelShow(labelTitle, true);
-    var labelTitle = LabelMgr.labelScreen(strings.subTitle, 800, baseY + 100, true, 40, "#66ccff");
-    LabelMgr.setLabelShow(labelTitle, true);
-    core.moveToAltAzi(10, 270);
-    var baseScale = 0.4;
-    var imgHeight;
-    var margin = 50;
-    var x = 800;
-    ScreenImageMgr.createScreenImage("imgSun", "./SolarSystem.Assets/sun.png", 0, 0, 0.7);
-    var planets = ["mercury", "venus", "earth", "mars"];
-    var scales = [4879.4 / 12756.32, 12103.6 / 12756.32, 1, 6792.4 / 12756.32];
-    for (var i = 0; i < planets.length; ++i) {
-        var planet = planets[i];
-        var scale = scales[i];
-        ScreenImageMgr.createScreenImage(planet, "./SolarSystem.Assets/" + planet + ".png", 0, 0, baseScale * scale, false);
-        imgHeight = ScreenImageMgr.getImageWidth(planet);
-        //core.debug("imageHeight=" + imgHeight + "; x=" + x + "; y=" + (baseY - imgHeight / 2));
-        ScreenImageMgr.setImageXY(planet, x, baseY + 400 - imgHeight / 2);
-        ScreenImageMgr.showImage(planet, true);
-        x += imgHeight + margin;
+    try {
+        Helper_1.Helper.storeState(StarMgr);
+        Helper_1.Helper.storeState(SolarSystem);
+        SolarSystem.setFlagLabels(false);
+        //        core.setDate("2492-05-06T20:00:00", "utc");
+        core.setTimeRate(500);
+        var baseY = 200;
+        Helper_1.Helper.showTitle(strings.title, strings.subTitle, 800, baseY);
+        core.moveToAltAzi(10, 270);
+        var baseScale = 0.4;
+        var imgHeight;
+        var margin = 50;
+        var x = 800;
+        ScreenImageMgr.createScreenImage("imgSun", "./SolarSystem.Assets/sun.png", 0, 0, 0.7);
+        var planets = ["mercury", "venus", "earth", "mars"];
+        var scale = [4879.4 / 12756.32, 12103.6 / 12756.32, 1, 6792.4 / 12756.32];
+        for (var i = 0; i < planets.length; ++i) {
+            var planet = planets[i];
+            ScreenImageMgr.createScreenImage(planet, "./SolarSystem.Assets/" + planet + ".png", 0, 0, baseScale * scale[i], false);
+            imgHeight = ScreenImageMgr.getImageWidth(planet);
+            //core.debug("imageHeight=" + imgHeight + "; x=" + x + "; y=" + (baseY - imgHeight / 2));
+            ScreenImageMgr.setImageXY(planet, x, baseY + 400 - imgHeight / 2);
+            ScreenImageMgr.showImage(planet, true);
+            x += imgHeight + margin;
+        }
+        core.wait(delayTime);
+        core.setTimeRate(1);
+        LabelMgr.deleteAllLabels();
+        ScreenImageMgr.deleteAllImages();
+        SolarSystem.setFlagLabels(true);
     }
-    core.wait(delayTime);
-    core.setTimeRate(1);
-    LabelMgr.deleteAllLabels();
-    ScreenImageMgr.deleteAllImages();
+    finally {
+        Helper_1.Helper.restoreState(StarMgr);
+        Helper_1.Helper.restoreState(SolarSystem);
+    }
 }
 var PlanetaryObserver = /** @class */ (function () {
-    function PlanetaryObserver(name, long, lat, date) {
+    function PlanetaryObserver(name, id, long, lat, date) {
+        if (id == null)
+            throw new Error("PlanetaryObserver.constructor: id is null or empty!");
+        if (name == null)
+            throw new Error("PlanetaryObserver.constructor: name is null or empty!");
         this._long = long;
         this._lat = lat;
         this._date = date;
         this._name = name;
+        this._id = id;
+        var cached = LandscapeMgr.precacheLandscape('Sun');
+        if (!cached)
+            throw new Error('Precaching landscape "Sun" failed');
     }
     Object.defineProperty(PlanetaryObserver.prototype, "name", {
         get: function () {
@@ -212,28 +222,56 @@ var PlanetaryObserver = /** @class */ (function () {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(PlanetaryObserver.prototype, "id", {
+        get: function () {
+            return this._id;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(PlanetaryObserver.prototype, "fovSun", {
+        get: function () {
+            return this._fovSun;
+        },
+        set: function (value) {
+            this._fovSun = value;
+        },
+        enumerable: true,
+        configurable: true
+    });
     PlanetaryObserver.prototype.watchSurface = function () {
         core.debug("Setting up " + this._name + " surface observer");
     };
     PlanetaryObserver.prototype.watchFromSun = function () {
         core.debug("Setting up " + this._name + " sun observer");
+        //        LandscapeMgr.setCurrentLandscapeName("Sun");
+        LandscapeMgr.setFlagFog(false);
+        LandscapeMgr.setFlagAtmosphere(false);
+        LandscapeMgr.setFlagLandscape(false);
         this.select();
+        StelMovementMgr.autoZoomIn(0);
+        StelMovementMgr.zoomTo(this.fovSun, 0);
+        core.wait(0.1);
     };
     PlanetaryObserver.prototype.select = function () {
-        core.debug("Selecting object " + this.name);
-        core.selectObjectByName(this.name);
+        core.debug('Selecting object "' + this.id + '" (' + this.name + ')');
+        core.selectObjectByName(this.id, true);
     };
     return PlanetaryObserver;
 }());
 var MercuryObserver = /** @class */ (function (_super) {
     __extends(MercuryObserver, _super);
     function MercuryObserver(long, lat, date) {
-        return _super.call(this, "Mercury", long, lat, date) || this;
+        var _this = _super.call(this, strings.mercury, "Mercury", long, lat, date) || this;
+        _this.fovSun = 0.008;
+        return _this;
     }
     MercuryObserver.prototype.watchSurface = function () {
         _super.prototype.watchSurface.call(this);
-        LandscapeMgr.setFlagAtmosphere(true);
         LandscapeMgr.setCurrentLandscapeName("Moon");
+        LandscapeMgr.setFlagAtmosphere(false);
+        LandscapeMgr.setFlagFog(false);
+        LandscapeMgr.setFlagLandscape(true);
         LandscapeMgr.setFlagLandscapeUseMinimalBrightness(true);
         LandscapeMgr.setDefaultMinimalBrightness(0.05);
         core.setDate(this.date, "utc");
@@ -241,22 +279,45 @@ var MercuryObserver = /** @class */ (function (_super) {
     };
     MercuryObserver.prototype.watchFromSun = function () {
         _super.prototype.watchFromSun.call(this);
-        LandscapeMgr.setFlagAtmosphere(false);
-        LandscapeMgr.setFlagLandscape(false);
         core.setDate(this.date, "utc");
         core.setObserverLocation(this.long, this.lat, 425, 0, "Solar Mercury Observer", "Sun");
     };
     return MercuryObserver;
 }(PlanetaryObserver));
+var VenusObserver = /** @class */ (function (_super) {
+    __extends(VenusObserver, _super);
+    function VenusObserver(long, lat, date) {
+        var _this = _super.call(this, strings.mars, "Venus", long, lat, date) || this;
+        _this.fovSun = 0.008;
+        return _this;
+    }
+    VenusObserver.prototype.watchSurface = function () {
+        _super.prototype.watchSurface.call(this);
+        LandscapeMgr.setCurrentLandscapeName("Mars");
+        LandscapeMgr.setFlagAtmosphere(true);
+        LandscapeMgr.setFlagFog(true);
+        LandscapeMgr.setFlagLandscape(true);
+        core.setDate(this.date, "utc");
+        core.setObserverLocation(this.long, this.lat, 425, 0, "Venus Observer", "Venus");
+    };
+    VenusObserver.prototype.watchFromSun = function () {
+        _super.prototype.watchFromSun.call(this);
+    };
+    return VenusObserver;
+}(PlanetaryObserver));
 var EarthObserver = /** @class */ (function (_super) {
     __extends(EarthObserver, _super);
     function EarthObserver(long, lat, date) {
-        return _super.call(this, "Earth", long, lat, date) || this;
+        var _this = _super.call(this, strings.earth, "Earth", long, lat, date) || this;
+        _this.fovSun = 0.008;
+        return _this;
     }
     EarthObserver.prototype.watchSurface = function () {
         _super.prototype.watchSurface.call(this);
-        LandscapeMgr.setFlagAtmosphere(true);
         LandscapeMgr.setCurrentLandscapeName("Garching");
+        LandscapeMgr.setFlagAtmosphere(true);
+        LandscapeMgr.setFlagFog(true);
+        LandscapeMgr.setFlagLandscape(true);
         core.setDate(this.date, "utc");
         core.setObserverLocation(this.long, this.lat, 425, 0, "Earth Observer", "Earth");
     };
@@ -268,12 +329,16 @@ var EarthObserver = /** @class */ (function (_super) {
 var MarsObserver = /** @class */ (function (_super) {
     __extends(MarsObserver, _super);
     function MarsObserver(long, lat, date) {
-        return _super.call(this, "Mars", long, lat, date) || this;
+        var _this = _super.call(this, strings.mars, "Mars", long, lat, date) || this;
+        _this.fovSun = 0.008;
+        return _this;
     }
     MarsObserver.prototype.watchSurface = function () {
         _super.prototype.watchSurface.call(this);
-        LandscapeMgr.setFlagAtmosphere(true);
         LandscapeMgr.setCurrentLandscapeName("Mars");
+        LandscapeMgr.setFlagAtmosphere(true);
+        LandscapeMgr.setFlagFog(true);
+        LandscapeMgr.setFlagLandscape(true);
         core.setDate(this.date, "utc");
         core.setObserverLocation(this.long, this.lat, 425, 0, "Mars Observer", "Mars");
     };
@@ -285,12 +350,16 @@ var MarsObserver = /** @class */ (function (_super) {
 var SaturnObserver = /** @class */ (function (_super) {
     __extends(SaturnObserver, _super);
     function SaturnObserver(long, lat, date) {
-        return _super.call(this, "Saturn", long, lat, date) || this;
+        var _this = _super.call(this, strings.saturn, "Saturn", long, lat, date) || this;
+        _this.fovSun = 0.008;
+        return _this;
     }
     SaturnObserver.prototype.watchSurface = function () {
         _super.prototype.watchSurface.call(this);
-        LandscapeMgr.setFlagAtmosphere(true);
         LandscapeMgr.setCurrentLandscapeName("Saturn");
+        LandscapeMgr.setFlagAtmosphere(true);
+        LandscapeMgr.setFlagFog(true);
+        LandscapeMgr.setFlagLandscape(true);
         core.setDate(this.date, "utc");
         core.setObserverLocation(this.long, this.lat, 425, 0, "Saturn Observer", "Saturn");
     };
@@ -302,12 +371,16 @@ var SaturnObserver = /** @class */ (function (_super) {
 var JupiterObserver = /** @class */ (function (_super) {
     __extends(JupiterObserver, _super);
     function JupiterObserver(long, lat, date) {
-        return _super.call(this, "Jupiter", long, lat, date) || this;
+        var _this = _super.call(this, strings.jupiter, "Jupiter", long, lat, date) || this;
+        _this.fovSun = 0.008;
+        return _this;
     }
     JupiterObserver.prototype.watchSurface = function () {
         _super.prototype.watchSurface.call(this);
-        LandscapeMgr.setFlagAtmosphere(true);
         LandscapeMgr.setCurrentLandscapeName("Jupiter");
+        LandscapeMgr.setFlagAtmosphere(true);
+        LandscapeMgr.setFlagFog(true);
+        LandscapeMgr.setFlagLandscape(true);
         core.setDate(this.date, "utc");
         core.setObserverLocation(this.long, this.lat, 425, 0, "Jupiter Observer", "Jupiter");
     };
@@ -319,7 +392,9 @@ var JupiterObserver = /** @class */ (function (_super) {
 var NeptunObserver = /** @class */ (function (_super) {
     __extends(NeptunObserver, _super);
     function NeptunObserver(long, lat, date) {
-        return _super.call(this, "Neptun", long, lat, date) || this;
+        var _this = _super.call(this, strings.neptun, "Neptun", long, lat, date) || this;
+        _this.fovSun = 0.008;
+        return _this;
     }
     NeptunObserver.prototype.watchSurface = function () {
         _super.prototype.watchSurface.call(this);
@@ -336,26 +411,30 @@ var NeptunObserver = /** @class */ (function (_super) {
 function main() {
     try {
         core.wait(2);
-        Helper_1.Helper.InstallDebugHooks();
+        Helper_1.Helper.installDebugHooks();
         setup();
         intro(5);
-        var mercury = new MercuryObserver(-33.22, 19.13, "1997-07-29T23:35:00");
-        mercury.watchSurface();
-        core.wait(5);
-        mercury.watchFromSun();
-        // var mars : PlanetaryObserver = new MarsObserver(-33.22, 19.13, "1997-07-29T23:35:00");
-        // mars.setup();
-        // var saturn : PlanetaryObserver = new SaturnObserver(-33.22, 19.13, "1997-07-29T23:35:00");
-        // saturn.setup();
-        // var jupiter : PlanetaryObserver = new JupiterObserver(-33.22, 19.13, "1997-07-29T23:35:00");
-        // jupiter.setup();
+        var planets = [
+            new MercuryObserver(-33.22, 19.13, "1997-07-29T23:35:00"),
+            new VenusObserver(-33.22, 19.13, "1997-07-29T23:35:00"),
+            new EarthObserver(-33.22, 19.13, "1997-07-29T23:35:00"),
+            new MarsObserver(-33.22, 19.13, "1997-07-29T23:35:00"),
+        ];
+        for (var i = 0; i < planets.length; ++i) {
+            var p = planets[i];
+            if (p == null)
+                continue;
+            p.watchFromSun();
+            core.wait(5);
+        }
     }
     catch (exc) {
         core.debug(exc);
+        Helper_1.Helper.showError(exc);
     }
     finally {
-        Helper_1.Helper.RemoveDebugHooks();
-        core.setTimeRate(0);
+        Helper_1.Helper.removeDebugHooks();
+        core.setTimeRate(1);
     }
 }
 main();
@@ -368,43 +447,78 @@ main();
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+var Strings_1 = __webpack_require__(2);
 var originalDebug = core.debug;
+var strings = new Strings_1.Strings().getLocalizedStrings();
 exports.Helper = {
-    InstallDebugHooks: function () {
+    installDebugHooks: function () {
         var osd = new OnScreenLogger(15);
         var betterDebug = function (msg) {
-            osd.addLine(msg);
+            if (msg instanceof Error) {
+                osd.addLine(msg.toString(), "#ff3333");
+            }
+            else {
+                osd.addLine(msg.toString(), "#66ccff");
+            }
             originalDebug(msg);
         };
         core.debug = betterDebug;
     },
-    RemoveDebugHooks: function () {
+    removeDebugHooks: function () {
         if (originalDebug != null) {
             core.debug = originalDebug;
         }
         core.debug("Debug Hooks removed!");
+    },
+    restoreState: function (o) {
+        // todo: restore state of public getters
+    },
+    storeState: function (o) {
+        // todo: store state of public getters
+    },
+    showError: function (err) {
+        var x = 100;
+        var y = 100;
+        var labelTitle = LabelMgr.labelScreen(strings.anErrorOccured, x, y, true, 50, "#ff3333");
+        LabelMgr.setLabelShow(labelTitle, true);
+        var labelTitle = LabelMgr.labelScreen(err.message, x, y + 70, true, 40, "#ff3333");
+        LabelMgr.setLabelShow(labelTitle, true);
+    },
+    showTitle: function (title, subTitle, x, y) {
+        core.debug(title);
+        core.debug(subTitle);
+        var labelTitle = LabelMgr.labelScreen(title, x, y, true, 70, "#66ccff");
+        LabelMgr.setLabelShow(labelTitle, true);
+        var labelTitle = LabelMgr.labelScreen(subTitle, x, y + 100, true, 40, "#66ccff");
+        LabelMgr.setLabelShow(labelTitle, true);
     }
 };
 // A class to create an on screen console using with Stellarium Labels
 var OnScreenLogger = /** @class */ (function () {
     function OnScreenLogger(numLines) {
+        // An array of stellarium labels serving as a circular buffer
+        this._labelHandle = [];
+        this._labelContent = [];
+        this._labelColor = [];
         // X-Position of the log output
         this._xp = 70;
         // Output text font size
         this._fs = 15;
         // Line Margin
         this._margin = 5;
-        this._labelHandle = [];
-        this._labelContent = [];
         for (var i = 0; i < numLines; ++i) {
             this._labelContent.push("");
+            this._labelColor.push("");
         }
     }
-    OnScreenLogger.prototype.addLine = function (msg) {
+    OnScreenLogger.prototype.addLine = function (msg, color) {
+        if (color === void 0) { color = "#66ccff"; }
         for (var i = this._labelContent.length - 2; i >= 0; --i) {
             this._labelContent[i + 1] = this._labelContent[i];
+            this._labelColor[i + 1] = this._labelColor[i];
         }
         this._labelContent[0] = msg;
+        this._labelColor[0] = color;
         // delete old labels
         for (var i = 0; i < this._labelHandle.length; ++i) {
             var lb = this._labelHandle[i];
@@ -418,7 +532,7 @@ var OnScreenLogger = /** @class */ (function () {
             var msg_1 = this._labelContent[i];
             if (msg_1)
                 msg_1 = "> " + msg_1;
-            this._labelHandle[i] = LabelMgr.labelScreen(msg_1, xp, yp, true, this._fs, "#66ccff");
+            this._labelHandle[i] = LabelMgr.labelScreen(msg_1, xp, yp, true, this._fs, this._labelColor[i]);
         }
     };
     return OnScreenLogger;
@@ -432,17 +546,124 @@ var OnScreenLogger = /** @class */ (function () {
 
 "use strict";
 
+Object.defineProperty(exports, "__esModule", { value: true });
+var Strings = /** @class */ (function () {
+    function Strings() {
+        this._german = {
+            anErrorOccured: "Ein Fehler ist aufgetreten",
+            january: "Januar",
+            february: "Februar",
+            march: "März",
+            april: "April",
+            may: "Mai",
+            june: "Juni",
+            july: "Juli",
+            august: "August",
+            september: "September",
+            october: "Oktober",
+            november: "November",
+            december: "Dezember",
+            dateAndTime: "Datum und Zeit",
+            winterSolstice: "Wintersonnenwende",
+            summerSolstice: "Sommersonnenwende"
+        };
+        this._english = {
+            anErrorOccured: "An error occured",
+            january: "January",
+            february: "February",
+            march: "March",
+            april: "April",
+            may: "May",
+            june: "June",
+            july: "July",
+            august: "August",
+            september: "September",
+            october: "October",
+            november: "November",
+            december: "December",
+            dateAndTime: "Date and Time",
+            winterSolstice: "Winter solstice",
+            summerSolstice: "Sommer solstice"
+        };
+    }
+    Strings.prototype.verify = function () {
+        // todo: Check all langauge versions and panik if one of them is missing a string.
+    };
+    Strings.prototype.getLocalizedStrings = function (loc) {
+        if (loc === void 0) { loc = ""; }
+        // This function is using the localized name of the sun in order to try to determine the UI culture.
+        var lang;
+        if (loc) {
+            lang = loc;
+            core.debug('Forcing language to "' + lang + '"');
+        }
+        else {
+            lang = core.getAppLanguage();
+            core.debug('App language is "' + lang + '"');
+        }
+        var s;
+        // Germany, Austria and Switzerland get the german strings. 		
+        if (lang == "de_DE" || lang == "de_AT" || lang == "de_CH") {
+            s = this._german;
+        }
+        // default is english
+        else {
+            s = this._english;
+        }
+        // Add support functions
+        s.monthFromInt = function (m) {
+            if (m < 1 || m > 12)
+                return "invalid month";
+            var monthNames = [s.january, s.february, s.march,
+                s.april, s.may, s.june,
+                s.july, s.august, s.september,
+                s.october, s.november, s.december];
+            return monthNames[m - 1];
+        };
+        return s;
+    };
+    return Strings;
+}());
+exports.Strings = Strings;
+
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
 // Creates a class for creating the german texts for this script
 Object.defineProperty(exports, "__esModule", { value: true });
 var Strings = /** @class */ (function () {
     function Strings() {
         this._german = {
             title: "Die inneren Planeten",
-            subTitle: "Eine Tour durchs Sonnensystem"
+            subTitle: "Eine Tour durchs Sonnensystem",
+            sun: "Sonne",
+            mercury: "Merkur",
+            venus: "Venus",
+            earth: "Erde",
+            mars: "Mars",
+            saturn: "Saturn",
+            jupiter: "Jupiter",
+            uranus: "Uranus",
+            neptun: "Neptun",
+            pluto: "Pluto"
         };
         this._english = {
             title: "Inner Planets",
-            subTitle: "A tour through the Solar system"
+            subTitle: "A tour through the Solar system",
+            sun: "Sun",
+            mercury: "Mercury",
+            venus: "Venus",
+            earth: "Earth",
+            mars: "Mars",
+            saturn: "Saturn",
+            jupiter: "Jupiter",
+            uranus: "Uranus",
+            neptun: "Neptun",
+            pluto: "Pluto"
         };
     }
     Strings.prototype.getLocalizedStrings = function () {

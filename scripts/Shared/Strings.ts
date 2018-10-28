@@ -3,6 +3,7 @@ import { DictType } from "./Types"
 
 export class Strings {
     private _german : DictType = {
+        anErrorOccured : "Ein Fehler ist aufgetreten",
         january : "Januar",
         february : "Februar",
         march : "März",
@@ -21,6 +22,7 @@ export class Strings {
     };
 
     private _english : DictType = {
+        anErrorOccured : "An error occured",
         january : "January",
         february : "February",
         march : "March",
