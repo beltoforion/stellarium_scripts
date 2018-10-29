@@ -15,7 +15,11 @@ export class Strings {
         jupiter : "Jupiter",
         uranus : "Uranus",
         neptun : "Neptun", 
-        pluto : "Pluto"
+        pluto : "Pluto",
+        asSeenFromSun : " von der Sonne aus gesehen",
+        timeLapse: "Zeitraffer",
+        europeAtNoon: "Europa zur Mittagszeit",
+        seasonalChanges: "Jahreszeitenwechsel"
     };
 
     private _english : DictType = {
@@ -30,7 +34,11 @@ export class Strings {
         jupiter : "Jupiter",
         uranus : "Uranus",
         neptun : "Neptun", 
-        pluto : "Pluto"
+        pluto : "Pluto",
+        asSeenFromSun : " as seen from the sun",
+        timeLapse: "Timelapse",
+        europeAtNoon: "Europe at noon",
+        seasonalChanges: "Seasonal changes"
     };    
 
     public getLocalizedStrings() : DictType {

@@ -45,12 +45,8 @@ declare namespace core {
     function moveToRaDecJ2000(s:string, s2:string, f:number): void;
     function moveToRaDecJ2000(s:string, s2:string): void;
 
-    function setObserverLocation(d1:number,d2:number,d3:number,d4:number,s1:string,s2:string):void;
-    function setObserverLocation(d1:number,d2:number,d3:number,d4:number,s:string):void;
-    function setObserverLocation(d1:number,d2:number,d3:number,d4:number):void;
-    function setObserverLocation(d1:number,d2:number,d3:number):void;
-    function setObserverLocation(s:string,f:number):void;
-    function setObserverLocation(s:string):void;
+    function setObserverLocation(lon:number,lat:number,alt:number,duration?:number,name?:string,planet?:string):void;
+    function setObserverLocation(id:string,duration?:number):void;
 
     function getObserverLocation() : string;
     function getObserverLocationInfo() : any;
@@ -248,131 +244,162 @@ declare namespace CustomObjectMgr {
 }
 
 declare namespace GridLinesMgr {
-    function setFlagGridlines(b:boolean):void;
+    function setFlagGridlines(visible:boolean):void;
     function getFlagGridlines():boolean;
-    function setFlagAzimuthalGrid(b:boolean):void;
+
+    function setFlagAzimuthalGrid(visible:boolean):void;
     function getFlagAzimuthalGrid():boolean;
     // function getColorAzimuthalGrid();
     // function setColorAzimuthalGrid(Vec3f);
-    function setFlagEquatorGrid(b:boolean):void;
+    
+    function setFlagEquatorGrid(visible:boolean):void;
     function getFlagEquatorGrid():boolean;
     // function getColorEquatorGrid();
     // function setColorEquatorGrid(Vec3f):void;
+
     function setFlagEquatorJ2000Grid(b:boolean):void;
     function getFlagEquatorJ2000Grid():boolean;
     // function getColorEquatorJ2000Grid();
     // function setColorEquatorJ2000Grid(Vec3f);
-    function setFlagEclipticJ2000Grid(b:boolean):void;
+
+    function setFlagEclipticJ2000Grid(visible:boolean):void;
     function getFlagEclipticJ2000Grid():boolean;
     // function getColorEclipticJ2000Grid();
     // function setColorEclipticJ2000Grid(Vec3f);
-    function setFlagEclipticGrid(b:boolean):void;
+
+    function setFlagEclipticGrid(visible:boolean):void;
     function getFlagEclipticGrid():boolean;
     // function getColorEclipticGrid();
     // function setColorEclipticGrid(Vec3f);
-    function setFlagGalacticGrid(b:boolean):void;
+
+    function setFlagGalacticGrid(visible:boolean):void;
     function getFlagGalacticGrid():boolean;
     // function getColorGalacticGrid();
     // function setColorGalacticGrid(Vec3f);
-    function setFlagSupergalacticGrid(b:boolean):void;
+
+    function setFlagSupergalacticGrid(visible:boolean):void;
     function getFlagSupergalacticGrid():boolean;
     // function getColorSupergalacticGrid();
     // function setColorSupergalacticGrid(Vec3f):void;
-    function setFlagEquatorLine(b:boolean):void;
+
+    function setFlagEquatorLine(visible:boolean):void;
     function getFlagEquatorLine():boolean;
     // function getColorEquatorLine();
     // function setColorEquatorLine(Vec3f):void;
-    function setFlagEquatorJ2000Line(b:boolean):void;
+
+    function setFlagEquatorJ2000Line(visible:boolean):void;
     function getFlagEquatorJ2000Line():boolean;
     // function getColorEquatorJ2000Line();
     // function setColorEquatorJ2000Line(Vec3f):void;
-    function setFlagEclipticJ2000Line(b:boolean):void;
+
+    function setFlagEclipticJ2000Line(visible:boolean):void;
     function getFlagEclipticJ2000Line():boolean;
     // function getColorEclipticJ2000Line();
     // function setColorEclipticJ2000Line(Vec3f);
-    function setFlagEclipticLine(b:boolean):void;
+
+    function setFlagEclipticLine(visible:boolean):void;
     function getFlagEclipticLine():boolean;
     // function getColorEclipticLine();
     // function setColorEclipticLine(Vec3f);
-    function setFlagPrecessionCircles(b:boolean):void;
+
+    function setFlagPrecessionCircles(visible:boolean):void;
     function getFlagPrecessionCircles():boolean;
     // function getColorPrecessionCircles();
     // function setColorPrecessionCircles(Vec3f);
-    function setFlagMeridianLine(b:boolean):void;
+
+    function setFlagMeridianLine(visible:boolean):void;
     function getFlagMeridianLine():boolean;
     // function getColorMeridianLine();
     // function setColorMeridianLine(Vec3f):void;
-    function setFlagLongitudeLine(b:boolean):void;
+    
+    function setFlagLongitudeLine(visible:boolean):void;
     function getFlagLongitudeLine():boolean;
     // function getColorLongitudeLine();
     // function setColorLongitudeLine(Vec3f);
-    function setFlagHorizonLine(b:boolean):void;
+    
+    function setFlagHorizonLine(visible:boolean):void;
     function getFlagHorizonLine():boolean;
     // function getColorHorizonLine();
     // function setColorHorizonLine(Vec3f);
-    function setFlagGalacticEquatorLine(b:boolean):void;
-    function setFlagGalacticPlaneLine(b:boolean):void;
+
+    function setFlagGalacticEquatorLine(visible:boolean):void;
+    function setFlagGalacticPlaneLine(visible:boolean):void;
     function getFlagGalacticEquatorLine():boolean;
     function getFlagGalacticPlaneLine():boolean;
     // function getColorGalacticEquatorLine();
     // function setColorGalacticEquatorLine(Vec3f):void;
-    function setFlagSupergalacticEquatorLine(b:boolean):void;
+
+    function setFlagSupergalacticEquatorLine(visible:boolean):void;
     function getFlagSupergalacticEquatorLine():boolean;
     // function getColorSupergalacticEquatorLine();
     // function setColorSupergalacticEquatorLine(Vec3f);
-    function setFlagPrimeVerticalLine(b:boolean):void;
+
+    function setFlagPrimeVerticalLine(visible:boolean):void;
     function getFlagPrimeVerticalLine():boolean;
     // function getColorPrimeVerticalLine();
     // function setColorPrimeVerticalLine(Vec3f):void;
-    function setFlagColureLines(b:boolean):void;
+
+    function setFlagColureLines(visible:boolean):void;
     function getFlagColureLines():boolean;
     // function getColorColureLines();
     // function setColorColureLines(Vec3f):void;
-    function setFlagCircumpolarCircles(b:boolean):void;
+
+    function setFlagCircumpolarCircles(visible:boolean):void;
     function getFlagCircumpolarCircles():boolean;
     // function getColorCircumpolarCircles();
     // function setColorCircumpolarCircles(Vec3f):void;
-    function setFlagCelestialJ2000Poles(b:boolean):void;
+
+    function setFlagCelestialJ2000Poles(visible:boolean):void;
     function getFlagCelestialJ2000Poles():boolean;
     // function getColorCelestialJ2000Poles();
     // function setColorCelestialJ2000Poles(Vec3f);
-    function setFlagCelestialPoles(b:boolean):void;
+
+    function setFlagCelestialPoles(visible:boolean):void;
     function getFlagCelestialPoles():boolean;
     // function getColorCelestialPoles();
     // function setColorCelestialPoles(Vec3f);
-    function setFlagZenithNadir(b:boolean):void;
+
+    function setFlagZenithNadir(visible:boolean):void;
     function getFlagZenithNadir():boolean;
     // function getColorZenithNadir();
     // function setColorZenithNadir(Vec3f);
+
     function setFlagEclipticJ2000Poles(b:boolean):void;
     function getFlagEclipticJ2000Poles():boolean;
     // function getColorEclipticJ2000Poles();
     // function setColorEclipticJ2000Poles(Vec3f);
-    function setFlagEclipticPoles(b:boolean):void;
+
+    function setFlagEclipticPoles(visible:boolean):void;
     function getFlagEclipticPoles():boolean;
     // function getColorEclipticPoles();
     // function setColorEclipticPoles(Vec3f);
-    function setFlagGalacticPoles(b:boolean):void;
+
+    function setFlagGalacticPoles(visible:boolean):void;
     function getFlagGalacticPoles():boolean;
     // function getColorGalacticPoles();
     // function setColorGalacticPoles(Vec3f);
-    function setFlagSupergalacticPoles(b:boolean):void;
+
+    function setFlagSupergalacticPoles(visible:boolean):void;
     function getFlagSupergalacticPoles():boolean;
     // function getColorSupergalacticPoles();
     // function setColorSupergalacticPoles(Vec3f);
-    function setFlagEquinoxJ2000Points(b:boolean):void;
+
+    function setFlagEquinoxJ2000Points(visible:boolean):void;
     function getFlagEquinoxJ2000Points():boolean;
     // function getColorEquinoxJ2000Points();
     // function setColorEquinoxJ2000Points(Vec3f);
-    function setFlagEquinoxPoints(b:boolean):void;
+
+    function setFlagEquinoxPoints(visible:boolean):void;
     function getFlagEquinoxPoints():boolean;
     // function getColorEquinoxPoints();
     // function setColorEquinoxPoints(Vec3f);
-    function setFlagSolsticeJ2000Points(b:boolean):void;
+
+    function setFlagSolsticeJ2000Points(visible:boolean):void;
     function getFlagSolsticeJ2000Points():boolean;
     // function getColorSolsticeJ2000Points();
     // function setColorSolsticeJ2000Points(Vec3f);
-    function setFlagSolsticePoints(b:boolean):void;
+
+    function setFlagSolsticePoints(visible:boolean):void;
     function getFlagSolsticePoints():boolean;
     // function getColorSolsticePoints();
     // function setColorSolsticePoints(Vec3f);
@@ -380,9 +407,9 @@ declare namespace GridLinesMgr {
 
 declare namespace LabelMgr {
 
-    function labelObject(s:string,s2:string,b1?:boolean,f?:number,s3?:string,s4?:string,d?:number,s5?:string,b2?:boolean,i?:number):number;
-    function labelHorizon(s:string,f1:number,f2:number,b1?:boolean,f3?:number,s2?:string,b2?:boolean,i?:number):number;
-    function labelScreen(s:string,x:number,y:number,vis?:boolean,fs?:number,col?:string,ad?:boolean,adt?:number): number;
+    function labelObject(text:string,s2:string,b1?:boolean,f?:number,s3?:string,s4?:string,d?:number,s5?:string,b2?:boolean,i?:number):number;
+    function labelHorizon(text:string,az:number,alt:number,visible?:boolean,fontSize?:number,color?:string,autoDelete?:boolean,autoDeleteTimeoutMs?:number):number;
+    function labelScreen(text:string,x:number,y:number,visible?:boolean,fontSize?:number,color?:string,autoDelete?:boolean,autoDeleteTimeoutMs?:number): number;
 
     function getLabelShow(i:number):boolean;
     
