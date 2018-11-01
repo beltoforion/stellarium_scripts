@@ -2,20 +2,14 @@ const path = require('path');
 
 //
 // This is the webpack config file.
-// It will automatically pack all transpiles js files into a single 
-// ssc file for use with stellarium
+// It will automatically pack all transpiled ts files into a single 
+// SSC file for use with Stellarium
 //
 
-let targetName = path.basename(__dirname); //"UrsaMinor";
+let targetName = path.basename(__dirname); 
 
 module.exports = {
   entry: './' + targetName + '.ts',
-  // plugins: [
-  //   new webpack.BannerPlugin({ 
-  //       banner: "The head comment", 
-  //       entryOnly: true 
-  //   })
-  // ],
   module: {
     rules: [
       {

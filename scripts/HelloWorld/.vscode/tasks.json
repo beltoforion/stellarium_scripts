@@ -8,11 +8,18 @@
             "label": "Build Stellarium Script",
             "group":"build",
             "command": "${env:HOME}/node_modules/.bin/webpack",
+            "windows": {
+                "command": "${env:HOMEPATH}\\node_modules\\.bin\\webpack.cmd"
+            },
             "args": [
                 "--display-modules",
                 "--progress",
                 "-p"
             ],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
             "problemMatcher": []
         },
         {
@@ -24,19 +31,13 @@
                 "../Shared/Scripts/launcher.sh",
                 "${workspaceFolderBasename}"
             ],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
             "suppressTaskName": true,
+            "dependsOn": ["Build Stellarium Script"],
             "problemMatcher": []
         }
-        // ,{
-        //     "label": "Execute Stellarium Script",
-        //     "group":"build",
-        //     "command": "stellarium",
-        //     "args": [
-        //         "--startup-script",
-        //         "${workspaceFolderBasename}.ssc"
-        //     ],
-        //     "suppressTaskName": true,
-        //     "problemMatcher": []
-        // }
     ]
 }
