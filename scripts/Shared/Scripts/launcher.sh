@@ -17,10 +17,22 @@ trim() {
     echo -n "$var"
 }
 
-#
-#
-#
+if [ -e ~/.stellarium/scripts ]
+then
+    if [ ! -d ~/.stellarium/scripts ]
+    then
+        echo "ABORTING Deployment !"
+        echo "---------------------"
+        echo "You have a file called \"scripts\" in your local stellarium folder."
+        echo "This is the name of stellariums local script folder."
+        echo ""
+        echo "The launcher cannot procees until this file has been removed."
+        echo "Please remove this file manually."
+        exit
+    fi
+fi
 
+# Create local script folder if it does not already exist
 mkdir -p ~/.stellarium/scripts
 
 # 
