@@ -3,25 +3,42 @@
 echo "#############################################################"
 echo "#                                                           #"
 echo "#  Stellarium Launcher                                      #"
+echo "#  + Launching transpiled SSC file                          #"
 echo "#                                                           #"
 echo "#############################################################"
 echo ""
-echo "- Copying " $1 ".ssc to local stellarium script folder"
+
+trim() {
+    local var="$*"
+    # remove leading whitespace characters
+    var="${var#"${var%%[![:space:]]*}"}"
+    # remove trailing whitespace characters
+    var="${var%"${var##*[![:space:]]}"}"   
+    echo -n "$var"
+}
+
+# 
+# Trim parameter 1, for some reason i'm gettinf trailing strings on some systems
+#
+
+outputname=$(trim $1)
+echo "- Outputname is \"" $outputname "\""
 
 #
 # Copy the stellarium ssc file
 #
 
-cp $1.ssc ~/.stellarium/scripts
+echo "- Copying " $outputname ".ssc to local stellarium script folder"
+cp $outputname.ssc ~/.stellarium/scripts
 
 #
 # Copy Assets
 #
 
-if [ -d "$1.Assets" ]; then
+if [ -d "$outputname.Assets" ]; then
     echo "- Copying Assets to local stellarium folder"
-    cp -rf $1.Assets ~/.stellarium/scripts
+    cp -rf $outputname.Assets ~/.stellarium/scripts
 fi
 
 echo "- Launching stellarium"
-stellarium --startup-script $1.ssc
+stellarium --startup-script $outputname.ssc

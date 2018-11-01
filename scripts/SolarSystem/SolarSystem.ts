@@ -173,9 +173,7 @@ abstract class PlanetaryObserver {
 
 
             var lbTitle = LabelMgr.labelScreen(this.name + strings.asSeenFromSun, 50, 50, true, 40, "#66ccff");
-
-            var rate = core.getTimeRate();
-            var lbTime =  LabelMgr.labelScreen(strings.timeLapse + ": 1 s = " + rate/3600 + " h", 50, 100, true, 25, "#66ccff");
+            var lbTime =  LabelMgr.labelScreen(strings.timeLapse + ": 1 s = " + core.getTimeRate()/3600 + " h", 50, 100, true, 25, "#66ccff");
 
             // Show ecliptic and poles
             GridLinesMgr.setFlagEclipticJ2000Line(true);
@@ -205,8 +203,8 @@ abstract class PlanetaryObserver {
 
     public select() : void {
         core.debug('Selecting object "' + this.id + '" (' + this.name + ')')
-        core.selectObjectByName(this.id, true);
-        core.setSelectedObjectInfo("None"); // "ShortInfo", "AllInfo"
+        core.selectObjectByName(this.id, false);
+        core.setSelectedObjectInfo("AllInfo"); // "ShortInfo", "AllInfo", "None"
     }
 }
 
@@ -287,9 +285,8 @@ class EarthObserver extends PlanetaryObserver {
 
     public watchSeasons() : void {
 
-        var lbTitle = LabelMgr.labelScreen(strings.seasonalChanges, 50, 50, true, 40, "#66ccff");
 
-        var rate = core.getTimeRate();
+        var lbTitle = LabelMgr.labelScreen(strings.seasonalChanges, 50, 50, true, 40, "#66ccff");
         var lbTime =  LabelMgr.labelScreen(strings.europeAtNoon, 50, 100, true, 25, "#66ccff");
 
         core.setDate(this.date, "utc");
