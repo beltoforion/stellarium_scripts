@@ -17,12 +17,18 @@ trim() {
     echo -n "$var"
 }
 
+#
+#
+#
+
+mkdir -p ~/.stellarium/scripts
+
 # 
 # Trim parameter 1, for some reason i'm gettinf trailing strings on some systems
 #
 
 outputname=$(trim $1)
-echo "- Outputname is \"" $outputname "\""
+echo "- Outputname is \""$outputname"\""
 
 #
 # Copy the stellarium ssc file
