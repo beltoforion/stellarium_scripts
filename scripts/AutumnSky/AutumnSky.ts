@@ -50,6 +50,7 @@ function setup() : void
     SporadicMeteorMgr.setFlagShow(true);
     SporadicMeteorMgr.setZHR(20000);
 
+    core.setSkyCulture("western");
     core.setGuiVisible(false);
     core.setMilkyWayVisible(true);
     core.setMilkyWayIntensity(3);

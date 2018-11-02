@@ -207,6 +207,7 @@ function setup() {
     ConstellationMgr.setFlagConstellationPick(false);
     ConstellationMgr.setFlagIsolateSelected(false);
     ConstellationMgr.deselectConstellations();
+    core.setSkyCulture("western");
     core.setGuiVisible(false);
     LandscapeMgr.setFlagLandscape(true);
     LandscapeMgr.setFlagAtmosphere(true);

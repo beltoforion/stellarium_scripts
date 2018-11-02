@@ -40,6 +40,7 @@ function setup() : void
     ConstellationMgr.setFlagConstellationPick(true);
     ConstellationMgr.setFlagIsolateSelected(true);  
 
+    core.setSkyCulture("western");
     core.setGuiVisible(false);
     core.setMilkyWayVisible(true);
     core.setMilkyWayIntensity(3);

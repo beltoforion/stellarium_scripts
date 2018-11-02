@@ -32,6 +32,7 @@ function setup() : void {
 	ConstellationMgr.setFlagIsolateSelected(false);
 	ConstellationMgr.deselectConstellations();
 
+	core.setSkyCulture("western");
 	core.setGuiVisible(false);
 
 	LandscapeMgr.setFlagLandscape(true);
