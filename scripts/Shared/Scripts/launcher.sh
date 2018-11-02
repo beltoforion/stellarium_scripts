@@ -46,7 +46,7 @@ echo "- Outputname is \""$outputname"\""
 # Copy the stellarium ssc file
 #
 
-echo "- Copying " $outputname ".ssc to local stellarium script folder"
+echo "- Copying \""$outputname".ssc\" to local stellarium script folder"
 cp $outputname.ssc ~/.stellarium/scripts
 
 #

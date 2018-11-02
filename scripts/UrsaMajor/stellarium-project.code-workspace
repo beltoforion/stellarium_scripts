@@ -7,7 +7,7 @@
 			"path": "../Shared"
 		},
 		{
-			"path": "../Typings"
+			"path": "../Shared/Typings"
 		}
 	],
 	"settings": {}
