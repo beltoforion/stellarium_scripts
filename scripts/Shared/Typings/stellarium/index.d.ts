@@ -83,21 +83,25 @@ declare namespace core {
     // function loadSkyImage(s:string,QString,double,double,double,double,double,double,double,double,double,double):void;
     // function loadSkyImage(s:string,QString,double,double,double,double,double,double,double,double,double):void;
     // function loadSkyImage(s:string,QString,double,double,double,double,double,double,double,double):void;
+
     // function loadSkyImage(s:string,QString,QString,QString,QString,QString,QString,QString,QString,QString,double,double,bool,QString):void;
     // function loadSkyImage(s:string,QString,QString,QString,QString,QString,QString,QString,QString,QString,double,double,bool):void;
     // function loadSkyImage(s:string,QString,QString,QString,QString,QString,QString,QString,QString,QString,double,double):void;
     // function loadSkyImage(s:string,QString,QString,QString,QString,QString,QString,QString,QString,QString,double):void;
     // function loadSkyImage(s:string,QString,QString,QString,QString,QString,QString,QString,QString,QString):void;
+
     // function loadSkyImage(s:string,QString,double,double,double,double,double,double,bool,QString):void;
     // function loadSkyImage(s:string,QString,double,double,double,double,double,double,bool):void;
     // function loadSkyImage(s:string,QString,double,double,double,double,double,double):void;
     // function loadSkyImage(s:string,QString,double,double,double,double,double):void;
     // function loadSkyImage(s:string,QString,double,double,double,double):void;
+
     // function loadSkyImage(s:string,QString,QString,QString,double,double,double,double,bool,QString):void;
     // function loadSkyImage(s:string,QString,QString,QString,double,double,double,double,bool):void;
     // function loadSkyImage(s:string,QString,QString,QString,double,double,double,double):void;
     // function loadSkyImage(s:string,QString,QString,QString,double,double,double):void;
     // function loadSkyImage(s:string,QString,QString,QString,double,double):void;
+
     // function loadSkyImageAltAz(s:string,QString,double,double,double,double,double,double,double,double,double,double,bool):void;
     // function loadSkyImageAltAz(s:string,QString,double,double,double,double,double,double,double,double,double,double):void;
     // function loadSkyImageAltAz(s:string,QString,double,double,double,double,double,double,double,double,double):void;
@@ -106,6 +110,7 @@ declare namespace core {
     // function loadSkyImageAltAz(s:string,QString,double,double,double,double,double,double):void;
     // function loadSkyImageAltAz(s:string,QString,double,double,double,double,double):void;
     // function loadSkyImageAltAz(s:string,QString,double,double,double,double):void;
+    
     function removeSkyImage(s:string):void;
     // function getScreenXYFromAltAzi(s:string,QString);
     
@@ -147,29 +152,39 @@ declare namespace core {
     function setSelectedObjectInfo(s:string):void;
     function exit() : void;
     function quitStellarium() : void;
-    // function getPropertyList();
+    
+    // function getPropertyList(); // return type is QStringList
+
     function debug(s:string) : void;
     function output(s:string) : void;
     
-    // function mapToString(QVariantMap);
-    // function resetOutput();
-    // function saveOutputAs(s:string);
+    function mapToString(map:any) : string;
+
+    function resetOutput() : void;
+    function saveOutputAs(fileName:string) : void;
+
     function getAppLanguage():string;
     function setAppLanguage(s:string):void;
+
     function getSkyLanguage():string;
     function setSkyLanguage(s:string):void;
+
     function goHome():void;
     function setMilkyWayVisible(b:boolean):void;
     function setMilkyWayIntensity(d:number):void;
     function getMilkyWayIntensity():number;
     function setZodiacalLightVisible(b:boolean):void;
-    function setZodiacalLightIntensity(d:number):void;
-    // function getZodiacalLightIntensity();
-    // function getBortleScaleIndex();
-    function setBortleScaleIndex(i:number):void;
+
+    function setZodiacalLightIntensity(d:number) : void;
+    function getZodiacalLightIntensity() : number;
+
+    function getBortleScaleIndex() : number;
+    function setBortleScaleIndex(i:number) : void;
+
     function setDSSMode(b:boolean):void;
-    // function isDSSModeEnabled();
-    // function jdFromDateString(s:string,QString);
+
+    function isDSSModeEnabled() : boolean;
+    function jdFromDateString(dt:string, spec : string) : number;
     
     function wait(t:number) : void;
     function waitFor(s1 : string, s2:string) : void;
@@ -910,10 +925,10 @@ declare namespace StelSkyDrawer {
     function getFlagForcedTwinkle():boolean;
     function setBortleScaleIndex(i:number):void;
     function getBortleScaleIndex():number;
-    // function getNELMFromBortleScale();
+    function getNELMFromBortleScale():number;
     function setFlagDrawBigStarHalo(b:boolean):void;
     function getFlagDrawBigStarHalo():boolean;
-    // function getLimitMagnitude();
+    function getLimitMagnitude():number;
     function setFlagStarMagnitudeLimit(b:boolean):void;
     function getFlagStarMagnitudeLimit():boolean;
     function setFlagNebulaMagnitudeLimit(b:boolean):void;
@@ -926,38 +941,42 @@ declare namespace StelSkyDrawer {
     function setCustomNebulaMagnitudeLimit(d:number):void;
     function getCustomPlanetMagnitudeLimit():number;
     function setCustomPlanetMagnitudeLimit(d:number):void;
-    // function getLimitLuminance();
+    function getLimitLuminance():number;
     function setFlagLuminanceAdaptation(b:boolean):void;
     function getFlagLuminanceAdaptation():boolean;
     function setDaylightLabelThreshold(d:number):void;
-    // function getDaylightLabelThreshold();
-    // function getWorldAdaptationLuminance();
+    function getDaylightLabelThreshold():number;
+    function getWorldAdaptationLuminance():number;
     function setFlagHasAtmosphere(b:boolean):void;
     function getFlagHasAtmosphere():boolean;
     function setExtinctionCoefficient(d:number):void;
-    // function getExtinctionCoefficient();
+    function getExtinctionCoefficient():number;
     function setAtmosphereTemperature(d:number):void;
     function getAtmosphereTemperature():number;
     function setAtmospherePressure(d:number):void;
     function getAtmospherePressure():number;
-    // function getExtinction();
-    // function getRefraction();
-    // function getBig3dModelHaloRadius();
+
+    // function getExtinction():Extinction;
+    // function getRefraction():Refraction;
+
+    function getBig3dModelHaloRadius():number;
     function setBig3dModelHaloRadius(f:number):void;
 }
 
 declare namespace StelSkyLayerMgr {
     function setFlagShow(b:boolean) : void;
-    // function loadSkyImage(s:string,QString,double,double,double,double,double,double,double,double,double,double,bool,StelCore::FrameType);
-    // function loadSkyImage(s:string,QString,double,double,double,double,double,double,double,double,double,double,bool);
-    // function loadSkyImageAltAz(s:string,QString,double,double,double,double,double,double,double,double,double,double,bool);
-    // function showLayer(s:string,bool);
-    // function getShowLayer(s:string);
-    // function insertSkyImage(s:string,QString,bool);
-    // function insertSkyImage(s:string,QString);
-    // function insertSkyImage(s:string);
-    // function removeSkyLayer(s:string);
-    // function getAllKeys();
+    
+    //function loadSkyImage(id : string, filename : string, long0 : number, lat0 : number, long1 : number, lat1 : number, long2 : number, lat2 : number, long3 : number, lat3 : number, minRes : number, maxBright : number, visible : boolean, StelCore::FrameType);
+    function loadSkyImage(id : string, filename : string, long0 : number, lat0 : number, long1 : number, lat1 : number, long2 : number, lat2 : number, long3 : number, lat3 : number, minRes : number, maxBright : number, visible : boolean) : boolean;
+    function loadSkyImageAltAz(id:string, filename:string, alt0:number, azi0:number, alt1:number, azi1:number, alt2:number, azi2:number, alt3:number, azi3:number, minRes:number, maxBright:number, visible:boolean) : boolean;
+   
+    function showLayer(id : string, visible : boolean) : void;
+    function getShowLayer(id : string) : boolean;
+
+    function insertSkyImage(uri:string, keyHint?:string, show?:boolean) : string;
+    function removeSkyLayer(key:string):void;
+    
+    // function getAllKeys() : QStringList
 }
 
 declare namespace MilkyWay {
@@ -1094,8 +1113,8 @@ declare namespace Exoplanets {
     function getCountAllExoplanets():number;
     function getCountHabitableExoplanets():number;
 
-    // function setCurrentTemperatureScale(TemperatureScale)
-    // function getCurrentTemperatureScale()
+    // function setCurrentTemperatureScale(TemperatureScale) 
+    // function getCurrentTemperatureScale() : TemperatureScale
 
     function getCurrentTemperatureScaleKey():string;
     function setCurrentTemperatureScaleKey(s:string):void;

@@ -14,10 +14,11 @@ function setup() : void {
     core.wait(2);
 
     SolarSystem.setFlagPlanets(true);
-    //SolarSystem.setMoonScale(6);
-    //SolarSystem.setFlagMoonScale(true);
+    SolarSystem.setMoonScale(1);
+    SolarSystem.setFlagMoonScale(false);
     SolarSystem.setFontSize(25);
-    
+    SolarSystem.setFlagLabels(false);
+
     StelSkyDrawer.setAbsoluteStarScale(1.0);
     StelSkyDrawer.setRelativeStarScale(1.1);
 
@@ -40,6 +41,7 @@ function setup() : void {
     SporadicMeteorMgr.setZHR(20000);
 
 //    core.setGuiVisible(false);
+    core.setSkyCulture("western");
     core.setMilkyWayVisible(true);
     core.setMilkyWayIntensity(1);
 
@@ -97,11 +99,72 @@ function intro(delayTime : number) : void {
     }
 }
 
-abstract class PlanetaryObserver {
+class Trace {
+	private _trace : number[];
+
+    private _symbol : string = ".";
+
+    constructor() {
+    }
+
+    public add(x : number, y : number) {
+    }
+
+    public setSymbol(s : string) : void {
+		if (!s)
+			return;
+
+		this._symbol = s;		
+	}
+
+    public changeSymbol(symbol : string) {
+		for (var i = 0; i < this._trace.length; ++i) {
+			var id = this._trace[i];
+			LabelMgr.setLabelText(id, symbol);
+		}
+    }
+    
+	public clear() : void {
+		for (var i = 0; i < this._trace.length; ++i) {
+			var id = this._trace[i];
+			LabelMgr.deleteLabel(id);
+		}
+
+		this._trace = new Array();
+	}
+}
+
+interface IPlanetaryObserver {
+    orbitalPeriod : number;
+
+    siderialPeriod : number;
+
+    watchSurface() : void;
+    
+    watchFromSun() : void;
+    
+    watchSeasons() : void;
+    
+    select() : void;
+}
+
+abstract class PlanetaryObserver implements IPlanetaryObserver {
+    
+    // orbital period in days
+    protected _orbitalPeriod : number;
+
+    // siderial period in days
+    protected _siderialPeriod : number;
+
     private _long : number;
+    
     private _lat : number;
+    
     private _date : string;
+    
     private _name : string;
+
+    private _trace : Trace = new Trace();
 
     // Search key for stellariums object database
     private _id : string;
@@ -111,6 +174,22 @@ abstract class PlanetaryObserver {
 
     // Field of view for watching the planet race along the ecliptic
     private _fovEcliptic : number = 40;
+
+    public get orbitalPeriod() {
+        return this._orbitalPeriod;
+    }
+
+    public set orbitalPeriod(value:number) {
+        this._orbitalPeriod = value;
+    }
+
+    public get siderialPeriod() {
+        return this._siderialPeriod;
+    }
+
+    public set siderialPeriod(value:number) {
+        this._siderialPeriod = value;
+    }
 
     get name() {
         return this._name;
@@ -140,11 +219,11 @@ abstract class PlanetaryObserver {
         this._fovCloseupFromSun = value;
     }
 
-    constructor(name: string, id : string, long:number, lat:number, date:string) {
-        if (id==null)
+    constructor(name: string, id : string, long : number, lat : number, date : string) {
+        if (id == null)
             throw new Error("PlanetaryObserver.constructor: id is null or empty!")
 
-        if (name==null)
+        if (name == null)
             throw new Error("PlanetaryObserver.constructor: name is null or empty!")
 
         this._long = long;
@@ -164,7 +243,7 @@ abstract class PlanetaryObserver {
         core.debug("Setting up " + this._name + " surface observer");
     }
 
-    public watchFromSun(delay:number) : void {
+    public watchFromSun() : void {
         try
         {
             var observerName : string = "Solar " + this.name + " Observer";
@@ -191,8 +270,6 @@ abstract class PlanetaryObserver {
 
             StelMovementMgr.autoZoomIn(0);
             StelMovementMgr.zoomTo(this.fovSun, 0);
-            
-            core.wait(delay);
         }
         finally
         {
@@ -206,12 +283,22 @@ abstract class PlanetaryObserver {
         core.selectObjectByName(this.id, false);
         core.setSelectedObjectInfo("AllInfo"); // "ShortInfo", "AllInfo", "None"
     }
+
+    public watchSeasons() : void {
+        this.watchFromSun();
+
+        core.setTimeRate(0);
+        core.setDate(this.date, "utc");
+        core.debug("Watching seasons of " + this.name);
+    }
 }
 
 class MercuryObserver extends PlanetaryObserver {
     constructor(long:number, lat:number, date:string) {
         super(strings.mercury, "Mercury", long, lat, date);
         
+        this.orbitalPeriod = 87.969;
+        this.siderialPeriod = 58.646;
         this.fovSun = 0.008;
     }
 
@@ -228,9 +315,34 @@ class MercuryObserver extends PlanetaryObserver {
         core.setObserverLocation(this.long, this.lat, 425, 0, "Surface Mercury Observer", "Mercury");
     }
 
-    public watchFromSun(time:number) : void {
-        core.setTimeRate(2*86400);
-        super.watchFromSun(time);
+    public watchFromSun() : void {
+//        core.setTimeRate(2*86400);
+        super.watchFromSun();
+    }
+
+    // Watch Season on mercury
+    public watchSeasons() : void {
+        try {
+            super.watchSeasons();
+
+            var lbTitle = LabelMgr.labelScreen(strings.seasonalChanges, 50, 50, true, 40, "#66ccff");
+
+            for (let p = 0; p < this.orbitalPeriod*2; ++p) {
+                let info : any = core.getSelectedObjectInfo();
+                if (info==null)
+                    continue;
+
+                core.setDate("+0.5 day");
+                core.wait(0.05);
+
+                let azi : number = info["azimuth"];
+                let dst : number = info["distance"];
+                core.debug("azi=" + azi + "; dst=" + dst);
+            }
+        }
+        finally {
+            LabelMgr.deleteLabel(lbTitle);
+        }
     }
 }
 
@@ -238,6 +350,8 @@ class VenusObserver extends PlanetaryObserver {
     constructor(long:number, lat:number, date:string) {
         super(strings.venus, "Venus", long, lat, date);
 
+        this.orbitalPeriod = 224.701;
+        this.siderialPeriod = -243.025;
         this.fovSun = 0.008;
     }
 
@@ -252,16 +366,18 @@ class VenusObserver extends PlanetaryObserver {
         core.setObserverLocation(this.long, this.lat, 425, 0, "Venus Observer", "Venus");
     }
 
-    public watchFromSun(delay:number) : void {
+    public watchFromSun() : void {
         core.setTimeRate(2*86400);
-        super.watchFromSun(delay);
+        super.watchFromSun();
     }
 }
 
 class EarthObserver extends PlanetaryObserver {
     constructor(long:number, lat:number, date:string) {
         super(strings.earth, "Earth", long, lat, date);
-
+        
+        this.orbitalPeriod = 365.256363004;
+        this.siderialPeriod = 0.99726968;
         this.fovSun = 0.008;
     }
 
@@ -276,29 +392,30 @@ class EarthObserver extends PlanetaryObserver {
         core.setObserverLocation(this.long, this.lat, 425, 0, "Earth Observer", "Earth");
     }
 
-    public watchFromSun(delay:number) : void {
+    public watchFromSun() : void {
         core.setTimeRate(2*3600);
-        super.watchFromSun(delay);
-
-        this.watchSeasons();
+        super.watchFromSun();
     }
 
     public watchSeasons() : void {
+        try {
+            super.watchSeasons();
+           
+            var lbTitle = LabelMgr.labelScreen(strings.seasonalChanges, 50, 50, true, 40, "#66ccff");
+            var lbTime =  LabelMgr.labelScreen(strings.europeAtNoon, 50, 100, true, 25, "#66ccff");
 
+            // core.setDate(this.date, "utc");
+            // core.setTimeRate(0);
 
-        var lbTitle = LabelMgr.labelScreen(strings.seasonalChanges, 50, 50, true, 40, "#66ccff");
-        var lbTime =  LabelMgr.labelScreen(strings.europeAtNoon, 50, 100, true, 25, "#66ccff");
-
-        core.setDate(this.date, "utc");
-        core.setTimeRate(0);
-
-        for (var i=0; i<365; ++i) {
-            core.setDate("+1 day");
-            core.wait(0.1);
+            for (var i = 0; i < 365; ++i) {
+                core.setDate("+1 day");
+                core.wait(0.1);
+            }
         }
-
-        LabelMgr.deleteLabel(lbTitle);
-        LabelMgr.deleteLabel(lbTime);
+        finally {
+            LabelMgr.deleteLabel(lbTitle);
+            LabelMgr.deleteLabel(lbTime);
+        }
     }
 }
 
@@ -307,6 +424,8 @@ class MarsObserver extends PlanetaryObserver {
         super(strings.mars, "Mars", long, lat, date);
 
         // fov for mars + phobos + deimos
+        this.orbitalPeriod = 686.971;
+        this.siderialPeriod = 1.025957;
         this.fovSun = 0.00678;
     }
 
@@ -322,9 +441,9 @@ class MarsObserver extends PlanetaryObserver {
         core.setObserverLocation(this.long, this.lat, 425, 0, "Mars Observer", "Mars");
     }
 
-    public watchFromSun(delay:number) : void {
+    public watchFromSun() : void {
         core.setTimeRate(2000);
-        super.watchFromSun(delay);
+        super.watchFromSun();
     }
 }
 
@@ -332,6 +451,8 @@ class SaturnObserver extends PlanetaryObserver {
     constructor(long:number, lat:number, date:string) {
         super(strings.saturn, "Saturn", long, lat, date);
 
+        this.orbitalPeriod = 10759.22;
+        this.siderialPeriod = 10.55 / 24; // 10.55 hours
         this.fovSun = 0.008;
     }
 
@@ -346,15 +467,17 @@ class SaturnObserver extends PlanetaryObserver {
         core.setObserverLocation(this.long, this.lat, 425, 0, "Saturn Observer", "Saturn");
     }
 
-    public watchFromSun(delay:number) : void {
-        super.watchFromSun(delay);
+    public watchFromSun() : void {
+        super.watchFromSun();
     }
 }
 
 class JupiterObserver extends PlanetaryObserver {
     constructor(long:number, lat:number, date:string) {
         super(strings.jupiter, "Jupiter", long, lat, date);
-
+        
+        this.orbitalPeriod = 4332.59;
+        this.siderialPeriod = 9.925 / 24;
         this.fovSun = 0.008;
     }
 
@@ -369,15 +492,17 @@ class JupiterObserver extends PlanetaryObserver {
         core.setObserverLocation(this.long, this.lat, 425, 0, "Jupiter Observer", "Jupiter");
     }
 
-    public watchFromSun(delay:number) : void {
-        super.watchFromSun(delay);
+    public watchFromSun() : void {
+        super.watchFromSun();
     }
 }
 
-class NeptunObserver extends PlanetaryObserver {
+class NeptuneObserver extends PlanetaryObserver {
     constructor(long:number, lat:number, date:string) {
         super(strings.neptun, "Neptun", long, lat, date);
 
+        this.orbitalPeriod = 60182;
+        this.siderialPeriod = 0.6713;
         this.fovSun = 0.008;
     }
 
@@ -390,8 +515,8 @@ class NeptunObserver extends PlanetaryObserver {
         core.setObserverLocation(this.long, this.lat, 425, 0, "Neptun Observer", "Neptun");
     }
 
-    public watchFromSun(delay:number) : void {
-        super.watchFromSun(delay);
+    public watchFromSun() : void {
+        super.watchFromSun();
     }
 }
 
@@ -405,20 +530,27 @@ function main() : void {
         setup();
 //        intro(5);
 
-        var planets : PlanetaryObserver[] = [
+        var planets : IPlanetaryObserver[] = [
             new MercuryObserver(-33.22, 19.13, "1997-07-29T23:35:00"),
             new VenusObserver(-33.22, 19.13, "1997-07-29T23:35:00"),
             new EarthObserver(13, 51, "2018-06-21T12:00:00"),
             //new MarsObserver(-33.22, 19.13, "1997-07-29T23:35:00"),
         ];
 
-        for (var i=0; i<planets.length; ++i) {
-            var p = planets[i];
-            if (p==null)
-                continue;
+        var p = planets[0];
+        p.watchSeasons();
+        core.wait(60);
 
-            p.watchFromSun(60);
-        }
+        // for (var i=0; i<planets.length; ++i) {
+        //     var p = planets[i];
+        //     if (p==null)
+        //         continue;
+
+        //     p.watchFromSun();
+        //     core.wait(60);
+
+        //     p.watchSeasons();
+        // }
     }
     catch(exc)
     {

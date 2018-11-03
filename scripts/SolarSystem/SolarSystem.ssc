@@ -117,9 +117,10 @@ function setup() {
     // (https://github.com/Stellarium/stellarium/issues?q=is%3Aissue+is%3Aclosed)
     core.wait(2);
     SolarSystem.setFlagPlanets(true);
-    //SolarSystem.setMoonScale(6);
-    //SolarSystem.setFlagMoonScale(true);
+    SolarSystem.setMoonScale(1);
+    SolarSystem.setFlagMoonScale(false);
     SolarSystem.setFontSize(25);
+    SolarSystem.setFlagLabels(false);
     StelSkyDrawer.setAbsoluteStarScale(1.0);
     StelSkyDrawer.setRelativeStarScale(1.1);
     StarMgr.setFontSize(20);
@@ -137,6 +138,7 @@ function setup() {
     SporadicMeteorMgr.setFlagShow(true);
     SporadicMeteorMgr.setZHR(20000);
     //    core.setGuiVisible(false);
+    core.setSkyCulture("western");
     core.setMilkyWayVisible(true);
     core.setMilkyWayIntensity(1);
     LandscapeMgr.setFlagAtmosphere(false);
@@ -179,8 +181,35 @@ function intro(delayTime) {
         Helper_1.Helper.restoreState(SolarSystem);
     }
 }
+var Trace = /** @class */ (function () {
+    function Trace() {
+        this._symbol = ".";
+    }
+    Trace.prototype.add = function (x, y) {
+    };
+    Trace.prototype.setSymbol = function (s) {
+        if (!s)
+            return;
+        this._symbol = s;
+    };
+    Trace.prototype.changeSymbol = function (symbol) {
+        for (var i = 0; i < this._trace.length; ++i) {
+            var id = this._trace[i];
+            LabelMgr.setLabelText(id, symbol);
+        }
+    };
+    Trace.prototype.clear = function () {
+        for (var i = 0; i < this._trace.length; ++i) {
+            var id = this._trace[i];
+            LabelMgr.deleteLabel(id);
+        }
+        this._trace = new Array();
+    };
+    return Trace;
+}());
 var PlanetaryObserver = /** @class */ (function () {
     function PlanetaryObserver(name, id, long, lat, date) {
+        this._trace = new Trace();
         // Field of view for planet closeup
         this._fovCloseupFromSun = 0.1;
         // Field of view for watching the planet race along the ecliptic
@@ -199,6 +228,26 @@ var PlanetaryObserver = /** @class */ (function () {
         if (!cached)
             throw new Error('Precaching landscape "Sun" failed');
     }
+    Object.defineProperty(PlanetaryObserver.prototype, "orbitalPeriod", {
+        get: function () {
+            return this._orbitalPeriod;
+        },
+        set: function (value) {
+            this._orbitalPeriod = value;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(PlanetaryObserver.prototype, "siderialPeriod", {
+        get: function () {
+            return this._siderialPeriod;
+        },
+        set: function (value) {
+            this._siderialPeriod = value;
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(PlanetaryObserver.prototype, "name", {
         get: function () {
             return this._name;
@@ -247,7 +296,7 @@ var PlanetaryObserver = /** @class */ (function () {
     PlanetaryObserver.prototype.watchSurface = function () {
         core.debug("Setting up " + this._name + " surface observer");
     };
-    PlanetaryObserver.prototype.watchFromSun = function (delay) {
+    PlanetaryObserver.prototype.watchFromSun = function () {
         try {
             var observerName = "Solar " + this.name + " Observer";
             core.debug("Setting up " + observerName);
@@ -266,7 +315,6 @@ var PlanetaryObserver = /** @class */ (function () {
             this.select();
             StelMovementMgr.autoZoomIn(0);
             StelMovementMgr.zoomTo(this.fovSun, 0);
-            core.wait(delay);
         }
         finally {
             LabelMgr.deleteLabel(lbTitle);
@@ -278,12 +326,20 @@ var PlanetaryObserver = /** @class */ (function () {
         core.selectObjectByName(this.id, false);
         core.setSelectedObjectInfo("AllInfo"); // "ShortInfo", "AllInfo", "None"
     };
+    PlanetaryObserver.prototype.watchSeasons = function () {
+        this.watchFromSun();
+        core.setTimeRate(0);
+        core.setDate(this.date, "utc");
+        core.debug("Watching seasons of " + this.name);
+    };
     return PlanetaryObserver;
 }());
 var MercuryObserver = /** @class */ (function (_super) {
     __extends(MercuryObserver, _super);
     function MercuryObserver(long, lat, date) {
         var _this = _super.call(this, strings.mercury, "Mercury", long, lat, date) || this;
+        _this.orbitalPeriod = 87.969;
+        _this.siderialPeriod = 58.646;
         _this.fovSun = 0.008;
         return _this;
     }
@@ -298,9 +354,29 @@ var MercuryObserver = /** @class */ (function (_super) {
         core.setDate(this.date, "utc");
         core.setObserverLocation(this.long, this.lat, 425, 0, "Surface Mercury Observer", "Mercury");
     };
-    MercuryObserver.prototype.watchFromSun = function (time) {
-        core.setTimeRate(2 * 86400);
-        _super.prototype.watchFromSun.call(this, time);
+    MercuryObserver.prototype.watchFromSun = function () {
+        //        core.setTimeRate(2*86400);
+        _super.prototype.watchFromSun.call(this);
+    };
+    // Watch Season on mercury
+    MercuryObserver.prototype.watchSeasons = function () {
+        try {
+            _super.prototype.watchSeasons.call(this);
+            var lbTitle = LabelMgr.labelScreen(strings.seasonalChanges, 50, 50, true, 40, "#66ccff");
+            for (var p = 0; p < this.orbitalPeriod * 2; ++p) {
+                var info = core.getSelectedObjectInfo();
+                if (info == null)
+                    continue;
+                core.setDate("+0.5 day");
+                core.wait(0.05);
+                var azi = info["azimuth"];
+                var dst = info["distance"];
+                core.debug("azi=" + azi + "; dst=" + dst);
+            }
+        }
+        finally {
+            LabelMgr.deleteLabel(lbTitle);
+        }
     };
     return MercuryObserver;
 }(PlanetaryObserver));
@@ -308,6 +384,8 @@ var VenusObserver = /** @class */ (function (_super) {
     __extends(VenusObserver, _super);
     function VenusObserver(long, lat, date) {
         var _this = _super.call(this, strings.venus, "Venus", long, lat, date) || this;
+        _this.orbitalPeriod = 224.701;
+        _this.siderialPeriod = -243.025;
         _this.fovSun = 0.008;
         return _this;
     }
@@ -320,9 +398,9 @@ var VenusObserver = /** @class */ (function (_super) {
         core.setDate(this.date, "utc");
         core.setObserverLocation(this.long, this.lat, 425, 0, "Venus Observer", "Venus");
     };
-    VenusObserver.prototype.watchFromSun = function (delay) {
+    VenusObserver.prototype.watchFromSun = function () {
         core.setTimeRate(2 * 86400);
-        _super.prototype.watchFromSun.call(this, delay);
+        _super.prototype.watchFromSun.call(this);
     };
     return VenusObserver;
 }(PlanetaryObserver));
@@ -330,6 +408,8 @@ var EarthObserver = /** @class */ (function (_super) {
     __extends(EarthObserver, _super);
     function EarthObserver(long, lat, date) {
         var _this = _super.call(this, strings.earth, "Earth", long, lat, date) || this;
+        _this.orbitalPeriod = 365.256363004;
+        _this.siderialPeriod = 0.99726968;
         _this.fovSun = 0.008;
         return _this;
     }
@@ -342,22 +422,26 @@ var EarthObserver = /** @class */ (function (_super) {
         core.setDate(this.date, "utc");
         core.setObserverLocation(this.long, this.lat, 425, 0, "Earth Observer", "Earth");
     };
-    EarthObserver.prototype.watchFromSun = function (delay) {
+    EarthObserver.prototype.watchFromSun = function () {
         core.setTimeRate(2 * 3600);
-        _super.prototype.watchFromSun.call(this, delay);
-        this.watchSeasons();
+        _super.prototype.watchFromSun.call(this);
     };
     EarthObserver.prototype.watchSeasons = function () {
-        var lbTitle = LabelMgr.labelScreen(strings.seasonalChanges, 50, 50, true, 40, "#66ccff");
-        var lbTime = LabelMgr.labelScreen(strings.europeAtNoon, 50, 100, true, 25, "#66ccff");
-        core.setDate(this.date, "utc");
-        core.setTimeRate(0);
-        for (var i = 0; i < 365; ++i) {
-            core.setDate("+1 day");
-            core.wait(0.1);
+        try {
+            _super.prototype.watchSeasons.call(this);
+            var lbTitle = LabelMgr.labelScreen(strings.seasonalChanges, 50, 50, true, 40, "#66ccff");
+            var lbTime = LabelMgr.labelScreen(strings.europeAtNoon, 50, 100, true, 25, "#66ccff");
+            // core.setDate(this.date, "utc");
+            // core.setTimeRate(0);
+            for (var i = 0; i < 365; ++i) {
+                core.setDate("+1 day");
+                core.wait(0.1);
+            }
         }
-        LabelMgr.deleteLabel(lbTitle);
-        LabelMgr.deleteLabel(lbTime);
+        finally {
+            LabelMgr.deleteLabel(lbTitle);
+            LabelMgr.deleteLabel(lbTime);
+        }
     };
     return EarthObserver;
 }(PlanetaryObserver));
@@ -366,6 +450,8 @@ var MarsObserver = /** @class */ (function (_super) {
     function MarsObserver(long, lat, date) {
         var _this = _super.call(this, strings.mars, "Mars", long, lat, date) || this;
         // fov for mars + phobos + deimos
+        _this.orbitalPeriod = 686.971;
+        _this.siderialPeriod = 1.025957;
         _this.fovSun = 0.00678;
         return _this;
     }
@@ -378,9 +464,9 @@ var MarsObserver = /** @class */ (function (_super) {
         core.setDate(this.date, "utc");
         core.setObserverLocation(this.long, this.lat, 425, 0, "Mars Observer", "Mars");
     };
-    MarsObserver.prototype.watchFromSun = function (delay) {
+    MarsObserver.prototype.watchFromSun = function () {
         core.setTimeRate(2000);
-        _super.prototype.watchFromSun.call(this, delay);
+        _super.prototype.watchFromSun.call(this);
     };
     return MarsObserver;
 }(PlanetaryObserver));
@@ -388,6 +474,8 @@ var SaturnObserver = /** @class */ (function (_super) {
     __extends(SaturnObserver, _super);
     function SaturnObserver(long, lat, date) {
         var _this = _super.call(this, strings.saturn, "Saturn", long, lat, date) || this;
+        _this.orbitalPeriod = 10759.22;
+        _this.siderialPeriod = 10.55 / 24; // 10.55 hours
         _this.fovSun = 0.008;
         return _this;
     }
@@ -400,8 +488,8 @@ var SaturnObserver = /** @class */ (function (_super) {
         core.setDate(this.date, "utc");
         core.setObserverLocation(this.long, this.lat, 425, 0, "Saturn Observer", "Saturn");
     };
-    SaturnObserver.prototype.watchFromSun = function (delay) {
-        _super.prototype.watchFromSun.call(this, delay);
+    SaturnObserver.prototype.watchFromSun = function () {
+        _super.prototype.watchFromSun.call(this);
     };
     return SaturnObserver;
 }(PlanetaryObserver));
@@ -409,6 +497,8 @@ var JupiterObserver = /** @class */ (function (_super) {
     __extends(JupiterObserver, _super);
     function JupiterObserver(long, lat, date) {
         var _this = _super.call(this, strings.jupiter, "Jupiter", long, lat, date) || this;
+        _this.orbitalPeriod = 4332.59;
+        _this.siderialPeriod = 9.925 / 24;
         _this.fovSun = 0.008;
         return _this;
     }
@@ -421,29 +511,31 @@ var JupiterObserver = /** @class */ (function (_super) {
         core.setDate(this.date, "utc");
         core.setObserverLocation(this.long, this.lat, 425, 0, "Jupiter Observer", "Jupiter");
     };
-    JupiterObserver.prototype.watchFromSun = function (delay) {
-        _super.prototype.watchFromSun.call(this, delay);
+    JupiterObserver.prototype.watchFromSun = function () {
+        _super.prototype.watchFromSun.call(this);
     };
     return JupiterObserver;
 }(PlanetaryObserver));
-var NeptunObserver = /** @class */ (function (_super) {
-    __extends(NeptunObserver, _super);
-    function NeptunObserver(long, lat, date) {
+var NeptuneObserver = /** @class */ (function (_super) {
+    __extends(NeptuneObserver, _super);
+    function NeptuneObserver(long, lat, date) {
         var _this = _super.call(this, strings.neptun, "Neptun", long, lat, date) || this;
+        _this.orbitalPeriod = 60182;
+        _this.siderialPeriod = 0.6713;
         _this.fovSun = 0.008;
         return _this;
     }
-    NeptunObserver.prototype.watchSurface = function () {
+    NeptuneObserver.prototype.watchSurface = function () {
         _super.prototype.watchSurface.call(this);
         LandscapeMgr.setFlagAtmosphere(true);
         LandscapeMgr.setCurrentLandscapeName("Neptun");
         core.setDate(this.date, "utc");
         core.setObserverLocation(this.long, this.lat, 425, 0, "Neptun Observer", "Neptun");
     };
-    NeptunObserver.prototype.watchFromSun = function (delay) {
-        _super.prototype.watchFromSun.call(this, delay);
+    NeptuneObserver.prototype.watchFromSun = function () {
+        _super.prototype.watchFromSun.call(this);
     };
-    return NeptunObserver;
+    return NeptuneObserver;
 }(PlanetaryObserver));
 function main() {
     try {
@@ -456,12 +548,17 @@ function main() {
             new VenusObserver(-33.22, 19.13, "1997-07-29T23:35:00"),
             new EarthObserver(13, 51, "2018-06-21T12:00:00"),
         ];
-        for (var i = 0; i < planets.length; ++i) {
-            var p = planets[i];
-            if (p == null)
-                continue;
-            p.watchFromSun(60);
-        }
+        var p = planets[0];
+        p.watchSeasons();
+        core.wait(60);
+        // for (var i=0; i<planets.length; ++i) {
+        //     var p = planets[i];
+        //     if (p==null)
+        //         continue;
+        //     p.watchFromSun();
+        //     core.wait(60);
+        //     p.watchSeasons();
+        // }
     }
     catch (exc) {
         core.debug(exc);
