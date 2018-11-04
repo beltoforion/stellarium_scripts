@@ -18,7 +18,8 @@ export class Strings {
         december : "Dezember",
         dateAndTime : "Datum und Zeit",
         winterSolstice : "Wintersonnenwende",
-        summerSolstice : "Sommersonnenwende"
+        summerSolstice : "Sommersonnenwende",
+        sun : "Sonne"
     };
 
     private _english : DictType = {
@@ -37,7 +38,8 @@ export class Strings {
         december : "December",
         dateAndTime : "Date and Time",
         winterSolstice : "Winter solstice",
-        summerSolstice : "Sommer solstice"
+        summerSolstice : "Sommer solstice",
+        sun : "Sun"
     };    
 
     public constructor() {

@@ -4,9 +4,13 @@
 // Name: Tour of the solar system
 // Description: A tour through the solar system
 import { Helper } from "../Shared/Helper"
+import { Trace } from "../Shared/Trace"
+import { Strings as SharedStrings } from "../Shared/Strings"
 import { Strings } from "./Strings";
 
+// Set up localized strings
 var strings = new Strings().getLocalizedStrings();
+var sharedStrings = new SharedStrings().getLocalizedStrings();
 
 function setup() : void {
     // Wait to work around #491 
@@ -99,40 +103,7 @@ function intro(delayTime : number) : void {
     }
 }
 
-class Trace {
-	private _trace : number[];
 
-    private _symbol : string = ".";
-
-    constructor() {
-    }
-
-    public add(x : number, y : number) {
-    }
-
-    public setSymbol(s : string) : void {
-		if (!s)
-			return;
-
-		this._symbol = s;		
-	}
-
-    public changeSymbol(symbol : string) {
-		for (var i = 0; i < this._trace.length; ++i) {
-			var id = this._trace[i];
-			LabelMgr.setLabelText(id, symbol);
-		}
-    }
-    
-	public clear() : void {
-		for (var i = 0; i < this._trace.length; ++i) {
-			var id = this._trace[i];
-			LabelMgr.deleteLabel(id);
-		}
-
-		this._trace = new Array();
-	}
-}
 
 interface IPlanetaryObserver {
     orbitalPeriod : number;
@@ -174,6 +145,10 @@ abstract class PlanetaryObserver implements IPlanetaryObserver {
 
     // Field of view for watching the planet race along the ecliptic
     private _fovEcliptic : number = 40;
+
+    protected get trace() {
+        return this._trace;
+    }
 
     public get orbitalPeriod() {
         return this._orbitalPeriod;
@@ -281,7 +256,7 @@ abstract class PlanetaryObserver implements IPlanetaryObserver {
     public select() : void {
         core.debug('Selecting object "' + this.id + '" (' + this.name + ')')
         core.selectObjectByName(this.id, false);
-        core.setSelectedObjectInfo("AllInfo"); // "ShortInfo", "AllInfo", "None"
+        core.setSelectedObjectInfo("None"); // "ShortInfo", "AllInfo", "None"
     }
 
     public watchSeasons() : void {
@@ -304,6 +279,7 @@ class MercuryObserver extends PlanetaryObserver {
 
     public watchSurface() : void {
         super.watchSurface();
+
         LandscapeMgr.setCurrentLandscapeName("Moon");
         LandscapeMgr.setFlagAtmosphere(false);
         LandscapeMgr.setFlagFog(false);
@@ -325,23 +301,47 @@ class MercuryObserver extends PlanetaryObserver {
         try {
             super.watchSeasons();
 
-            var lbTitle = LabelMgr.labelScreen(strings.seasonalChanges, 50, 50, true, 40, "#66ccff");
+            let orbitx : number = core.getScreenWidth() - 300;
+            let orbity : number = core.getScreenHeight() / 2;
 
-            for (let p = 0; p < this.orbitalPeriod*2; ++p) {
-                let info : any = core.getSelectedObjectInfo();
-                if (info==null)
-                    continue;
+            var lbTitle = LabelMgr.labelScreen(strings.orbitOfXXX + this.name, 50, 50, true, 40, "#66ccff");
+            var lbSunMarker = LabelMgr.labelScreen("+", orbitx, orbity, true, 15, "#ffff66");
+            var lbSunCaption = LabelMgr.labelScreen(sharedStrings.sun, orbitx + 20, orbity, true, 15, "#ffff66");
+            var lbMercuryCaption = 0;
 
-                core.setDate("+0.5 day");
+            var dt = 0.3;
+            for (let p = 0; p < this.orbitalPeriod; p += dt) {
+                core.setDate("+" + dt + " day");
                 core.wait(0.05);
 
-                let azi : number = info["azimuth"];
+                let info : any = core.getSelectedObjectInfo();
+                if (info == null)
+                    continue;
+
+                let ra : number = info["ra"];
                 let dst : number = info["distance"];
-                core.debug("azi=" + azi + "; dst=" + dst);
+                let rad = 400;
+                let x = Math.sin(ra * Math.PI / 180) * rad * dst;
+                let y = Math.cos(ra * Math.PI / 180) * rad * dst;
+                //core.debug("ra=" + ra + "; dst=" + dst);
+
+                this.trace.add(orbitx + x, orbity + y)
+                if (lbMercuryCaption!=0)
+                {
+                    LabelMgr.deleteLabel(lbMercuryCaption);
+                }
+                else
+                {
+                    lbMercuryCaption = LabelMgr.labelScreen(this.name, orbitx + x + 20, orbity + y, true, 15, "#ffff66");
+                }
             }
         }
         finally {
-            LabelMgr.deleteLabel(lbTitle);
+            // LabelMgr.deleteLabel(lbTitle);
+            // LabelMgr.deleteLabel(lbSunMarker);
+            // LabelMgr.deleteLabel(lbSunCaption);
+            // LabelMgr.deleteLabel(lbMercuryCaption);
+            // this.trace.clear();
         }
     }
 }
@@ -531,7 +531,7 @@ function main() : void {
 //        intro(5);
 
         var planets : IPlanetaryObserver[] = [
-            new MercuryObserver(-33.22, 19.13, "1997-07-29T23:35:00"),
+            new MercuryObserver(-33.22, 19.13, "2018-10-20T12:00:00"),
             new VenusObserver(-33.22, 19.13, "1997-07-29T23:35:00"),
             new EarthObserver(13, 51, "2018-06-21T12:00:00"),
             //new MarsObserver(-33.22, 19.13, "1997-07-29T23:35:00"),

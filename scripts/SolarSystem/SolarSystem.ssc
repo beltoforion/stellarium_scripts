@@ -81,11 +81,100 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 0);
+/******/ 	return __webpack_require__(__webpack_require__.s = 1);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var Strings = /** @class */ (function () {
+    function Strings() {
+        this._german = {
+            anErrorOccured: "Ein Fehler ist aufgetreten",
+            january: "Januar",
+            february: "Februar",
+            march: "März",
+            april: "April",
+            may: "Mai",
+            june: "Juni",
+            july: "Juli",
+            august: "August",
+            september: "September",
+            october: "Oktober",
+            november: "November",
+            december: "Dezember",
+            dateAndTime: "Datum und Zeit",
+            winterSolstice: "Wintersonnenwende",
+            summerSolstice: "Sommersonnenwende",
+            sun: "Sonne"
+        };
+        this._english = {
+            anErrorOccured: "An error occured",
+            january: "January",
+            february: "February",
+            march: "March",
+            april: "April",
+            may: "May",
+            june: "June",
+            july: "July",
+            august: "August",
+            september: "September",
+            october: "October",
+            november: "November",
+            december: "December",
+            dateAndTime: "Date and Time",
+            winterSolstice: "Winter solstice",
+            summerSolstice: "Sommer solstice",
+            sun: "Sun"
+        };
+    }
+    Strings.prototype.verify = function () {
+        // todo: Check all langauge versions and panik if one of them is missing a string.
+    };
+    Strings.prototype.getLocalizedStrings = function (loc) {
+        if (loc === void 0) { loc = ""; }
+        // This function is using the localized name of the sun in order to try to determine the UI culture.
+        var lang;
+        if (loc) {
+            lang = loc;
+            core.debug('Forcing language to "' + lang + '"');
+        }
+        else {
+            lang = core.getAppLanguage();
+            core.debug('App language is "' + lang + '"');
+        }
+        var s;
+        // Germany, Austria and Switzerland get the german strings. 		
+        if (lang == "de_DE" || lang == "de_AT" || lang == "de_CH") {
+            s = this._german;
+        }
+        // default is english
+        else {
+            s = this._english;
+        }
+        // Add support functions
+        s.monthFromInt = function (m) {
+            if (m < 1 || m > 12)
+                return "invalid month";
+            var monthNames = [s.january, s.february, s.march,
+                s.april, s.may, s.june,
+                s.july, s.august, s.september,
+                s.october, s.november, s.december];
+            return monthNames[m - 1];
+        };
+        return s;
+    };
+    return Strings;
+}());
+exports.Strings = Strings;
+
+
+/***/ }),
+/* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -109,9 +198,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // License: GPL v3.0
 // Name: Tour of the solar system
 // Description: A tour through the solar system
-var Helper_1 = __webpack_require__(1);
-var Strings_1 = __webpack_require__(3);
-var strings = new Strings_1.Strings().getLocalizedStrings();
+var Helper_1 = __webpack_require__(2);
+var Trace_1 = __webpack_require__(3);
+var Strings_1 = __webpack_require__(0);
+var Strings_2 = __webpack_require__(4);
+// Set up localized strings
+var strings = new Strings_2.Strings().getLocalizedStrings();
+var sharedStrings = new Strings_1.Strings().getLocalizedStrings();
 function setup() {
     // Wait to work around #491 
     // (https://github.com/Stellarium/stellarium/issues?q=is%3Aissue+is%3Aclosed)
@@ -181,35 +274,9 @@ function intro(delayTime) {
         Helper_1.Helper.restoreState(SolarSystem);
     }
 }
-var Trace = /** @class */ (function () {
-    function Trace() {
-        this._symbol = ".";
-    }
-    Trace.prototype.add = function (x, y) {
-    };
-    Trace.prototype.setSymbol = function (s) {
-        if (!s)
-            return;
-        this._symbol = s;
-    };
-    Trace.prototype.changeSymbol = function (symbol) {
-        for (var i = 0; i < this._trace.length; ++i) {
-            var id = this._trace[i];
-            LabelMgr.setLabelText(id, symbol);
-        }
-    };
-    Trace.prototype.clear = function () {
-        for (var i = 0; i < this._trace.length; ++i) {
-            var id = this._trace[i];
-            LabelMgr.deleteLabel(id);
-        }
-        this._trace = new Array();
-    };
-    return Trace;
-}());
 var PlanetaryObserver = /** @class */ (function () {
     function PlanetaryObserver(name, id, long, lat, date) {
-        this._trace = new Trace();
+        this._trace = new Trace_1.Trace();
         // Field of view for planet closeup
         this._fovCloseupFromSun = 0.1;
         // Field of view for watching the planet race along the ecliptic
@@ -228,6 +295,13 @@ var PlanetaryObserver = /** @class */ (function () {
         if (!cached)
             throw new Error('Precaching landscape "Sun" failed');
     }
+    Object.defineProperty(PlanetaryObserver.prototype, "trace", {
+        get: function () {
+            return this._trace;
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(PlanetaryObserver.prototype, "orbitalPeriod", {
         get: function () {
             return this._orbitalPeriod;
@@ -324,7 +398,7 @@ var PlanetaryObserver = /** @class */ (function () {
     PlanetaryObserver.prototype.select = function () {
         core.debug('Selecting object "' + this.id + '" (' + this.name + ')');
         core.selectObjectByName(this.id, false);
-        core.setSelectedObjectInfo("AllInfo"); // "ShortInfo", "AllInfo", "None"
+        core.setSelectedObjectInfo("None"); // "ShortInfo", "AllInfo", "None"
     };
     PlanetaryObserver.prototype.watchSeasons = function () {
         this.watchFromSun();
@@ -362,20 +436,40 @@ var MercuryObserver = /** @class */ (function (_super) {
     MercuryObserver.prototype.watchSeasons = function () {
         try {
             _super.prototype.watchSeasons.call(this);
-            var lbTitle = LabelMgr.labelScreen(strings.seasonalChanges, 50, 50, true, 40, "#66ccff");
-            for (var p = 0; p < this.orbitalPeriod * 2; ++p) {
+            var orbitx = core.getScreenWidth() - 300;
+            var orbity = core.getScreenHeight() / 2;
+            var lbTitle = LabelMgr.labelScreen(strings.orbitOfXXX + this.name, 50, 50, true, 40, "#66ccff");
+            var lbSunMarker = LabelMgr.labelScreen("+", orbitx, orbity, true, 15, "#ffff66");
+            var lbSunCaption = LabelMgr.labelScreen(sharedStrings.sun, orbitx + 20, orbity, true, 15, "#ffff66");
+            var lbMercuryCaption = 0;
+            var dt = 0.3;
+            for (var p = 0; p < this.orbitalPeriod; p += dt) {
+                core.setDate("+" + dt + " day");
+                core.wait(0.05);
                 var info = core.getSelectedObjectInfo();
                 if (info == null)
                     continue;
-                core.setDate("+0.5 day");
-                core.wait(0.05);
-                var azi = info["azimuth"];
+                var ra = info["ra"];
                 var dst = info["distance"];
-                core.debug("azi=" + azi + "; dst=" + dst);
+                var rad = 400;
+                var x = Math.sin(ra * Math.PI / 180) * rad * dst;
+                var y = Math.cos(ra * Math.PI / 180) * rad * dst;
+                //core.debug("ra=" + ra + "; dst=" + dst);
+                this.trace.add(orbitx + x, orbity + y);
+                if (lbMercuryCaption != 0) {
+                    LabelMgr.deleteLabel(lbMercuryCaption);
+                }
+                else {
+                    lbMercuryCaption = LabelMgr.labelScreen(this.name, orbitx + x + 20, orbity + y, true, 15, "#ffff66");
+                }
             }
         }
         finally {
-            LabelMgr.deleteLabel(lbTitle);
+            // LabelMgr.deleteLabel(lbTitle);
+            // LabelMgr.deleteLabel(lbSunMarker);
+            // LabelMgr.deleteLabel(lbSunCaption);
+            // LabelMgr.deleteLabel(lbMercuryCaption);
+            // this.trace.clear();
         }
     };
     return MercuryObserver;
@@ -544,7 +638,7 @@ function main() {
         setup();
         //        intro(5);
         var planets = [
-            new MercuryObserver(-33.22, 19.13, "1997-07-29T23:35:00"),
+            new MercuryObserver(-33.22, 19.13, "2018-10-20T12:00:00"),
             new VenusObserver(-33.22, 19.13, "1997-07-29T23:35:00"),
             new EarthObserver(13, 51, "2018-06-21T12:00:00"),
         ];
@@ -573,13 +667,13 @@ main();
 
 
 /***/ }),
-/* 1 */
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var Strings_1 = __webpack_require__(2);
+var Strings_1 = __webpack_require__(0);
 var originalDebug = core.debug;
 var strings = new Strings_1.Strings().getLocalizedStrings();
 exports.Helper = {
@@ -673,94 +767,47 @@ var OnScreenLogger = /** @class */ (function () {
 
 
 /***/ }),
-/* 2 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var Strings = /** @class */ (function () {
-    function Strings() {
-        this._german = {
-            anErrorOccured: "Ein Fehler ist aufgetreten",
-            january: "Januar",
-            february: "Februar",
-            march: "März",
-            april: "April",
-            may: "Mai",
-            june: "Juni",
-            july: "Juli",
-            august: "August",
-            september: "September",
-            october: "Oktober",
-            november: "November",
-            december: "Dezember",
-            dateAndTime: "Datum und Zeit",
-            winterSolstice: "Wintersonnenwende",
-            summerSolstice: "Sommersonnenwende"
-        };
-        this._english = {
-            anErrorOccured: "An error occured",
-            january: "January",
-            february: "February",
-            march: "March",
-            april: "April",
-            may: "May",
-            june: "June",
-            july: "July",
-            august: "August",
-            september: "September",
-            october: "October",
-            november: "November",
-            december: "December",
-            dateAndTime: "Date and Time",
-            winterSolstice: "Winter solstice",
-            summerSolstice: "Sommer solstice"
-        };
+var Trace = /** @class */ (function () {
+    function Trace() {
+        this._trace = [];
+        this._symbol = ".";
     }
-    Strings.prototype.verify = function () {
-        // todo: Check all langauge versions and panik if one of them is missing a string.
+    Trace.prototype.add = function (x, y, color) {
+        if (color === void 0) { color = "#ffffff"; }
+        var lb = LabelMgr.labelScreen(this._symbol, x, y, true, 10, color);
+        this._trace.push(lb);
     };
-    Strings.prototype.getLocalizedStrings = function (loc) {
-        if (loc === void 0) { loc = ""; }
-        // This function is using the localized name of the sun in order to try to determine the UI culture.
-        var lang;
-        if (loc) {
-            lang = loc;
-            core.debug('Forcing language to "' + lang + '"');
-        }
-        else {
-            lang = core.getAppLanguage();
-            core.debug('App language is "' + lang + '"');
-        }
-        var s;
-        // Germany, Austria and Switzerland get the german strings. 		
-        if (lang == "de_DE" || lang == "de_AT" || lang == "de_CH") {
-            s = this._german;
-        }
-        // default is english
-        else {
-            s = this._english;
-        }
-        // Add support functions
-        s.monthFromInt = function (m) {
-            if (m < 1 || m > 12)
-                return "invalid month";
-            var monthNames = [s.january, s.february, s.march,
-                s.april, s.may, s.june,
-                s.july, s.august, s.september,
-                s.october, s.november, s.december];
-            return monthNames[m - 1];
-        };
-        return s;
+    Trace.prototype.setSymbol = function (s) {
+        if (!s)
+            return;
+        this._symbol = s;
     };
-    return Strings;
+    Trace.prototype.changeSymbol = function (symbol) {
+        for (var i = 0; i < this._trace.length; ++i) {
+            var id = this._trace[i];
+            LabelMgr.setLabelText(id, symbol);
+        }
+    };
+    Trace.prototype.clear = function () {
+        for (var i = 0; i < this._trace.length; ++i) {
+            var id = this._trace[i];
+            LabelMgr.deleteLabel(id);
+        }
+        this._trace = new Array();
+    };
+    return Trace;
 }());
-exports.Strings = Strings;
+exports.Trace = Trace;
 
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -785,7 +832,8 @@ var Strings = /** @class */ (function () {
             asSeenFromSun: " von der Sonne aus gesehen",
             timeLapse: "Zeitraffer",
             europeAtNoon: "Europa zur Mittagszeit",
-            seasonalChanges: "Jahreszeitenwechsel"
+            seasonalChanges: "Jahreszeitenwechsel",
+            orbitOfXXX: "Orbit des Planeten "
         };
         this._english = {
             title: "Inner Planets",
@@ -803,7 +851,8 @@ var Strings = /** @class */ (function () {
             asSeenFromSun: " as seen from the sun",
             timeLapse: "Timelapse",
             europeAtNoon: "Europe at noon",
-            seasonalChanges: "Seasonal changes"
+            seasonalChanges: "Seasonal changes",
+            orbitOfXXX: "Orbit of "
         };
     }
     Strings.prototype.getLocalizedStrings = function () {

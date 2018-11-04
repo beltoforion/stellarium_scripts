@@ -19,7 +19,8 @@ export class Strings {
         asSeenFromSun : " von der Sonne aus gesehen",
         timeLapse: "Zeitraffer",
         europeAtNoon: "Europa zur Mittagszeit",
-        seasonalChanges: "Jahreszeitenwechsel"
+        seasonalChanges: "Jahreszeitenwechsel",
+        orbitOfXXX: "Orbit des Planeten "
     };
 
     private _english : DictType = {
@@ -38,7 +39,8 @@ export class Strings {
         asSeenFromSun : " as seen from the sun",
         timeLapse: "Timelapse",
         europeAtNoon: "Europe at noon",
-        seasonalChanges: "Seasonal changes"
+        seasonalChanges: "Seasonal changes", 
+        orbitOfXXX: "Orbit of "
     };    
 
     public getLocalizedStrings() : DictType {
