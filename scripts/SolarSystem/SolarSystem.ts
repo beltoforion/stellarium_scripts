@@ -5,6 +5,7 @@
 // Description: A tour through the solar system
 import { Helper } from "../Shared/Helper"
 import { Trace } from "../Shared/Trace"
+import { BulletList } from "../Shared/BulletList"
 import { Strings as SharedStrings } from "../Shared/Strings"
 import { Strings } from "./Strings";
 
@@ -54,14 +55,13 @@ function setup() : void {
 }
 
 function intro(delayTime : number) : void {
-    try
-    {
+    try {
         Helper.storeState(StarMgr);
         Helper.storeState(SolarSystem);
 
         SolarSystem.setFlagLabels(false);
 
-//        core.setDate("2492-05-06T20:00:00", "utc");
+//      core.setDate("2492-05-06T20:00:00", "utc");
         core.setTimeRate(500);
 
         var baseY = 200;
@@ -90,20 +90,16 @@ function intro(delayTime : number) : void {
         }
         
         core.wait(delayTime);
-
         core.setTimeRate(1);
+
         LabelMgr.deleteAllLabels();    
         ScreenImageMgr.deleteAllImages();
-        SolarSystem.setFlagLabels(true);
-    }
-    finally
-    {
+    } 
+    finally {
         Helper.restoreState(StarMgr);
         Helper.restoreState(SolarSystem);
     }
 }
-
-
 
 interface IPlanetaryObserver {
     orbitalPeriod : number;
@@ -269,6 +265,8 @@ abstract class PlanetaryObserver implements IPlanetaryObserver {
 }
 
 class MercuryObserver extends PlanetaryObserver {
+    private _bulletList : BulletList;
+
     constructor(long:number, lat:number, date:string) {
         super(strings.mercury, "Mercury", long, lat, date);
         
@@ -301,10 +299,12 @@ class MercuryObserver extends PlanetaryObserver {
         try {
             super.watchSeasons();
 
+            var bl : BulletList = new BulletList();
+
             let orbitx : number = core.getScreenWidth() - 300;
             let orbity : number = core.getScreenHeight() / 2;
 
-            var lbTitle = LabelMgr.labelScreen(strings.orbitOfXXX + this.name, 50, 50, true, 40, "#66ccff");
+            var lbTitle = LabelMgr.labelScreen(strings.mercuryAsSeenFromSun, 50, 50, true, 40, "#66ccff");
             var lbSunMarker = LabelMgr.labelScreen("+", orbitx, orbity, true, 15, "#ffff66");
             var lbSunCaption = LabelMgr.labelScreen(sharedStrings.sun, orbitx + 20, orbity, true, 15, "#ffff66");
             var lbMercuryCaption = 0;
@@ -335,13 +335,27 @@ class MercuryObserver extends PlanetaryObserver {
                     lbMercuryCaption = LabelMgr.labelScreen(this.name, orbitx + x + 20, orbity + y, true, 15, "#ffff66");
                 }
             }
+
+            // Display bullet list
+            bl.setPos(50, 400);
+            bl.add(strings.mercuryInfo1, 2);
+            bl.add(strings.mercuryInfo2, 2);
+            bl.add(strings.mercuryInfo3, 2);
+            bl.add(strings.mercuryInfo4, 2);
+            bl.add(strings.mercuryInfo5, 2);
+            bl.show();
+
+            core.wait(5);
         }
         finally {
-            // LabelMgr.deleteLabel(lbTitle);
-            // LabelMgr.deleteLabel(lbSunMarker);
-            // LabelMgr.deleteLabel(lbSunCaption);
-            // LabelMgr.deleteLabel(lbMercuryCaption);
-            // this.trace.clear();
+            bl.clear();
+
+            LabelMgr.deleteLabel(lbTitle);
+            LabelMgr.deleteLabel(lbSunMarker);
+            LabelMgr.deleteLabel(lbSunCaption);
+            LabelMgr.deleteLabel(lbMercuryCaption);
+
+            this.trace.clear();
         }
     }
 }
@@ -521,14 +535,13 @@ class NeptuneObserver extends PlanetaryObserver {
 }
 
 function main() : void {
-    try 
-    {
+    try {
         core.wait(2);
 
         Helper.installDebugHooks();
 
         setup();
-//        intro(5);
+        intro(5);
 
         var planets : IPlanetaryObserver[] = [
             new MercuryObserver(-33.22, 19.13, "2018-10-20T12:00:00"),
@@ -539,7 +552,7 @@ function main() : void {
 
         var p = planets[0];
         p.watchSeasons();
-        core.wait(60);
+        core.wait(6);
 
         // for (var i=0; i<planets.length; ++i) {
         //     var p = planets[i];
@@ -552,13 +565,11 @@ function main() : void {
         //     p.watchSeasons();
         // }
     }
-    catch(exc)
-    {
+    catch(exc) {
         core.debug(exc);
         Helper.showError(exc);
     }
-    finally
-    {
+    finally {
         Helper.removeDebugHooks();
         core.setTimeRate(1);
     }

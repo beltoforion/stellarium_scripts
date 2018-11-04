@@ -20,7 +20,13 @@ export class Strings {
         timeLapse: "Zeitraffer",
         europeAtNoon: "Europa zur Mittagszeit",
         seasonalChanges: "Jahreszeitenwechsel",
-        orbitOfXXX: "Orbit des Planeten "
+        orbitOfXXX: "Orbit des Planeten ",
+        mercuryAsSeenFromSun: "Merkur von der Sonne aus gesehen",
+        mercuryInfo1: "* Merkur ist der sonnennächste Planet",
+        mercuryInfo2: "* Er hat den exzentrischsten Orbit aller Planeten.",
+        mercuryInfo3: "* Er hat eine 3:2 Spin-Orbit-Resonanz:",
+        mercuryInfo4: "     - Er benötigt 88 Tage für einen Sonnenumlauf",
+        mercuryInfo5: "     - Er benötigt 58.7 Tage für eine Rotation um seine Achse"
     };
 
     private _english : DictType = {
@@ -40,7 +46,13 @@ export class Strings {
         timeLapse: "Timelapse",
         europeAtNoon: "Europe at noon",
         seasonalChanges: "Seasonal changes", 
-        orbitOfXXX: "Orbit of "
+        orbitOfXXX: "Orbit of ",
+        mercuryAsSeenFromSun: "Mercury as seen from sun",
+        mercuryInfo1: "* Mercury is the planet closest to sun",
+        mercuryInfo2: "* It has the most excentric orbit of all planets.",
+        mercuryInfo3: "* It is tidally locked to the sun in a 3:2 spin-orbit resonance:",
+        mercuryInfo4: "     - It takes 88 days to orbit sun",
+        mercuryInfo5: "     - It takes 58.7 days to revolve around its axis"
     };    
 
     public getLocalizedStrings() : DictType {

@@ -200,8 +200,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // Description: A tour through the solar system
 var Helper_1 = __webpack_require__(2);
 var Trace_1 = __webpack_require__(3);
+var BulletList_1 = __webpack_require__(4);
 var Strings_1 = __webpack_require__(0);
-var Strings_2 = __webpack_require__(4);
+var Strings_2 = __webpack_require__(5);
 // Set up localized strings
 var strings = new Strings_2.Strings().getLocalizedStrings();
 var sharedStrings = new Strings_1.Strings().getLocalizedStrings();
@@ -242,7 +243,7 @@ function intro(delayTime) {
         Helper_1.Helper.storeState(StarMgr);
         Helper_1.Helper.storeState(SolarSystem);
         SolarSystem.setFlagLabels(false);
-        //        core.setDate("2492-05-06T20:00:00", "utc");
+        //      core.setDate("2492-05-06T20:00:00", "utc");
         core.setTimeRate(500);
         var baseY = 200;
         Helper_1.Helper.showTitle(strings.title, strings.subTitle, 800, baseY);
@@ -267,7 +268,6 @@ function intro(delayTime) {
         core.setTimeRate(1);
         LabelMgr.deleteAllLabels();
         ScreenImageMgr.deleteAllImages();
-        SolarSystem.setFlagLabels(true);
     }
     finally {
         Helper_1.Helper.restoreState(StarMgr);
@@ -436,9 +436,10 @@ var MercuryObserver = /** @class */ (function (_super) {
     MercuryObserver.prototype.watchSeasons = function () {
         try {
             _super.prototype.watchSeasons.call(this);
+            var bl = new BulletList_1.BulletList();
             var orbitx = core.getScreenWidth() - 300;
             var orbity = core.getScreenHeight() / 2;
-            var lbTitle = LabelMgr.labelScreen(strings.orbitOfXXX + this.name, 50, 50, true, 40, "#66ccff");
+            var lbTitle = LabelMgr.labelScreen(strings.mercuryAsSeenFromSun, 50, 50, true, 40, "#66ccff");
             var lbSunMarker = LabelMgr.labelScreen("+", orbitx, orbity, true, 15, "#ffff66");
             var lbSunCaption = LabelMgr.labelScreen(sharedStrings.sun, orbitx + 20, orbity, true, 15, "#ffff66");
             var lbMercuryCaption = 0;
@@ -463,13 +464,23 @@ var MercuryObserver = /** @class */ (function (_super) {
                     lbMercuryCaption = LabelMgr.labelScreen(this.name, orbitx + x + 20, orbity + y, true, 15, "#ffff66");
                 }
             }
+            // Display bullet list
+            bl.setPos(50, 400);
+            bl.add(strings.mercuryInfo1, 2);
+            bl.add(strings.mercuryInfo2, 2);
+            bl.add(strings.mercuryInfo3, 2);
+            bl.add(strings.mercuryInfo4, 2);
+            bl.add(strings.mercuryInfo5, 2);
+            bl.show();
+            core.wait(5);
         }
         finally {
-            // LabelMgr.deleteLabel(lbTitle);
-            // LabelMgr.deleteLabel(lbSunMarker);
-            // LabelMgr.deleteLabel(lbSunCaption);
-            // LabelMgr.deleteLabel(lbMercuryCaption);
-            // this.trace.clear();
+            bl.clear();
+            LabelMgr.deleteLabel(lbTitle);
+            LabelMgr.deleteLabel(lbSunMarker);
+            LabelMgr.deleteLabel(lbSunCaption);
+            LabelMgr.deleteLabel(lbMercuryCaption);
+            this.trace.clear();
         }
     };
     return MercuryObserver;
@@ -636,7 +647,7 @@ function main() {
         core.wait(2);
         Helper_1.Helper.installDebugHooks();
         setup();
-        //        intro(5);
+        intro(5);
         var planets = [
             new MercuryObserver(-33.22, 19.13, "2018-10-20T12:00:00"),
             new VenusObserver(-33.22, 19.13, "1997-07-29T23:35:00"),
@@ -644,7 +655,7 @@ function main() {
         ];
         var p = planets[0];
         p.watchSeasons();
-        core.wait(60);
+        core.wait(6);
         // for (var i=0; i<planets.length; ++i) {
         //     var p = planets[i];
         //     if (p==null)
@@ -812,6 +823,65 @@ exports.Trace = Trace;
 
 "use strict";
 
+Object.defineProperty(exports, "__esModule", { value: true });
+var BulletList = /** @class */ (function () {
+    function BulletList() {
+        this.clear();
+        this._x = 100;
+        this._y = 100;
+        this._fs = 25;
+        this._color = "#66ccff";
+    }
+    BulletList.prototype.clear = function () {
+        this._messages = [];
+        this._times = [];
+        if (this._labels != null && this._labels.length > 0) {
+            for (var i = 0; i < this._labels.length; ++i) {
+                LabelMgr.deleteLabel(this._labels[i]);
+            }
+        }
+        this._labels = [];
+    };
+    BulletList.prototype.setColor = function (color) {
+        this._color = color;
+    };
+    BulletList.prototype.setPos = function (x, y) {
+        this._x = x;
+        this._y = y;
+    };
+    BulletList.prototype.add = function (line, delay) {
+        this._messages.push(line);
+        this._times.push(delay);
+    };
+    BulletList.prototype.show = function () {
+        if (this._messages.length != this._times.length)
+            throw new Error("Array length mismatch!");
+        var list = [];
+        try {
+            for (var i = 0; i < this._messages.length; ++i) {
+                var line = this._messages[i];
+                var x = this._x;
+                var y = this._y;
+                var lb = LabelMgr.labelScreen(line, x, y + ((this._fs + 6) * i), true, this._fs, this._color, false);
+                core.wait(this._times[i]);
+                list.push(lb);
+            }
+        }
+        finally {
+            this._labels = list;
+        }
+    };
+    return BulletList;
+}());
+exports.BulletList = BulletList;
+
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
 // Creates a class for creating the german texts for this script
 Object.defineProperty(exports, "__esModule", { value: true });
 var Strings = /** @class */ (function () {
@@ -833,7 +903,13 @@ var Strings = /** @class */ (function () {
             timeLapse: "Zeitraffer",
             europeAtNoon: "Europa zur Mittagszeit",
             seasonalChanges: "Jahreszeitenwechsel",
-            orbitOfXXX: "Orbit des Planeten "
+            orbitOfXXX: "Orbit des Planeten ",
+            mercuryAsSeenFromSun: "Merkur von der Sonne aus gesehen",
+            mercuryInfo1: "* Merkur ist der sonnennächste Planet",
+            mercuryInfo2: "* Er hat den exzentrischsten Orbit aller Planeten.",
+            mercuryInfo3: "* Er hat eine 3:2 Spin-Orbit-Resonanz:",
+            mercuryInfo4: "     - Er benötigt 88 Tage für einen Sonnenumlauf",
+            mercuryInfo5: "     - Er benötigt 58.7 Tage für eine Rotation um seine Achse"
         };
         this._english = {
             title: "Inner Planets",
@@ -852,7 +928,13 @@ var Strings = /** @class */ (function () {
             timeLapse: "Timelapse",
             europeAtNoon: "Europe at noon",
             seasonalChanges: "Seasonal changes",
-            orbitOfXXX: "Orbit of "
+            orbitOfXXX: "Orbit of ",
+            mercuryAsSeenFromSun: "Mercury as seen from sun",
+            mercuryInfo1: "* Mercury is the planet closest to sun",
+            mercuryInfo2: "* It has the most excentric orbit of all planets.",
+            mercuryInfo3: "* It is tidally locked to the sun in a 3:2 spin-orbit resonance:",
+            mercuryInfo4: "     - It takes 88 days to orbit sun",
+            mercuryInfo5: "     - It takes 58.7 days to revolve around its axis"
         };
     }
     Strings.prototype.getLocalizedStrings = function () {
