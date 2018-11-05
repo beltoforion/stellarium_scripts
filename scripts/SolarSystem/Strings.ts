@@ -59,13 +59,22 @@ export class Strings {
         venusAsSeenFromSun: "Venus as seen from the sun",
     };    
 
-    public getLocalizedStrings() : DictType {
+    public getLocalizedStrings(loc : string = "") : DictType {
 
         // This function is using the localized name of the sun in order to try to determine the UI culture.
-        var lang = core.getAppLanguage();
-        core.debug('App language is "' + lang + '"');
+        let lang;
+        if (loc)
+        {
+            lang = loc;
+            core.debug('Forcing language to "' + lang + '"');            
+        }
+        else
+        {
+            lang = core.getAppLanguage();
+            core.debug('App language is "' + lang + '"');
+        }
     
-        var s : any;
+        let s : any;
 
         // Germany, Austria and Switzerland get the german strings. 		
         if (lang == "de_DE" || lang == "de_AT" || lang == "de_CH") {
@@ -76,6 +85,19 @@ export class Strings {
             s = this._english; 
         }
     
+        // Add support functions
+        s.monthFromInt = function (m : number) {
+            if (m < 1 || m > 12)
+                return "invalid month";
+    
+            const monthNames = [s.january, s.february, s.march,
+                                s.april, s.may, s.june,
+                                s.july, s.august, s.september,
+                                s.october, s.november, s.december];
+
+            return monthNames[m - 1];
+        }
+        
         return s;
     }
 }
