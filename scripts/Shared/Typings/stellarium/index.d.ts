@@ -3,14 +3,12 @@ declare namespace core {
     function getJDay() : number;
     function setMJDay(mjd: number) : void;
     function getMJDay() : number;
-    function setDate(s : string, s2 : string, b : boolean) : void;
-    function setDate(s1 : string, s2 : string): void;
-    function setDate(d : string) : void;
+    function setDate(dateStr : string, spec? : string, dateIsDT? : boolean) : void;
     function getDate(fmt : string) : string;
     function getDate() : string;
     function getDeltaT() : string;
     function getDeltaTAlgorithm() : string;
-    function setDeltaTAlgorithm(s:string) : void;
+    function setDeltaTAlgorithm(algorithmName:string) : void;
     function setTimeRate(t : number) : void;
     function getTimeRate() : number;
     function isRealTime() : boolean;

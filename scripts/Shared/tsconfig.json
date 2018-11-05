@@ -1,11 +1,14 @@
 {
     "compilerOptions": {
-        "module": "commonjs",
-        "target": "es5",
-        "sourceMap": false,
-        "noImplicitAny": true,
-        "noImplicitReturns": true,
-        "outDir":"build",
+        "module" : "commonjs",
+        "target" : "es5",
+        "sourceMap" : false,
+        "noImplicitAny" : true,
+        "noImplicitReturns" : true,
+        "noImplicitThis" : true,
+        "noFallthroughCasesInSwitch" : true,
+        "noErrorTruncation": true,
+        "outDir" : "build",
         "typeRoots": [ "../Typings" ]
     }
 }

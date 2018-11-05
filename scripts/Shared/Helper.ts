@@ -13,7 +13,8 @@ export var Helper = {
                 osd.addLine(msg.toString(), "#ff3333");
             } 
             else {
-                osd.addLine(msg.toString(), "#66ccff");
+//                osd.addLine(msg.toString(), "#66ccff");
+                osd.addLine(msg.toString(), "#66ffcc");
             }
 
             originalDebug(msg);

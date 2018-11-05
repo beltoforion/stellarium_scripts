@@ -215,8 +215,8 @@ function setup() {
     SolarSystem.setFlagMoonScale(false);
     SolarSystem.setFontSize(25);
     SolarSystem.setFlagLabels(false);
-    StelSkyDrawer.setAbsoluteStarScale(1.0);
-    StelSkyDrawer.setRelativeStarScale(1.1);
+    StelSkyDrawer.setAbsoluteStarScale(0.9);
+    StelSkyDrawer.setRelativeStarScale(1.0);
     StarMgr.setFontSize(20);
     StarMgr.setLabelsAmount(0);
     StelMovementMgr.setAutoMoveDuration(5);
@@ -281,6 +281,7 @@ var PlanetaryObserver = /** @class */ (function () {
         this._fovCloseupFromSun = 0.1;
         // Field of view for watching the planet race along the ecliptic
         this._fovEcliptic = 40;
+        this._timeRateDay = 0;
         if (id == null)
             throw new Error("PlanetaryObserver.constructor: id is null or empty!");
         if (name == null)
@@ -295,6 +296,36 @@ var PlanetaryObserver = /** @class */ (function () {
         if (!cached)
             throw new Error('Precaching landscape "Sun" failed');
     }
+    Object.defineProperty(PlanetaryObserver.prototype, "dateSunsetStart", {
+        get: function () {
+            return this._dateSunsetStart;
+        },
+        set: function (value) {
+            this._dateSunsetStart = value;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(PlanetaryObserver.prototype, "dateSunsetEnd", {
+        get: function () {
+            return this._dateSunsetEnd;
+        },
+        set: function (value) {
+            this._dateSunsetEnd = value;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(PlanetaryObserver.prototype, "timeRateDay", {
+        get: function () {
+            return this._timeRateDay;
+        },
+        set: function (value) {
+            this._timeRateDay = value;
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(PlanetaryObserver.prototype, "trace", {
         get: function () {
             return this._trace;
@@ -367,10 +398,22 @@ var PlanetaryObserver = /** @class */ (function () {
         enumerable: true,
         configurable: true
     });
-    PlanetaryObserver.prototype.watchSurface = function () {
-        core.debug("Setting up " + this._name + " surface observer");
+    PlanetaryObserver.prototype.watchSurface = function (startDate, endDate, timeRate) {
+        if (startDate == null)
+            throw new Error("date is null!");
+        if (timeRate == null)
+            throw new Error("timeRate is null!");
+        core.debug("Setting up " + this._name + " surface observer (" + startDate + ")");
+        core.setDate(startDate, "utc");
+        core.wait(0.1);
+        core.setTimeRate(timeRate);
     };
-    PlanetaryObserver.prototype.watchFromSun = function () {
+    PlanetaryObserver.prototype.select = function () {
+        core.debug('Selecting object "' + this.id + '" (' + this.name + ')');
+        core.selectObjectByName(this.id, false);
+        core.setSelectedObjectInfo("None"); // "ShortInfo", "AllInfo", "None"
+    };
+    PlanetaryObserver.prototype.watchSeasons = function () {
         try {
             var observerName = "Solar " + this.name + " Observer";
             core.debug("Setting up " + observerName);
@@ -378,8 +421,8 @@ var PlanetaryObserver = /** @class */ (function () {
             var lbTitle = LabelMgr.labelScreen(this.name + strings.asSeenFromSun, 50, 50, true, 40, "#66ccff");
             var lbTime = LabelMgr.labelScreen(strings.timeLapse + ": 1 s = " + core.getTimeRate() / 3600 + " h", 50, 100, true, 25, "#66ccff");
             // Show ecliptic and poles
-            GridLinesMgr.setFlagEclipticJ2000Line(true);
-            GridLinesMgr.setFlagEclipticJ2000Poles(true);
+            // GridLinesMgr.setFlagEclipticJ2000Line(true);
+            // GridLinesMgr.setFlagEclipticJ2000Poles(true);
             // observer location is the suns north pole. This will eliminate the
             // effects of suns rotation
             core.setObserverLocation(0, 90, 0, 0, observerName, "Sun");
@@ -394,14 +437,6 @@ var PlanetaryObserver = /** @class */ (function () {
             LabelMgr.deleteLabel(lbTitle);
             LabelMgr.deleteLabel(lbTime);
         }
-    };
-    PlanetaryObserver.prototype.select = function () {
-        core.debug('Selecting object "' + this.id + '" (' + this.name + ')');
-        core.selectObjectByName(this.id, false);
-        core.setSelectedObjectInfo("None"); // "ShortInfo", "AllInfo", "None"
-    };
-    PlanetaryObserver.prototype.watchSeasons = function () {
-        this.watchFromSun();
         core.setTimeRate(0);
         core.setDate(this.date, "utc");
         core.debug("Watching seasons of " + this.name);
@@ -415,22 +450,37 @@ var MercuryObserver = /** @class */ (function (_super) {
         _this.orbitalPeriod = 87.969;
         _this.siderialPeriod = 58.646;
         _this.fovSun = 0.008;
+        // For simulating a "day" on mercury
+        _this.timeRateDay = 4 * 86400;
+        _this.dateSunsetStart = "2018-10-26T13:01:13";
+        _this.dateSunsetEnd = "2019-01-21T12:00:00";
         return _this;
     }
-    MercuryObserver.prototype.watchSurface = function () {
-        _super.prototype.watchSurface.call(this);
-        LandscapeMgr.setCurrentLandscapeName("Moon");
-        LandscapeMgr.setFlagAtmosphere(false);
-        LandscapeMgr.setFlagFog(false);
-        LandscapeMgr.setFlagLandscape(true);
-        LandscapeMgr.setFlagLandscapeUseMinimalBrightness(true);
-        LandscapeMgr.setDefaultMinimalBrightness(0.05);
-        core.setDate(this.date, "utc");
-        core.setObserverLocation(this.long, this.lat, 425, 0, "Surface Mercury Observer", "Mercury");
-    };
-    MercuryObserver.prototype.watchFromSun = function () {
-        //        core.setTimeRate(2*86400);
-        _super.prototype.watchFromSun.call(this);
+    MercuryObserver.prototype.watchSurface = function (startDate, endDate, timeRate) {
+        try {
+            var lbTitle = LabelMgr.labelScreen(strings.aDayOnMercury, 50, 50, true, 40, "#66ccff");
+            _super.prototype.watchSurface.call(this, startDate, endDate, timeRate);
+            LandscapeMgr.setCurrentLandscapeName("Moon");
+            LandscapeMgr.setFlagAtmosphere(false);
+            LandscapeMgr.setFlagFog(false);
+            LandscapeMgr.setFlagLandscape(true);
+            LandscapeMgr.setFlagLandscapeUseMinimalBrightness(true);
+            LandscapeMgr.setDefaultMinimalBrightness(0.05);
+            StelMovementMgr.zoomTo(90, 0);
+            core.setObserverLocation(this.long, this.lat, 425, 0, "Surface Mercury Observer", "Mercury");
+            core.moveToAltAzi(40, 180);
+            core.wait(1);
+            do {
+                var simulationTime = core.getDate();
+                core.wait(.1);
+                // core.debug(simulationTime + "; " + endDate)
+                // core.debug(Date.parse(simulationTime) + "; " + Date.parse(endDate))
+            } while (simulationTime < endDate);
+        }
+        finally {
+            LabelMgr.deleteLabel(lbTitle);
+        }
+        LabelMgr.deleteLabel(lbTitle);
     };
     // Watch Season on mercury
     MercuryObserver.prototype.watchSeasons = function () {
@@ -455,7 +505,6 @@ var MercuryObserver = /** @class */ (function (_super) {
                 var rad = 400;
                 var x = Math.sin(ra * Math.PI / 180) * rad * dst;
                 var y = Math.cos(ra * Math.PI / 180) * rad * dst;
-                //core.debug("ra=" + ra + "; dst=" + dst);
                 this.trace.add(orbitx + x, orbity + y);
                 if (lbMercuryCaption != 0) {
                     LabelMgr.deleteLabel(lbMercuryCaption);
@@ -465,7 +514,7 @@ var MercuryObserver = /** @class */ (function (_super) {
                 }
             }
             // Display bullet list
-            bl.setPos(50, 400);
+            bl.setPos(50, 300);
             bl.add(strings.mercuryInfo1, 2);
             bl.add(strings.mercuryInfo2, 2);
             bl.add(strings.mercuryInfo3, 2);
@@ -492,10 +541,13 @@ var VenusObserver = /** @class */ (function (_super) {
         _this.orbitalPeriod = 224.701;
         _this.siderialPeriod = -243.025;
         _this.fovSun = 0.008;
+        _this.timeRateDay = 100;
+        _this.dateSunsetStart = "2018-10-26T13:01:13";
+        _this.dateSunsetEnd = "2019-01-21T12:00:00";
         return _this;
     }
-    VenusObserver.prototype.watchSurface = function () {
-        _super.prototype.watchSurface.call(this);
+    VenusObserver.prototype.watchSurface = function (startDate, endDate, timeRate) {
+        _super.prototype.watchSurface.call(this, startDate, endDate, timeRate);
         LandscapeMgr.setCurrentLandscapeName("Mars");
         LandscapeMgr.setFlagAtmosphere(true);
         LandscapeMgr.setFlagFog(true);
@@ -503,9 +555,56 @@ var VenusObserver = /** @class */ (function (_super) {
         core.setDate(this.date, "utc");
         core.setObserverLocation(this.long, this.lat, 425, 0, "Venus Observer", "Venus");
     };
-    VenusObserver.prototype.watchFromSun = function () {
-        core.setTimeRate(2 * 86400);
-        _super.prototype.watchFromSun.call(this);
+    // Watch Season on mercury
+    VenusObserver.prototype.watchSeasons = function () {
+        try {
+            _super.prototype.watchSeasons.call(this);
+            var bl = new BulletList_1.BulletList();
+            var orbitx = core.getScreenWidth() - 300;
+            var orbity = core.getScreenHeight() / 2;
+            var lbTitle = LabelMgr.labelScreen(strings.venusAsSeenFromSun, 50, 50, true, 40, "#66ccff");
+            var lbSunMarker = LabelMgr.labelScreen("+", orbitx, orbity, true, 15, "#ffff66");
+            var lbSunCaption = LabelMgr.labelScreen(sharedStrings.sun, orbitx + 20, orbity, true, 15, "#ffff66");
+            var lbMercuryCaption = 0;
+            var dt = 0.6;
+            for (var p = 0; p < this.orbitalPeriod; p += dt) {
+                core.setDate("+" + dt + " day");
+                core.wait(0.05);
+                var info = core.getSelectedObjectInfo();
+                if (info == null)
+                    continue;
+                var ra = info["ra"];
+                var dst = info["distance"];
+                var rad = 200;
+                var x = Math.sin(ra * Math.PI / 180) * rad * dst;
+                var y = Math.cos(ra * Math.PI / 180) * rad * dst;
+                //core.debug("ra=" + ra + "; dst=" + dst);
+                this.trace.add(orbitx + x, orbity + y);
+                if (lbMercuryCaption != 0) {
+                    LabelMgr.deleteLabel(lbMercuryCaption);
+                }
+                else {
+                    lbMercuryCaption = LabelMgr.labelScreen(this.name, orbitx + x + 20, orbity + y, true, 15, "#ffff66");
+                }
+            }
+            // Display bullet list
+            bl.setPos(50, 300);
+            bl.add(strings.mercuryInfo1, 2);
+            bl.add(strings.mercuryInfo2, 2);
+            bl.add(strings.mercuryInfo3, 2);
+            bl.add(strings.mercuryInfo4, 2);
+            bl.add(strings.mercuryInfo5, 2);
+            bl.show();
+            core.wait(5);
+        }
+        finally {
+            bl.clear();
+            LabelMgr.deleteLabel(lbTitle);
+            LabelMgr.deleteLabel(lbSunMarker);
+            LabelMgr.deleteLabel(lbSunCaption);
+            LabelMgr.deleteLabel(lbMercuryCaption);
+            this.trace.clear();
+        }
     };
     return VenusObserver;
 }(PlanetaryObserver));
@@ -516,20 +615,19 @@ var EarthObserver = /** @class */ (function (_super) {
         _this.orbitalPeriod = 365.256363004;
         _this.siderialPeriod = 0.99726968;
         _this.fovSun = 0.008;
+        _this.timeRateDay = 100;
+        _this.dateSunsetStart = "2018-10-26T13:01:13";
+        _this.dateSunsetEnd = "2019-01-21T12:00:00";
         return _this;
     }
-    EarthObserver.prototype.watchSurface = function () {
-        _super.prototype.watchSurface.call(this);
+    EarthObserver.prototype.watchSurface = function (startDate, endDate, timeRate) {
+        _super.prototype.watchSurface.call(this, startDate, endDate, timeRate);
         LandscapeMgr.setCurrentLandscapeName("Garching");
         LandscapeMgr.setFlagAtmosphere(true);
         LandscapeMgr.setFlagFog(true);
         LandscapeMgr.setFlagLandscape(true);
         core.setDate(this.date, "utc");
         core.setObserverLocation(this.long, this.lat, 425, 0, "Earth Observer", "Earth");
-    };
-    EarthObserver.prototype.watchFromSun = function () {
-        core.setTimeRate(2 * 3600);
-        _super.prototype.watchFromSun.call(this);
     };
     EarthObserver.prototype.watchSeasons = function () {
         try {
@@ -558,10 +656,13 @@ var MarsObserver = /** @class */ (function (_super) {
         _this.orbitalPeriod = 686.971;
         _this.siderialPeriod = 1.025957;
         _this.fovSun = 0.00678;
+        _this.timeRateDay = 100;
+        _this.dateSunsetStart = "2018-10-26T13:01:13";
+        _this.dateSunsetEnd = "2019-01-21T12:00:00";
         return _this;
     }
-    MarsObserver.prototype.watchSurface = function () {
-        _super.prototype.watchSurface.call(this);
+    MarsObserver.prototype.watchSurface = function (startDate, endDate, timeRate) {
+        _super.prototype.watchSurface.call(this, startDate, endDate, timeRate);
         LandscapeMgr.setCurrentLandscapeName("Mars");
         LandscapeMgr.setFlagAtmosphere(true);
         LandscapeMgr.setFlagFog(true);
@@ -569,101 +670,39 @@ var MarsObserver = /** @class */ (function (_super) {
         core.setDate(this.date, "utc");
         core.setObserverLocation(this.long, this.lat, 425, 0, "Mars Observer", "Mars");
     };
-    MarsObserver.prototype.watchFromSun = function () {
-        core.setTimeRate(2000);
-        _super.prototype.watchFromSun.call(this);
-    };
     return MarsObserver;
-}(PlanetaryObserver));
-var SaturnObserver = /** @class */ (function (_super) {
-    __extends(SaturnObserver, _super);
-    function SaturnObserver(long, lat, date) {
-        var _this = _super.call(this, strings.saturn, "Saturn", long, lat, date) || this;
-        _this.orbitalPeriod = 10759.22;
-        _this.siderialPeriod = 10.55 / 24; // 10.55 hours
-        _this.fovSun = 0.008;
-        return _this;
-    }
-    SaturnObserver.prototype.watchSurface = function () {
-        _super.prototype.watchSurface.call(this);
-        LandscapeMgr.setCurrentLandscapeName("Saturn");
-        LandscapeMgr.setFlagAtmosphere(true);
-        LandscapeMgr.setFlagFog(true);
-        LandscapeMgr.setFlagLandscape(true);
-        core.setDate(this.date, "utc");
-        core.setObserverLocation(this.long, this.lat, 425, 0, "Saturn Observer", "Saturn");
-    };
-    SaturnObserver.prototype.watchFromSun = function () {
-        _super.prototype.watchFromSun.call(this);
-    };
-    return SaturnObserver;
-}(PlanetaryObserver));
-var JupiterObserver = /** @class */ (function (_super) {
-    __extends(JupiterObserver, _super);
-    function JupiterObserver(long, lat, date) {
-        var _this = _super.call(this, strings.jupiter, "Jupiter", long, lat, date) || this;
-        _this.orbitalPeriod = 4332.59;
-        _this.siderialPeriod = 9.925 / 24;
-        _this.fovSun = 0.008;
-        return _this;
-    }
-    JupiterObserver.prototype.watchSurface = function () {
-        _super.prototype.watchSurface.call(this);
-        LandscapeMgr.setCurrentLandscapeName("Jupiter");
-        LandscapeMgr.setFlagAtmosphere(true);
-        LandscapeMgr.setFlagFog(true);
-        LandscapeMgr.setFlagLandscape(true);
-        core.setDate(this.date, "utc");
-        core.setObserverLocation(this.long, this.lat, 425, 0, "Jupiter Observer", "Jupiter");
-    };
-    JupiterObserver.prototype.watchFromSun = function () {
-        _super.prototype.watchFromSun.call(this);
-    };
-    return JupiterObserver;
-}(PlanetaryObserver));
-var NeptuneObserver = /** @class */ (function (_super) {
-    __extends(NeptuneObserver, _super);
-    function NeptuneObserver(long, lat, date) {
-        var _this = _super.call(this, strings.neptun, "Neptun", long, lat, date) || this;
-        _this.orbitalPeriod = 60182;
-        _this.siderialPeriod = 0.6713;
-        _this.fovSun = 0.008;
-        return _this;
-    }
-    NeptuneObserver.prototype.watchSurface = function () {
-        _super.prototype.watchSurface.call(this);
-        LandscapeMgr.setFlagAtmosphere(true);
-        LandscapeMgr.setCurrentLandscapeName("Neptun");
-        core.setDate(this.date, "utc");
-        core.setObserverLocation(this.long, this.lat, 425, 0, "Neptun Observer", "Neptun");
-    };
-    NeptuneObserver.prototype.watchFromSun = function () {
-        _super.prototype.watchFromSun.call(this);
-    };
-    return NeptuneObserver;
 }(PlanetaryObserver));
 function main() {
     try {
         core.wait(2);
         Helper_1.Helper.installDebugHooks();
         setup();
-        intro(5);
+        //intro(5);
         var planets = [
             new MercuryObserver(-33.22, 19.13, "2018-10-20T12:00:00"),
             new VenusObserver(-33.22, 19.13, "1997-07-29T23:35:00"),
             new EarthObserver(13, 51, "2018-06-21T12:00:00"),
         ];
         var p = planets[0];
+        //p.watchSeasons();
+        var rate = p.timeRateDay;
+        var startDate = p.dateSunsetStart;
+        var endDate = p.dateSunsetEnd;
         p.watchSeasons();
-        core.wait(6);
-        // for (var i=0; i<planets.length; ++i) {
-        //     var p = planets[i];
-        //     if (p==null)
-        //         continue;
-        //     p.watchFromSun();
-        //     core.wait(60);
-        //     p.watchSeasons();
-        // }
+        p.watchSurface(startDate, endDate, rate);
+        /*
+                for (var i=0; i<planets.length; ++i) {
+                     var p = planets[i];
+                     if (p==null)
+                         continue;
+        
+                //     p.watchFromSun();
+                //     core.wait(60);
+        
+                     p.watchSeasons();
+                     core.wait(6);
+                    }
+        */
     }
     catch (exc) {
         core.debug(exc);
@@ -695,7 +734,8 @@ exports.Helper = {
                 osd.addLine(msg.toString(), "#ff3333");
             }
             else {
-                osd.addLine(msg.toString(), "#66ccff");
+                //                osd.addLine(msg.toString(), "#66ccff");
+                osd.addLine(msg.toString(), "#66ffcc");
             }
             originalDebug(msg);
         };
@@ -904,12 +944,14 @@ var Strings = /** @class */ (function () {
             europeAtNoon: "Europa zur Mittagszeit",
             seasonalChanges: "Jahreszeitenwechsel",
             orbitOfXXX: "Orbit des Planeten ",
+            aDayOnMercury: "Ein Tag auf dem Merkur",
             mercuryAsSeenFromSun: "Merkur von der Sonne aus gesehen",
             mercuryInfo1: "* Merkur ist der sonnennächste Planet",
             mercuryInfo2: "* Er hat den exzentrischsten Orbit aller Planeten.",
             mercuryInfo3: "* Er hat eine 3:2 Spin-Orbit-Resonanz:",
             mercuryInfo4: "     - Er benötigt 88 Tage für einen Sonnenumlauf",
-            mercuryInfo5: "     - Er benötigt 58.7 Tage für eine Rotation um seine Achse"
+            mercuryInfo5: "     - Er benötigt 58.7 Tage für eine Rotation um seine Achse",
+            venusAsSeenFromSun: "Venus von der Sonne aus gesehen",
         };
         this._english = {
             title: "Inner Planets",
@@ -929,12 +971,14 @@ var Strings = /** @class */ (function () {
             europeAtNoon: "Europe at noon",
             seasonalChanges: "Seasonal changes",
             orbitOfXXX: "Orbit of ",
+            aDayOnMercury: "A day on mercury",
             mercuryAsSeenFromSun: "Mercury as seen from sun",
             mercuryInfo1: "* Mercury is the planet closest to sun",
             mercuryInfo2: "* It has the most excentric orbit of all planets.",
             mercuryInfo3: "* It is tidally locked to the sun in a 3:2 spin-orbit resonance:",
             mercuryInfo4: "     - It takes 88 days to orbit sun",
-            mercuryInfo5: "     - It takes 58.7 days to revolve around its axis"
+            mercuryInfo5: "     - It takes 58.7 days to revolve around its axis",
+            venusAsSeenFromSun: "Venus as seen from the sun",
         };
     }
     Strings.prototype.getLocalizedStrings = function () {
