@@ -58,6 +58,13 @@ export var Helper = {
 
         var labelTitle : number = LabelMgr.labelScreen(subTitle, x, y + 100, true, 40, "#66ccff");
         LabelMgr.setLabelShow(labelTitle, true);
+    },
+
+    waitUntilDate : function(endDate : string) {
+        do {
+            var simulationTime : string = core.getDate();
+            core.wait(.1);
+        } while (simulationTime < endDate)
     }
 }
 

@@ -440,12 +440,11 @@ declare namespace LandscapeMgr {
     // function getAllLandscapeNames();
     // function getAllLandscapeIDs();
     // function getUserLandscapeIDs();
-    // function getCurrentLandscapeID();
-    function setCurrentLandscapeID(s:string,d:number): void;
-    function setCurrentLandscapeID(s:string): void;
+    function getCurrentLandscapeID():string;
+    function setCurrentLandscapeID(id:string,changeDuration?:number): boolean;
+
     function getCurrentLandscapeName():string;
-    function setCurrentLandscapeName(s:string,d:number): void;
-    function setCurrentLandscapeName(s:string): void;
+    function setCurrentLandscapeName(name:string, changeDuration?:number): boolean;
     
     function getCurrentLandscapeBrightness(light?:boolean):number;
     

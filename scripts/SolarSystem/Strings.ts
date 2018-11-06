@@ -28,7 +28,12 @@ export class Strings {
         mercuryInfo3: "* Er hat eine 3:2 Spin-Orbit-Resonanz:",
         mercuryInfo4: "     - Er benötigt 88 Tage für einen Sonnenumlauf",
         mercuryInfo5: "     - Er benötigt 58.7 Tage für eine Rotation um seine Achse",
+
+        aDayOnVenus: "Ein Tag auf der Venus",
         venusAsSeenFromSun: "Venus von der Sonne aus gesehen",
+        venusInfo1: "* Ein Tag auf Venus ist länger als das Venus-Jahr.",
+        venusInfo2: "* Venus rotiert rückwärts",
+
     };
 
     private _english : DictType = {
@@ -56,7 +61,11 @@ export class Strings {
         mercuryInfo3: "* It is tidally locked to the sun in a 3:2 spin-orbit resonance:",
         mercuryInfo4: "     - It takes 88 days to orbit sun",
         mercuryInfo5: "     - It takes 58.7 days to revolve around its axis",
+
+        aDayOnVenus: "A day on Venus",
         venusAsSeenFromSun: "Venus as seen from the sun",
+        venusInfo1: "* A day on Venus is longer than a venus year.",
+        venusInfo2: "* Venus is rotating backwards",
     };    
 
     public getLocalizedStrings(loc : string = "") : DictType {
