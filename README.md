@@ -2,7 +2,7 @@
 
 This repository contains scripts and resources for the Stellarium astronomy software. The scripts are written in Typescript. For explanations how to set up Visual Studio Code and Typescript for use with Stellarium please go to:
 
-http://beltoforion.de/article.php?a=stellarium_with_typescript&hl=en
+http://beltoforion.de/en/stellarium_with_typescript
 
 ## List of Landscapes
 
