@@ -1,5 +1,7 @@
 # Stellarium Scripts and Resources
 
+![hello_world_workspace](https://user-images.githubusercontent.com/2202567/184002457-f69818ca-b6fd-4399-8425-d436453558af.jpg)
+
 This repository contains scripts and resources for the Stellarium astronomy software. The scripts are written in Typescript. For explanations how to set up Visual Studio Code and Typescript for use with Stellarium please go to:
 
 http://beltoforion.de/en/stellarium_with_typescript
